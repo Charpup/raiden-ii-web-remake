@@ -335,7 +335,7 @@ describe("Simulation and stage integration", () => {
     const simulation = new Simulation({ stageId: "stage-8", loopIndex: 0 });
     let state = simulation.getState();
 
-    while (!state.boss?.active && state.frame < 40) {
+    while (!state.boss?.active && state.frame < 80) {
       for (const enemy of state.enemies) {
         simulation.defeatEnemy(enemy.id);
       }
@@ -343,7 +343,18 @@ describe("Simulation and stage integration", () => {
       state = simulation.step({ players: {} });
     }
 
-    simulation.applyBossDamage(500);
+    expect(state.boss?.bossId).toBe("stage-8-mother-haven");
+    expect(state.boss?.currentPhaseId).toBe("stage-8-mother-haven-shell");
+
+    simulation.applyBossDamage(360);
+    state = simulation.step({ players: {} });
+    expect(state.boss?.currentPhaseId).toBe("stage-8-mother-haven-siege");
+
+    simulation.applyBossDamage(320);
+    state = simulation.step({ players: {} });
+    expect(state.boss?.currentPhaseId).toBe("stage-8-mother-haven-core");
+
+    simulation.applyBossDamage(4_000);
     state = simulation.step({ players: {} });
 
     expect(state.session.loopIndex).toBe(1);

@@ -138,9 +138,10 @@
       "implement-runtime-foundation",
       "spec-combat-core",
       "implement-combat-core",
-      "implement-stage-authoring"
+      "implement-stage-authoring",
+      "author-full-content"
     ],
-    "current": "author-full-content",
+    "current": "implement-2p-and-cabinet",
     "spec_path": "SPEC.yaml",
     "tdd_state_path": ".tdd-state.json"
   }

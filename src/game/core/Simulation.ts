@@ -33,6 +33,7 @@ function cloneState(state: SimulationState): SimulationState {
     enemies: state.enemies.map((enemy) => ({
       ...enemy,
       position: { ...enemy.position },
+      stateTransitions: enemy.stateTransitions?.map((transition) => ({ ...transition })),
       scriptedDefeats: enemy.scriptedDefeats?.map((defeat) => ({ ...defeat }))
     })),
     bullets: state.bullets.map((bullet) => ({
@@ -295,11 +296,13 @@ export class Simulation {
       sourceEnemyId?: string;
     }
   ): void {
+    const defeatedEnemy = this.state.enemies.find((enemy) => enemy.id === enemyId) ?? null;
     const before = this.state.enemies.length;
     this.state.enemies = this.state.enemies.filter((enemy) => enemy.id !== enemyId);
 
     if (
       before !== this.state.enemies.length &&
+      defeatedEnemy &&
       !this.state.stage.defeatedEnemyIds.includes(enemyId)
     ) {
       this.state.stage = {
@@ -309,7 +312,10 @@ export class Simulation {
           ...this.state.stage.defeatedEnemyRecords,
           {
             enemyId,
-            sourceEnemyId: options?.sourceEnemyId
+            sourceEnemyId: options?.sourceEnemyId,
+            atFrame: this.state.frame,
+            enemyAgeFrames: this.state.frame - defeatedEnemy.spawnedAtFrame,
+            stateTag: defeatedEnemy.stateTag
           }
         ]
       };

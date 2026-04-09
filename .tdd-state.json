@@ -1,20 +1,20 @@
 {
-  "spec_id": "STG-203",
+  "spec_id": "HID-301",
   "phase": "complete",
   "red_evidence": {
-    "timestamp": "2026-04-10T01:10:07+08:00",
-    "test_command": "npm run test:run -- tests/stages2to4Content.test.ts",
+    "timestamp": "2026-04-10T01:35:34+08:00",
+    "test_command": "npm run test:run -- tests/stages5to8Content.test.ts",
     "tests_total": 8,
-    "tests_failed": 2,
-    "output_snapshot": "FAIL tests/stages2to4Content.test.ts > Stages 2-4 content authoring > STG-203 keeps the Stage 4 fairy route optional for mainline progression"
+    "tests_failed": 3,
+    "output_snapshot": "FAIL tests/stages5to8Content.test.ts > Stages 5-8 content authoring > HID-301 expires the Stage 7 rocket-cache route once the Huge Satellite encounter starts"
   },
   "green_evidence": {
-    "timestamp": "2026-04-10T01:11:16+08:00",
+    "timestamp": "2026-04-10T01:36:39+08:00",
     "tests_total": 8,
     "tests_passed": 8
   },
   "coverage": {
-    "percentage": 97.16,
+    "percentage": 97.86,
     "meets_threshold": true
   },
   "cycle_history": [
@@ -71,6 +71,18 @@
       "completed_at": "2026-04-10T01:11:22+08:00",
       "coverage": 97.16,
       "red_snapshot": "FAIL tests/stages2to4Content.test.ts > Stages 2-4 content authoring > STG-203 keeps the Stage 4 fairy route optional for mainline progression"
+    },
+    {
+      "spec_id": "AUTH-301",
+      "completed_at": "2026-04-10T01:28:06+08:00",
+      "coverage": 97.98,
+      "red_snapshot": "FAIL tests/stages5to8Content.test.ts > Stages 5-8 content authoring > AUTH-301 locks the Stage 5-8 macro beats and minimal new hidden-route metadata"
+    },
+    {
+      "spec_id": "HID-301",
+      "completed_at": "2026-04-10T01:36:45+08:00",
+      "coverage": 97.86,
+      "red_snapshot": "FAIL tests/stages5to8Content.test.ts > Stages 5-8 content authoring > HID-301 expires the Stage 7 rocket-cache route once the Huge Satellite encounter starts"
     }
   ]
 }
