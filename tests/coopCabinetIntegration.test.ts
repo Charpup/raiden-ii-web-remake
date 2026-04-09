@@ -14,6 +14,21 @@ function burnFrames(simulation: Simulation, frames: number): SimulationState {
   return state;
 }
 
+function burnFramesCollecting(
+  simulation: Simulation,
+  frames: number
+): { state: SimulationState; events: SimulationState["recentEvents"] } {
+  let state = simulation.getState();
+  const events: SimulationState["recentEvents"] = [];
+
+  for (let index = 0; index < frames; index += 1) {
+    state = simulation.step({ players: {} });
+    events.push(...state.recentEvents);
+  }
+
+  return { state, events };
+}
+
 function stepUntil(
   simulation: Simulation,
   predicate: (state: SimulationState) => boolean,
@@ -139,6 +154,81 @@ describe("Co-op and cabinet rules integration", () => {
         expect.objectContaining({ type: "session-game-over" })
       ])
     );
+  });
+
+  it("COOP-202 freezes stage progression while no joined players can act, then resumes after continue acceptance", () => {
+    const simulation = new Simulation({ mode: "co-op", stageId: "stage-1" });
+    let state = stepUntil(simulation, (nextState) => nextState.enemies.length > 0, 30);
+
+    state = exhaustPlayer(simulation, "player1");
+    state = exhaustPlayer(simulation, "player2");
+
+    const frozenEnemyIds = state.enemies.map((enemy) => enemy.id);
+    const frozenScrollY = state.stage.scrollY;
+    const frozenWaveCursor = state.stage.waveCursor;
+
+    const frozenWindow = burnFramesCollecting(simulation, 8);
+    state = frozenWindow.state;
+
+    expect(state.flow).toBe("continue");
+    expect(state.stage.scrollY).toBe(frozenScrollY);
+    expect(state.stage.waveCursor).toBe(frozenWaveCursor);
+    expect(state.enemies.map((enemy) => enemy.id)).toEqual(frozenEnemyIds);
+    expect(
+      frozenWindow.events.filter((event) =>
+        [
+          "wave-spawned",
+          "checkpoint-armed",
+          "hidden-triggered",
+          "boss-started",
+          "boss-phase-changed",
+          "stage-cleared"
+        ].includes(event.type)
+      )
+    ).toHaveLength(0);
+
+    simulation.acceptContinue("player1");
+    state = simulation.step({ players: {} });
+
+    expect(state.players.find((player) => player.id === "player1")?.lifeState).toBe(
+      "respawning"
+    );
+    expect(state.stage.scrollY).toBeGreaterThan(frozenScrollY);
+  });
+
+  it("COOP-202 keeps the stage frozen after session-game-over", () => {
+    const simulation = new Simulation({ mode: "co-op", stageId: "stage-1" });
+    let state = exhaustPlayer(simulation, "player1");
+    state = exhaustPlayer(simulation, "player2");
+    state = stepUntil(
+      simulation,
+      (nextState) => nextState.flow === "session-game-over",
+      state.frame + state.cabinetRules.continueCountdownFrames + 2
+    );
+
+    const frozenEnemyIds = state.enemies.map((enemy) => enemy.id);
+    const frozenScrollY = state.stage.scrollY;
+    const frozenWaveCursor = state.stage.waveCursor;
+
+    const frozenWindow = burnFramesCollecting(simulation, 8);
+    state = frozenWindow.state;
+
+    expect(state.flow).toBe("session-game-over");
+    expect(state.stage.scrollY).toBe(frozenScrollY);
+    expect(state.stage.waveCursor).toBe(frozenWaveCursor);
+    expect(state.enemies.map((enemy) => enemy.id)).toEqual(frozenEnemyIds);
+    expect(
+      frozenWindow.events.filter((event) =>
+        [
+          "wave-spawned",
+          "checkpoint-armed",
+          "hidden-triggered",
+          "boss-started",
+          "boss-phase-changed",
+          "stage-cleared"
+        ].includes(event.type)
+      )
+    ).toHaveLength(0);
   });
 
   it("COOP-203 re-enters player two from a checkpoint-safe position after game-over", () => {

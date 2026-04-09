@@ -290,47 +290,49 @@ export class Simulation {
       return nextPlayer;
     });
 
-    const stageAdvance = this.stageRunner.advance(nextState);
-    nextState.stage = stageAdvance.stage;
-    nextState.enemies = stageAdvance.enemies;
-    nextState.pickups = stageAdvance.pickups;
-    nextState.boss = stageAdvance.boss;
-    events.push(...stageAdvance.events);
+    if (this.hasPlayablePlayers(nextState.players)) {
+      const stageAdvance = this.stageRunner.advance(nextState);
+      nextState.stage = stageAdvance.stage;
+      nextState.enemies = stageAdvance.enemies;
+      nextState.pickups = stageAdvance.pickups;
+      nextState.boss = stageAdvance.boss;
+      events.push(...stageAdvance.events);
 
-    if (stageAdvance.clearedThisFrame && stageAdvance.loopAdvanceEnabled) {
-      nextState.session = {
-        ...nextState.session,
-        loopIndex: nextState.session.loopIndex + 1
-      };
-      events.push({
-        type: "loop-advanced",
-        loopIndex: nextState.session.loopIndex,
-        atFrame: nextState.frame
-      });
+      if (stageAdvance.clearedThisFrame && stageAdvance.loopAdvanceEnabled) {
+        nextState.session = {
+          ...nextState.session,
+          loopIndex: nextState.session.loopIndex + 1
+        };
+        events.push({
+          type: "loop-advanced",
+          loopIndex: nextState.session.loopIndex,
+          atFrame: nextState.frame
+        });
 
-      const nextStageId = stageAdvance.loopTargetStageId ?? nextState.session.stageId;
-      const nextBounds = this.stageRunner.getArenaBounds(nextStageId);
-      const nextPositions = getStageStartPositions(nextState.session, nextBounds.width);
+        const nextStageId = stageAdvance.loopTargetStageId ?? nextState.session.stageId;
+        const nextBounds = this.stageRunner.getArenaBounds(nextStageId);
+        const nextPositions = getStageStartPositions(nextState.session, nextBounds.width);
 
-      nextState.session = {
-        ...nextState.session,
-        stageId: nextStageId
-      };
-      nextState.stage = this.stageRunner.createInitialStageState(nextStageId);
-      nextState.enemies = [];
-      nextState.bullets = [];
-      nextState.pickups = [];
-      nextState.boss = null;
-      nextState.players = nextState.players.map((player) =>
-        player.joined
-          ? {
-              ...player,
-              position: { ...nextPositions[player.id] },
-              animation: "idle"
-            }
-          : player
-      );
-      this.bootstrapStageEventPending = true;
+        nextState.session = {
+          ...nextState.session,
+          stageId: nextStageId
+        };
+        nextState.stage = this.stageRunner.createInitialStageState(nextStageId);
+        nextState.enemies = [];
+        nextState.bullets = [];
+        nextState.pickups = [];
+        nextState.boss = null;
+        nextState.players = nextState.players.map((player) =>
+          player.joined
+            ? {
+                ...player,
+                position: { ...nextPositions[player.id] },
+                animation: "idle"
+              }
+            : player
+        );
+        this.bootstrapStageEventPending = true;
+      }
     }
 
     nextState.flow = this.updateSessionFlow(nextState.players, nextState.flow, nextState.frame, events);
@@ -702,6 +704,10 @@ export class Simulation {
       player.active &&
       (player.lifeState === "alive" || player.lifeState === "respawning")
     );
+  }
+
+  private hasPlayablePlayers(players: PlayerRuntimeState[]): boolean {
+    return players.some((player) => this.canProcessGameplayInput(player));
   }
 
   private updateSessionFlow(
