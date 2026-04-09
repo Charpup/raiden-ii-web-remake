@@ -331,6 +331,43 @@ describe("Stages 5-8 content authoring", () => {
     expect(state.stage.waveCursor).toBeGreaterThanOrEqual(5);
   });
 
+  it("HID-301 keeps the Stage 7 rocket-cache route expired after the boss encounter has already started", () => {
+    const simulation = new Simulation({ stageId: "stage-7" });
+    let state = clearToBoss(simulation, {
+      maxFrames: 1_100,
+      skipEnemyIds: ["stage-7-fairy-beacon"],
+      skipEnemyPrefixes: ["stage-7-rocket-battery-"]
+    });
+
+    expect(state.boss?.bossId).toBe("stage-7-huge-satellite");
+
+    simulation.applyBossDamage(4_000);
+    state = simulation.step({ players: {} });
+
+    expect(state.stage.completed).toBe(true);
+    expect(state.stage.bossEncounterStarted).toBe(true);
+
+    for (const enemyId of [
+      "stage-7-rocket-battery-1",
+      "stage-7-rocket-battery-2",
+      "stage-7-rocket-battery-3",
+      "stage-7-rocket-battery-4"
+    ]) {
+      simulation.defeatEnemy(enemyId);
+    }
+
+    state = simulation.step({ players: {} });
+
+    expect(state.enemies.some((enemy) => enemy.id === "stage-7-fairy-beacon")).toBe(false);
+    expect(
+      state.recentEvents.filter(
+        (event) =>
+          event.type === "hidden-triggered" &&
+          event.triggerId === "stage-7-hidden-rocket-cache-reveal"
+      )
+    ).toHaveLength(0);
+  });
+
   it("HID-301 reveals the Stage 7 fairy beacon only after the rocket batteries are cleared", () => {
     const simulation = new Simulation({ stageId: "stage-7" });
     let state = stepUntil(

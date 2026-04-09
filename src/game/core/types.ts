@@ -172,6 +172,7 @@ export interface StageRuntimeState {
   armedCheckpointId: string | null;
   activeBossId: string | null;
   activeBossPhaseId: string | null;
+  bossEncounterStarted: boolean;
   triggeredHiddenIds: string[];
   defeatedEnemyIds: string[];
   defeatedEnemyRecords: EnemyDefeatRecord[];

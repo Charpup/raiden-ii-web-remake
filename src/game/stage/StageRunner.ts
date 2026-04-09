@@ -183,6 +183,7 @@ export class StageRunner {
       armedCheckpointId: null,
       activeBossId: null,
       activeBossPhaseId: null,
+      bossEncounterStarted: false,
       triggeredHiddenIds: [],
       defeatedEnemyIds: [],
       defeatedEnemyRecords: [],
@@ -224,6 +225,7 @@ export class StageRunner {
       armedCheckpointId: checkpoint?.id ?? null,
       activeBossId: null,
       activeBossPhaseId: null,
+      bossEncounterStarted: stage.bossEncounterStarted,
       triggeredHiddenIds: [...stage.triggeredHiddenIds],
       defeatedEnemyIds: [],
       defeatedEnemyRecords: [],
@@ -354,7 +356,7 @@ export class StageRunner {
     for (const hidden of definition.hiddenTriggers) {
       if (
         stage.triggeredHiddenIds.includes(hidden.id) ||
-        (boss?.active && hidden.expiresOnBossStart) ||
+        (stage.bossEncounterStarted && hidden.expiresOnBossStart) ||
         !isHiddenTriggered(hidden, stage)
       ) {
         continue;
@@ -404,6 +406,7 @@ export class StageRunner {
       boss = this.createBossState(definition.boss, state.session, state.frame);
       stage.activeBossId = boss.bossId;
       stage.activeBossPhaseId = boss.currentPhaseId;
+      stage.bossEncounterStarted = true;
       events.push({
         type: "boss-started",
         bossId: boss.bossId,
