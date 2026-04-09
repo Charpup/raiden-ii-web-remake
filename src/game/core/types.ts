@@ -92,6 +92,11 @@ export interface PlayerRuntimeState {
   animation: "idle" | "bank-left" | "bank-right";
 }
 
+export interface EnemyScriptedDefeatState {
+  targetEnemyId: string;
+  afterFrames: number;
+}
+
 export interface EnemyState {
   id: string;
   kind: string;
@@ -100,7 +105,10 @@ export interface EnemyState {
   maxHealth: number;
   scoreValue: number;
   spawnedByWaveId: string;
+  spawnedAtFrame: number;
+  blocksProgression: boolean;
   behaviorId?: string;
+  scriptedDefeats?: EnemyScriptedDefeatState[];
   animation: "idle";
 }
 
@@ -141,6 +149,11 @@ export interface PendingSpawnState {
   dueFrame: number;
 }
 
+export interface EnemyDefeatRecord {
+  enemyId: string;
+  sourceEnemyId?: string;
+}
+
 export interface StageRuntimeState {
   stageId: string;
   scrollY: number;
@@ -151,6 +164,7 @@ export interface StageRuntimeState {
   activeBossPhaseId: string | null;
   triggeredHiddenIds: string[];
   defeatedEnemyIds: string[];
+  defeatedEnemyRecords: EnemyDefeatRecord[];
   pendingSpawns: PendingSpawnState[];
   completed: boolean;
 }

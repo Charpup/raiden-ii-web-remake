@@ -1,4 +1,10 @@
-import type { ArenaBounds, CabinetProfile, PickupKind, Vector2 } from "../core/types";
+import type {
+  ArenaBounds,
+  CabinetProfile,
+  EnemyScriptedDefeatState,
+  PickupKind,
+  Vector2
+} from "../core/types";
 
 export type WaveTrigger =
   | {
@@ -8,6 +14,10 @@ export type WaveTrigger =
   | {
       type: "frame";
       frame: number;
+    }
+  | {
+      type: "all-enemies-destroyed";
+      enemyIds: string[];
     };
 
 export interface SpawnDefinition {
@@ -16,14 +26,17 @@ export interface SpawnDefinition {
   position: Vector2;
   health: number;
   scoreValue: number;
+  blocksProgression?: boolean;
   spawnOffsetFrames?: number;
   behaviorId?: string;
+  scriptedDefeats?: EnemyScriptedDefeatState[];
 }
 
 export interface WaveDefinition {
   id: string;
   trigger: WaveTrigger;
   enemies: SpawnDefinition[];
+  cabinetProfiles?: CabinetProfile[];
 }
 
 export interface CheckpointDefinition {
@@ -39,8 +52,17 @@ export type HiddenTriggerCondition =
       scrollY: number;
     }
   | {
+      type: "all-enemies-destroyed";
+      enemyIds: string[];
+    }
+  | {
       type: "enemy-destroyed";
       enemyId: string;
+    }
+  | {
+      type: "enemy-destroyed-by";
+      enemyId: string;
+      sourceEnemyId: string;
     };
 
 export interface HiddenRewardDefinition {
@@ -53,9 +75,10 @@ export interface HiddenRewardDefinition {
 export interface HiddenTriggerDefinition {
   id: string;
   trigger: HiddenTriggerCondition;
-  reward: HiddenRewardDefinition;
+  reward?: HiddenRewardDefinition;
   rewardOverrides?: Partial<Record<CabinetProfile, HiddenRewardDefinition>>;
   checkpointRespawnRewards?: HiddenRewardDefinition[];
+  revealEnemies?: SpawnDefinition[];
 }
 
 export interface BossPhaseDefinition {

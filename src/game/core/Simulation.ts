@@ -32,7 +32,8 @@ function cloneState(state: SimulationState): SimulationState {
     players: state.players.map(clonePlayer),
     enemies: state.enemies.map((enemy) => ({
       ...enemy,
-      position: { ...enemy.position }
+      position: { ...enemy.position },
+      scriptedDefeats: enemy.scriptedDefeats?.map((defeat) => ({ ...defeat }))
     })),
     bullets: state.bullets.map((bullet) => ({
       ...bullet,
@@ -57,6 +58,7 @@ function cloneState(state: SimulationState): SimulationState {
       ...state.stage,
       triggeredHiddenIds: [...state.stage.triggeredHiddenIds],
       defeatedEnemyIds: [...state.stage.defeatedEnemyIds],
+      defeatedEnemyRecords: state.stage.defeatedEnemyRecords.map((record) => ({ ...record })),
       pendingSpawns: state.stage.pendingSpawns.map((pending) => ({ ...pending }))
     },
     recentEvents: state.recentEvents.map((event) => ({ ...event }))
@@ -287,7 +289,12 @@ export class Simulation {
     }
   }
 
-  defeatEnemy(enemyId: string): void {
+  defeatEnemy(
+    enemyId: string,
+    options?: {
+      sourceEnemyId?: string;
+    }
+  ): void {
     const before = this.state.enemies.length;
     this.state.enemies = this.state.enemies.filter((enemy) => enemy.id !== enemyId);
 
@@ -297,7 +304,14 @@ export class Simulation {
     ) {
       this.state.stage = {
         ...this.state.stage,
-        defeatedEnemyIds: [...this.state.stage.defeatedEnemyIds, enemyId]
+        defeatedEnemyIds: [...this.state.stage.defeatedEnemyIds, enemyId],
+        defeatedEnemyRecords: [
+          ...this.state.stage.defeatedEnemyRecords,
+          {
+            enemyId,
+            sourceEnemyId: options?.sourceEnemyId
+          }
+        ]
       };
     }
   }
