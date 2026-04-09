@@ -150,7 +150,7 @@ export class StageRunner {
       armedCheckpointId: checkpoint?.id ?? null,
       activeBossId: null,
       activeBossPhaseId: null,
-      triggeredHiddenIds: [],
+      triggeredHiddenIds: [...stage.triggeredHiddenIds],
       defeatedEnemyIds: [],
       completed: false
     };

@@ -163,6 +163,10 @@ requirements:
         given: "a running simulation and a player input snapshot"
         when: "the simulation steps one frame"
         then: "player position updates and a fire event is emitted from simulation state"
+      - name: "inactive players ignore gameplay input"
+        given: "a player that has already been destroyed and marked inactive"
+        when: "movement fire and bomb input are supplied on a later frame"
+        then: "the inactive player does not move and emits no gameplay events"
       - name: "step keeps renderer and audio as read-only projections"
         given: "a simulation snapshot after gameplay updates"
         when: "renderer and audio sync are called"
@@ -191,6 +195,10 @@ requirements:
         given: "a stage already progressed beyond earlier content"
         when: "the player respawns from the current checkpoint"
         then: "the stage retains the armed checkpoint wave cursor instead of resetting to the beginning"
+      - name: "checkpoint restoration keeps one-time hidden state consumed"
+        given: "a hidden trigger already consumed before a checkpoint respawn"
+        when: "the player respawns and the trigger condition becomes true again"
+        then: "the hidden reward does not spawn a second time"
   - id: BOS-001
     description: "Boss encounters are expressed through explicit data-driven phase state and clear conditions."
     priority: high

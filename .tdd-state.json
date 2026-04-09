@@ -1,20 +1,20 @@
 {
-  "spec_id": "LOP-001",
+  "spec_id": "STG-002",
   "phase": "complete",
   "red_evidence": {
-    "timestamp": "2026-04-09T22:57:06+08:00",
+    "timestamp": "2026-04-09T23:26:24+08:00",
     "test_command": "npm run test:run",
-    "tests_total": 32,
-    "tests_failed": 4,
-    "output_snapshot": "FAIL tests/runtimeFoundation.test.ts > Runtime foundation > REN-001 renderer projects the active boss when an encounter starts"
+    "tests_total": 33,
+    "tests_failed": 2,
+    "output_snapshot": "FAIL tests/simulationStageIntegration.test.ts > Simulation and stage integration > STG-002 single-player respawn restores checkpoint bookkeeping without stale hidden rewards"
   },
   "green_evidence": {
-    "timestamp": "2026-04-09T22:58:16+08:00",
-    "tests_total": 32,
-    "tests_passed": 32
+    "timestamp": "2026-04-09T23:26:38+08:00",
+    "tests_total": 33,
+    "tests_passed": 33
   },
   "coverage": {
-    "percentage": 94.73,
+    "percentage": 94.74,
     "meets_threshold": true
   },
   "cycle_history": [
@@ -41,6 +41,12 @@
       "completed_at": "2026-04-09T22:58:21+08:00",
       "coverage": 94.73,
       "red_snapshot": "FAIL tests/runtimeFoundation.test.ts > Runtime foundation > REN-001 renderer projects the active boss when an encounter starts"
+    },
+    {
+      "spec_id": "STG-002",
+      "completed_at": "2026-04-09T23:27:02+08:00",
+      "coverage": 94.74,
+      "red_snapshot": "FAIL tests/simulationStageIntegration.test.ts > Simulation and stage integration > STG-002 single-player respawn restores checkpoint bookkeeping without stale hidden rewards"
     }
   ]
 }

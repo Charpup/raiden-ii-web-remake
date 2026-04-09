@@ -2,6 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import { Simulation } from "../src/game/core/Simulation";
 
+function burnRespawnInvulnerability(simulation: Simulation, frames = 121): void {
+  for (let index = 0; index < frames; index += 1) {
+    simulation.step({ players: {} });
+  }
+}
+
 describe("Simulation and stage integration", () => {
   it("SIM-003 initializes session-owned runtime state", () => {
     const simulation = new Simulation({
@@ -108,8 +114,26 @@ describe("Simulation and stage integration", () => {
     state = simulation.step({ players: {} });
 
     expect(state.pickups).toHaveLength(0);
-    expect(state.stage.triggeredHiddenIds).toEqual([]);
+    expect(state.stage.triggeredHiddenIds).toEqual(["stage-1-hidden-miclus"]);
     expect(state.stage.defeatedEnemyIds).toEqual([]);
+
+    for (let frame = 0; frame < 10; frame += 1) {
+      state = simulation.step({ players: {} });
+    }
+
+    expect(state.recentEvents).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "hidden-triggered",
+          triggerId: "stage-1-hidden-miclus"
+        })
+      ])
+    );
+    expect(
+      simulation
+        .getState()
+        .pickups.filter((pickup) => pickup.id === "stage-1-hidden-miclus-reward")
+    ).toHaveLength(0);
   });
 
   it("HID-001 hidden trigger rewards once after the configured enemy defeat", () => {
@@ -247,6 +271,40 @@ describe("Simulation and stage integration", () => {
 
     expect(state.enemies.map((enemy) => enemy.id)).toEqual(enemyIds);
     expect(state.players.find((entry) => entry.id === "player2")?.active).toBe(true);
+  });
+
+  it("SIM-004 destroyed players ignore movement fire and bomb input", () => {
+    const simulation = new Simulation({ stageId: "stage-1" });
+
+    simulation.applyPlayerDamage("player1");
+    burnRespawnInvulnerability(simulation);
+    simulation.applyPlayerDamage("player1");
+    burnRespawnInvulnerability(simulation);
+    simulation.applyPlayerDamage("player1");
+
+    const destroyed = simulation.getState().players.find((entry) => entry.id === "player1");
+    const destroyedPosition = destroyed?.position;
+
+    const state = simulation.step({
+      players: {
+        player1: {
+          move: { x: 1, y: -1 },
+          fire: true,
+          bomb: true,
+          focus: false
+        }
+      }
+    });
+
+    const player = state.players.find((entry) => entry.id === "player1");
+    expect(player?.active).toBe(false);
+    expect(player?.position).toEqual(destroyedPosition);
+    expect(state.recentEvents).not.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: "player-fired", playerId: "player1" }),
+        expect.objectContaining({ type: "bomb-triggered", playerId: "player1" })
+      ])
+    );
   });
 
   it("LOP-001 advances loop index after final-stage clear", () => {

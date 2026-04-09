@@ -90,6 +90,21 @@
   - `task_plan.md`
   - `progress.md`
 
+### Phase 5: PR Feedback Resolution for Stage Runner Seam
+- **Status:** complete
+- Actions taken:
+  - Read the unresolved inline review threads on PR `#1` and constrained the work to the two actionable comments.
+  - Added RED-first regression coverage for inactive destroyed players ignoring gameplay input.
+  - Added RED-first regression coverage for checkpoint restore preserving one-time hidden trigger consumption.
+  - Updated simulation stepping so inactive players no longer move, fire, or bomb.
+  - Updated checkpoint restore so consumed hidden trigger IDs persist across respawn and cannot double-award.
+  - Re-ran tests, coverage, build, and a focused reviewer pass before preparing the PR for merge.
+- Files created/modified:
+  - `SPEC.yaml`
+  - `src/game/core/Simulation.ts`
+  - `src/game/stage/StageRunner.ts`
+  - `tests/simulationStageIntegration.test.ts`
+
 ## Test Results
 | Test | Input | Expected | Actual | Status |
 |------|-------|----------|--------|--------|
@@ -106,6 +121,10 @@
 | Stage Seam Coverage | `npm run coverage` after seam implementation and reviewer hardening | Coverage >= 80% | 94.73% total coverage | PASS |
 | Stage Seam Build | `npm run build` after seam implementation | Strict type check and production build pass | Build passed | PASS |
 | GitHub Recovery | `git ls-remote origin`, `git push -u origin codex/stage-runner-spec-and-state`, `gh pr create`, `gh pr view` | SSH over 443 works, branch pushes, and PR opens ready for review | Remote connectivity restored and PR #1 opened successfully | PASS |
+| PR Feedback RED | `npm run test:run` after adding regression tests for unresolved comments | New review-driven regressions should fail before implementation | Failed on inactive-player movement and hidden-trigger replay behavior | PASS |
+| PR Feedback GREEN | `npm run test:run` after feedback fixes | All runtime, combat, and stage tests pass again | 33/33 tests passed | PASS |
+| PR Feedback Coverage | `npm run coverage` after feedback fixes | Coverage >= 80% | 94.74% total coverage | PASS |
+| PR Feedback Build | `npm run build` after feedback fixes | Strict type check and production build pass | Build passed | PASS |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
@@ -117,6 +136,7 @@
 | 2026-04-09 22:48 CST | Partial patch inserted an `apply_patch` marker into `combatCore.test.ts` | 1 | Removed the stray marker, created the missing integration test file properly, and resumed the RED cycle cleanly. |
 | 2026-04-09 22:57 CST | Reviewer found boss projection, checkpoint rewind, co-op respawn, and loop continuity regressions | 1 | Added regression tests first, then updated simulation and renderer logic until the new tests passed. |
 | 2026-04-09 23:10 CST | `git` over HTTPS to GitHub kept resetting while `gh` API remained reachable | 1 | Switched repository transport to SSH over `ssh.github.com:443` with a repo-scoped deploy key and restored push/PR flow. |
+| 2026-04-09 23:26 CST | PR `#1` review feedback exposed two unresolved gameplay regressions | 1 | Added failing regression tests, fixed the two behaviors, and re-ran review verification before merge. |
 
 ## 5-Question Reboot Check
 | Question | Answer |

@@ -160,6 +160,10 @@ export class Simulation {
 
     const bounds = this.stageRunner.getArenaBounds(nextState.stage.stageId);
     nextState.players = nextState.players.map((player) => {
+      if (!player.active) {
+        return player;
+      }
+
       const input = frameInput.players[player.id] ?? emptyPlayerInput();
       let nextPlayer = advancePlayerMovement(
         player,
