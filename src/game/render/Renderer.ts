@@ -23,6 +23,17 @@ export class Renderer {
         y: pickup.position.y,
         animation: pickup.kind
       })),
+      bossParts:
+        state.boss?.active && state.boss.parts.length > 0
+          ? state.boss.parts
+              .filter((part) => part.active)
+              .map((part) => ({
+                id: part.id,
+                x: part.position.x,
+                y: part.position.y,
+                animation: state.boss?.currentPhaseId ?? "boss-idle"
+              }))
+          : [],
       boss:
         state.boss?.active
           ? {

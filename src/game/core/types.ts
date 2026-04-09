@@ -6,6 +6,8 @@ export type SubWeaponType = "homing" | "straight";
 export type PickupKind =
   | "medal"
   | "hidden-medal"
+  | "fairy"
+  | "miclus"
   | "main-vulcan"
   | "main-laser"
   | "main-plasma"
@@ -98,6 +100,7 @@ export interface EnemyState {
   maxHealth: number;
   scoreValue: number;
   spawnedByWaveId: string;
+  behaviorId?: string;
   animation: "idle";
 }
 
@@ -115,10 +118,27 @@ export interface BossRuntimeState {
   active: boolean;
   defeated: boolean;
   currentPhaseId: string | null;
+  patternId: string | null;
   position: Vector2;
   health: number;
   maxHealth: number;
   enteredAtFrame: number | null;
+  phaseEnteredAtFrame: number | null;
+  parts: BossPartRuntimeState[];
+}
+
+export interface BossPartRuntimeState {
+  id: string;
+  position: Vector2;
+  health: number;
+  maxHealth: number;
+  active: boolean;
+}
+
+export interface PendingSpawnState {
+  waveId: string;
+  spawnId: string;
+  dueFrame: number;
 }
 
 export interface StageRuntimeState {
@@ -131,6 +151,7 @@ export interface StageRuntimeState {
   activeBossPhaseId: string | null;
   triggeredHiddenIds: string[];
   defeatedEnemyIds: string[];
+  pendingSpawns: PendingSpawnState[];
   completed: boolean;
 }
 
@@ -229,6 +250,7 @@ export interface PresentationalScene {
   enemies: PresentationalEntity[];
   pickups: PresentationalEntity[];
   boss: PresentationalEntity | null;
+  bossParts: PresentationalEntity[];
 }
 
 export interface AudioFrame {

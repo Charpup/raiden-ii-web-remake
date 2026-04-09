@@ -81,6 +81,8 @@ Phase 5
 - Do not bind gameplay rules to renderer objects.
 - Public release must use remade assets only.
 - Current implementation baseline includes a minimal stage catalog and stage runner, but full arcade-authentic content authoring is still pending.
+- `codex/stage1-golden-slice` is now the active tranche and upgrades Stage 1 from a calibration slice to a macro-authored golden slice with staggered waves, checkpoint recovery drops, and a dual-part boss.
+- The next content tranche after this branch is `codex/stages-2-4-content`.
 - Remaining development roadmap is now locked to 3 implementation stages:
   1. Full Content Authoring
   2. 2P + Cabinet + Asset/UI Integration

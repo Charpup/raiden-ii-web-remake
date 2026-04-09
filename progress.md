@@ -105,6 +105,30 @@
   - `src/game/stage/StageRunner.ts`
   - `tests/simulationStageIntegration.test.ts`
 
+### Phase 6: Stage 1 Golden Slice
+- **Status:** complete
+- Actions taken:
+  - Created the `codex/stage1-golden-slice` branch and started a new Stage 1 TDD cycle under the existing TriadDev `author-full-content` tranche.
+  - Expanded `SPEC.yaml` with Stage 1-specific requirements for macro-route fidelity, crater-exit checkpoint recovery, hidden fairy/cache behavior, and Death Walkers phase modeling.
+  - Added a dedicated `tests/stage1GoldenSlice.test.ts` acceptance suite and drove an initial RED cycle that exposed missing macro beats, hidden routing, and boss authoring metadata.
+  - Extended the stage authoring schema with staggered wave entries, cabinet-specific hidden reward overrides, checkpoint respawn reward drops, authored boss pattern labels, and dual boss parts.
+  - Replaced the provisional `stage-1` calibration slice with a macro-authored Stage 1 route covering the opening farms, first cache, swamp pressure, crater, fairy tree, pre-boss cache stretch, and Death Walkers finale.
+  - Updated existing runtime/integration tests to follow the new Stage 1 ids and semantics instead of the old placeholder wave/checkpoint ids.
+  - Ran a reviewer pass, then completed a second RED->GREEN loop to add fairy checkpoint recovery drops and a dual-part Death Walkers model after the reviewer surfaced fidelity risks.
+  - Ran a final reviewer pass, then completed a third RED->GREEN loop to make the crater-exit checkpoint pending-spawn safe for the authored Stage 1 data and to project twin Death Walkers through the render seam.
+- Files created/modified:
+  - `SPEC.yaml`
+  - `arcade-baseline-matrix.md`
+  - `task_plan.md`
+  - `src/game/core/Simulation.ts`
+  - `src/game/core/types.ts`
+  - `src/game/stage/StageRunner.ts`
+  - `src/game/stage/stageCatalog.ts`
+  - `src/game/stage/stageTypes.ts`
+  - `tests/runtimeFoundation.test.ts`
+  - `tests/simulationStageIntegration.test.ts`
+  - `tests/stage1GoldenSlice.test.ts`
+
 ## Test Results
 | Test | Input | Expected | Actual | Status |
 |------|-------|----------|--------|--------|
@@ -125,6 +149,14 @@
 | PR Feedback GREEN | `npm run test:run` after feedback fixes | All runtime, combat, and stage tests pass again | 33/33 tests passed | PASS |
 | PR Feedback Coverage | `npm run coverage` after feedback fixes | Coverage >= 80% | 94.74% total coverage | PASS |
 | PR Feedback Build | `npm run build` after feedback fixes | Strict type check and production build pass | Build passed | PASS |
+| Stage 1 Golden Slice RED | `npm run test:run` after adding Stage 1 golden-slice acceptance tests | New Stage 1 macro-route, hidden, checkpoint, and boss expectations fail before implementation | Failed on missing Stage 1 route data, crater checkpoint ids, hidden fairy/cache behavior, and Death Walkers ids/phases | PASS |
+| Stage 1 Golden Slice GREEN | `npm run test:run` after Stage 1 authoring implementation | Runtime, seam, and Stage 1 golden-slice tests all pass | 38/38 tests passed | PASS |
+| Reviewer Follow-up RED | `npm run test:run` after adding fairy checkpoint-drop and dual-part boss assertions | Reviewer-driven fidelity gaps fail before follow-up implementation | Failed on missing checkpoint recovery drops and missing Walker parts | PASS |
+| Stage 1 Golden Slice Coverage | `npm run coverage` after reviewer-driven fixes | Coverage >= 80% | 95.86% total coverage | PASS |
+| Stage 1 Golden Slice Build | `npm run build` after reviewer-driven fixes | Strict type check and production build pass | Build passed | PASS |
+| Reviewer Follow-up RED 2 | `npm run test:run` after adding checkpoint-safe route and render-seam twin boss assertions | Final reviewer-driven gaps fail before follow-up implementation | Failed on pending spawns surviving to the crater checkpoint and missing render-side boss parts | PASS |
+| Stage 1 Golden Slice Coverage 2 | `npm run coverage` after final reviewer-driven fixes | Coverage >= 80% | 95.88% total coverage | PASS |
+| Stage 1 Golden Slice Build 2 | `npm run build` after final reviewer-driven fixes | Strict type check and production build pass | Build passed | PASS |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
@@ -137,12 +169,14 @@
 | 2026-04-09 22:57 CST | Reviewer found boss projection, checkpoint rewind, co-op respawn, and loop continuity regressions | 1 | Added regression tests first, then updated simulation and renderer logic until the new tests passed. |
 | 2026-04-09 23:10 CST | `git` over HTTPS to GitHub kept resetting while `gh` API remained reachable | 1 | Switched repository transport to SSH over `ssh.github.com:443` with a repo-scoped deploy key and restored push/PR flow. |
 | 2026-04-09 23:26 CST | PR `#1` review feedback exposed two unresolved gameplay regressions | 1 | Added failing regression tests, fixed the two behaviors, and re-ran review verification before merge. |
+| 2026-04-10 00:00 CST | Stage 1 reviewer flagged missing fairy checkpoint recovery and missing twin-Walker representation | 1 | Added a second RED cycle, implemented checkpoint respawn drops for the fairy route, and upgraded the Death Walkers boss to a dual-part model. |
+| 2026-04-10 00:06 CST | Final Stage 1 reviewer found checkpoint-unsafe delayed spawns and missing twin-Walker render projection | 1 | Tightened late Stage 1 spawn offsets around the crater checkpoint and projected boss parts through the renderer. |
 
 ## 5-Question Reboot Check
 | Question | Answer |
 |----------|--------|
-| Where am I? | Phase 5 stage authoring and content preparation after finishing runtime and combat batches. |
-| Where am I going? | Into three remaining delivery stages: full content authoring, 2P/cabinet/asset integration, and final verification/release. |
+| Where am I? | In Full Content Authoring, with the first Stage 1 golden-slice tranche completed on `codex/stage1-golden-slice`. |
+| Where am I going? | Next into the `codex/stages-2-4-content` tranche, then the rest of full content authoring before 2P/cabinet/UI work. |
 | What's the goal? | Build a public static browser remake of arcade Raiden II with TriadDev Extended workflow. |
 | What have I learned? | Scope is large, fidelity depends on deterministic systems, and gameplay rules should remain data-driven, simulation-owned, and renderer-independent. |
-| What have I done? | Completed discovery, value gate, runtime foundation, combat core, GitHub bootstrap, the first stage-authoring seam, and restored branch/PR publishing on GitHub. |
+| What have I done? | Completed discovery, value gate, runtime foundation, combat core, GitHub bootstrap, the stage-authoring seam, PR feedback fixes, and the first macro-authored Stage 1 golden slice. |

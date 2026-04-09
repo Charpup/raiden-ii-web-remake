@@ -110,7 +110,11 @@ describe("Runtime foundation", () => {
 
     const scene = renderer.sync(state);
 
-    expect(scene.boss?.id).toBe("stage-1-boss");
+    expect(scene.boss?.id).toBe("stage-1-death-walkers");
+    expect(scene.bossParts?.map((part) => part.id)).toEqual([
+      "stage-1-walker-left",
+      "stage-1-walker-right"
+    ]);
   });
 
   it("AUD-001 emits stage bgm and edge-triggered fire cues", () => {
