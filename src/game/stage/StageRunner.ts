@@ -2,6 +2,7 @@ import type {
   BossRuntimeState,
   CheckpointState,
   EnemyState,
+  PendingSpawnState,
   RuntimeEvent,
   RuntimePickupState,
   SessionConfig,
@@ -46,7 +47,11 @@ function cloneBoss(boss: BossRuntimeState | null): BossRuntimeState | null {
   return boss
     ? {
         ...boss,
-        position: { ...boss.position }
+        position: { ...boss.position },
+        parts: boss.parts.map((part) => ({
+          ...part,
+          position: { ...part.position }
+        }))
       }
     : null;
 }
@@ -55,15 +60,15 @@ function roundHealth(value: number): number {
   return Math.max(1, Math.round(value));
 }
 
-function selectBossPhaseId(
+function selectBossPhase(
   phases: BossPhaseDefinition[],
   health: number
-): string | null {
-  let selected = phases[0]?.id ?? null;
+): BossPhaseDefinition | null {
+  let selected = phases[0] ?? null;
 
   for (const phase of phases) {
     if (health <= phase.healthAtOrBelow) {
-      selected = phase.id;
+      selected = phase;
     }
   }
 
@@ -93,6 +98,13 @@ function isHiddenTriggered(
   return stage.defeatedEnemyIds.includes(trigger.trigger.enemyId);
 }
 
+function resolveHiddenReward(
+  trigger: HiddenTriggerDefinition,
+  session: SessionConfig
+): HiddenTriggerDefinition["reward"] {
+  return trigger.rewardOverrides?.[session.cabinetProfile] ?? trigger.reward;
+}
+
 export class StageRunner {
   getDefinition(stageId: string): StageDefinition {
     return getStageDefinition(stageId);
@@ -113,6 +125,7 @@ export class StageRunner {
       activeBossPhaseId: null,
       triggeredHiddenIds: [],
       defeatedEnemyIds: [],
+      pendingSpawns: [],
       completed: false
     };
   }
@@ -152,8 +165,32 @@ export class StageRunner {
       activeBossPhaseId: null,
       triggeredHiddenIds: [...stage.triggeredHiddenIds],
       defeatedEnemyIds: [],
+      pendingSpawns: [],
       completed: false
     };
+  }
+
+  createCheckpointRespawnRewards(
+    stage: StageRuntimeState
+  ): RuntimePickupState[] {
+    const definition = this.getDefinition(stage.stageId);
+
+    return definition.hiddenTriggers
+      .filter(
+        (hidden) =>
+          stage.triggeredHiddenIds.includes(hidden.id) &&
+          (hidden.checkpointRespawnRewards?.length ?? 0) > 0
+      )
+      .flatMap((hidden) =>
+        hidden.checkpointRespawnRewards!.map((reward) => ({
+          id: reward.pickupId,
+          kind: reward.kind,
+          position: { ...reward.position },
+          collected: false,
+          scoreValue: reward.scoreValue,
+          sourceId: hidden.id
+        }))
+      );
   }
 
   advance(state: SimulationState): StageAdvanceResult {
@@ -164,7 +201,8 @@ export class StageRunner {
     const stage: StageRuntimeState = {
       ...state.stage,
       triggeredHiddenIds: [...state.stage.triggeredHiddenIds],
-      defeatedEnemyIds: [...state.stage.defeatedEnemyIds]
+      defeatedEnemyIds: [...state.stage.defeatedEnemyIds],
+      pendingSpawns: state.stage.pendingSpawns.map((pending) => ({ ...pending }))
     };
     let boss = cloneBoss(state.boss);
     let clearedThisFrame = false;
@@ -192,38 +230,66 @@ export class StageRunner {
       isWaveTriggered(definition.waves[stage.waveCursor], state.frame, stage.scrollY)
     ) {
       const wave = definition.waves[stage.waveCursor];
-      const spawned = wave.enemies.map((spawn) =>
-        this.createEnemyState(spawn, wave.id, state.session)
-      );
+      const spawned = wave.enemies
+        .filter((spawn) => (spawn.spawnOffsetFrames ?? 0) <= 0)
+        .map((spawn) => this.createEnemyState(spawn, wave.id, state.session));
+
+      const delayedSpawns = wave.enemies
+        .filter((spawn) => (spawn.spawnOffsetFrames ?? 0) > 0)
+        .map<PendingSpawnState>((spawn) => ({
+          waveId: wave.id,
+          spawnId: spawn.id,
+          dueFrame: state.frame + (spawn.spawnOffsetFrames ?? 0)
+        }));
 
       enemies.push(...spawned);
+      stage.pendingSpawns.push(...delayedSpawns);
       stage.waveCursor += 1;
       events.push({
         type: "wave-spawned",
         waveId: wave.id,
-        enemyIds: spawned.map((enemy) => enemy.id),
+        enemyIds: wave.enemies.map((spawn) => spawn.id),
         atFrame: state.frame
       });
     }
+
+    const remainingPendingSpawns: PendingSpawnState[] = [];
+
+    for (const pending of stage.pendingSpawns) {
+      if (pending.dueFrame > state.frame) {
+        remainingPendingSpawns.push(pending);
+        continue;
+      }
+
+      const spawn = this.findSpawnDefinition(definition, pending);
+      if (!spawn) {
+        continue;
+      }
+
+      enemies.push(this.createEnemyState(spawn, pending.waveId, state.session));
+    }
+
+    stage.pendingSpawns = remainingPendingSpawns;
 
     for (const hidden of definition.hiddenTriggers) {
       if (stage.triggeredHiddenIds.includes(hidden.id) || !isHiddenTriggered(hidden, stage)) {
         continue;
       }
 
+      const reward = resolveHiddenReward(hidden, state.session);
       stage.triggeredHiddenIds.push(hidden.id);
       pickups.push({
-        id: hidden.reward.pickupId,
-        kind: hidden.reward.kind,
-        position: { ...hidden.reward.position },
+        id: reward.pickupId,
+        kind: reward.kind,
+        position: { ...reward.position },
         collected: false,
-        scoreValue: hidden.reward.scoreValue,
+        scoreValue: reward.scoreValue,
         sourceId: hidden.id
       });
       events.push({
         type: "hidden-triggered",
         triggerId: hidden.id,
-        pickupId: hidden.reward.pickupId,
+        pickupId: reward.pickupId,
         atFrame: state.frame
       });
     }
@@ -232,6 +298,7 @@ export class StageRunner {
       definition.boss &&
       !boss &&
       stage.waveCursor >= definition.waves.length &&
+      stage.pendingSpawns.length === 0 &&
       enemies.length === 0 &&
       stage.scrollY >= definition.boss.trigger.minScrollY
     ) {
@@ -247,17 +314,19 @@ export class StageRunner {
     }
 
     if (definition.boss && boss?.active && !boss.defeated) {
-      const nextPhaseId = selectBossPhaseId(definition.boss.phases, boss.health);
-      if (nextPhaseId && nextPhaseId !== boss.currentPhaseId) {
+      const nextPhase = selectBossPhase(definition.boss.phases, boss.health);
+      if (nextPhase && nextPhase.id !== boss.currentPhaseId) {
         boss = {
           ...boss,
-          currentPhaseId: nextPhaseId
+          currentPhaseId: nextPhase.id,
+          patternId: nextPhase.patternId ?? null,
+          phaseEnteredAtFrame: state.frame
         };
-        stage.activeBossPhaseId = nextPhaseId;
+        stage.activeBossPhaseId = nextPhase.id;
         events.push({
           type: "boss-phase-changed",
           bossId: boss.bossId,
-          phaseId: nextPhaseId,
+          phaseId: nextPhase.id,
           atFrame: state.frame
         });
       }
@@ -270,7 +339,8 @@ export class StageRunner {
       boss = {
         ...boss,
         active: false,
-        currentPhaseId: null
+        currentPhaseId: null,
+        patternId: null
       };
       clearedThisFrame = true;
       events.push({
@@ -309,6 +379,7 @@ export class StageRunner {
       maxHealth,
       scoreValue: spawn.scoreValue,
       spawnedByWaveId: waveId,
+      behaviorId: spawn.behaviorId,
       animation: "idle"
     };
   }
@@ -319,21 +390,45 @@ export class StageRunner {
     frame: number
   ): BossRuntimeState {
     const definition = this.getDefinition(session.stageId);
-    const maxHealth = roundHealth(
-      boss.maxHealth * this.getBossHealthMultiplier(definition, session)
-    );
-    const currentPhaseId = selectBossPhaseId(boss.phases, maxHealth);
+    const multiplier = this.getBossHealthMultiplier(definition, session);
+    const parts = (boss.parts ?? []).map((part) => ({
+      id: part.id,
+      position: { ...part.position },
+      health: roundHealth(part.maxHealth * multiplier),
+      maxHealth: roundHealth(part.maxHealth * multiplier),
+      active: true
+    }));
+    const maxHealth =
+      parts.length > 0
+        ? parts.reduce((total, part) => total + part.maxHealth, 0)
+        : roundHealth(boss.maxHealth * multiplier);
+    const currentPhase = selectBossPhase(boss.phases, maxHealth);
 
     return {
       bossId: boss.id,
       active: true,
       defeated: false,
-      currentPhaseId,
+      currentPhaseId: currentPhase?.id ?? null,
+      patternId: currentPhase?.patternId ?? null,
       position: { ...boss.position },
       health: maxHealth,
       maxHealth,
-      enteredAtFrame: frame
+      enteredAtFrame: frame,
+      phaseEnteredAtFrame: frame,
+      parts
     };
+  }
+
+  private findSpawnDefinition(
+    definition: StageDefinition,
+    pending: PendingSpawnState
+  ): WaveDefinition["enemies"][number] | null {
+    const wave = definition.waves.find((entry) => entry.id === pending.waveId);
+    if (!wave) {
+      return null;
+    }
+
+    return wave.enemies.find((entry) => entry.id === pending.spawnId) ?? null;
   }
 
   private getEnemyHealthMultiplier(

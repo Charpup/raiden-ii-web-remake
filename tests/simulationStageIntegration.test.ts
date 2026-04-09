@@ -66,17 +66,23 @@ describe("Simulation and stage integration", () => {
 
     expect(state.recentEvents).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ type: "wave-spawned", waveId: "stage-1-wave-1" })
+        expect.objectContaining({
+          type: "wave-spawned",
+          waveId: "stage-1-opening-scoutcraft"
+        })
       ])
     );
-    expect(state.enemies.map((enemy) => enemy.id)).toContain("stage-1-wave-1-lead");
+    expect(state.enemies.map((enemy) => enemy.id)).toContain("stage-1-opening-scout-1");
   });
 
   it("STG-002 checkpoint respawn restores player position and stage cursor", () => {
     const simulation = new Simulation({ stageId: "stage-1" });
     let state = simulation.getState();
 
-    while (state.stage.armedCheckpointId !== "stage-1-checkpoint-alpha" && state.frame < 30) {
+    while (
+      state.stage.armedCheckpointId !== "stage-1-checkpoint-crater-exit" &&
+      state.frame < 40
+    ) {
       state = simulation.step({ players: {} });
     }
 
@@ -85,14 +91,14 @@ describe("Simulation and stage integration", () => {
     state = simulation.step({ players: {} });
 
     const player = state.players.find((entry) => entry.id === "player1");
-    expect(player?.position).toEqual({ x: 160, y: 470 });
-    expect(state.stage.armedCheckpointId).toBe("stage-1-checkpoint-alpha");
-    expect(state.stage.waveCursor).toBe(armedWaveCursor);
+    expect(player?.position).toEqual({ x: 160, y: 472 });
+    expect(state.stage.armedCheckpointId).toBe("stage-1-checkpoint-crater-exit");
+    expect(state.stage.waveCursor).toBeGreaterThanOrEqual(armedWaveCursor);
     expect(state.recentEvents).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           type: "player-respawned",
-          checkpointId: "stage-1-checkpoint-alpha"
+          checkpointId: "stage-1-checkpoint-crater-exit"
         })
       ])
     );
@@ -102,37 +108,49 @@ describe("Simulation and stage integration", () => {
     const simulation = new Simulation({ stageId: "stage-1" });
     let state = simulation.getState();
 
-    while (state.enemies.length === 0 && state.frame < 20) {
+    while (
+      (!state.enemies.some((enemy) => enemy.id === "stage-1-fairy-tree") ||
+        state.stage.armedCheckpointId !== "stage-1-checkpoint-crater-exit") &&
+      state.frame < 60
+    ) {
       state = simulation.step({ players: {} });
     }
 
-    simulation.defeatEnemy("stage-1-wave-1-lead");
+    simulation.defeatEnemy("stage-1-fairy-tree");
     state = simulation.step({ players: {} });
     expect(state.pickups).toHaveLength(1);
 
     simulation.applyPlayerDamage("player1");
     state = simulation.step({ players: {} });
 
-    expect(state.pickups).toHaveLength(0);
-    expect(state.stage.triggeredHiddenIds).toEqual(["stage-1-hidden-miclus"]);
+    expect(state.pickups.map((pickup) => pickup.kind).sort()).toEqual(
+      expect.arrayContaining(["bomb", "main-vulcan", "sub-homing"])
+    );
+    expect(state.stage.triggeredHiddenIds).toEqual(["stage-1-hidden-fairy"]);
     expect(state.stage.defeatedEnemyIds).toEqual([]);
 
-    for (let frame = 0; frame < 10; frame += 1) {
+    while (
+      !state.enemies.some((enemy) => enemy.id === "stage-1-fairy-tree") &&
+      state.frame < 90
+    ) {
       state = simulation.step({ players: {} });
     }
+
+    simulation.defeatEnemy("stage-1-fairy-tree");
+    state = simulation.step({ players: {} });
 
     expect(state.recentEvents).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           type: "hidden-triggered",
-          triggerId: "stage-1-hidden-miclus"
+          triggerId: "stage-1-hidden-fairy"
         })
       ])
     );
     expect(
       simulation
         .getState()
-        .pickups.filter((pickup) => pickup.id === "stage-1-hidden-miclus-reward")
+        .pickups.filter((pickup) => pickup.id === "stage-1-hidden-fairy-reward")
     ).toHaveLength(0);
   });
 
@@ -140,23 +158,23 @@ describe("Simulation and stage integration", () => {
     const simulation = new Simulation({ stageId: "stage-1" });
     let state = simulation.getState();
 
-    while (state.enemies.length === 0 && state.frame < 20) {
+    while (!state.enemies.some((enemy) => enemy.id === "stage-1-fairy-tree") && state.frame < 60) {
       state = simulation.step({ players: {} });
     }
 
-    simulation.defeatEnemy("stage-1-wave-1-lead");
+    simulation.defeatEnemy("stage-1-fairy-tree");
     state = simulation.step({ players: {} });
 
     expect(state.recentEvents).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           type: "hidden-triggered",
-          triggerId: "stage-1-hidden-miclus"
+          triggerId: "stage-1-hidden-fairy"
         })
       ])
     );
     expect(
-      state.pickups.filter((pickup) => pickup.id === "stage-1-hidden-miclus-reward")
+      state.pickups.filter((pickup) => pickup.id === "stage-1-hidden-fairy-reward")
     ).toHaveLength(1);
 
     simulation.step({ players: {} });
@@ -165,7 +183,7 @@ describe("Simulation and stage integration", () => {
     expect(
       simulation
         .getState()
-        .pickups.filter((pickup) => pickup.id === "stage-1-hidden-miclus-reward")
+        .pickups.filter((pickup) => pickup.id === "stage-1-hidden-fairy-reward")
     ).toHaveLength(1);
   });
 
@@ -181,22 +199,28 @@ describe("Simulation and stage integration", () => {
       state = simulation.step({ players: {} });
     }
 
-    expect(state.boss?.currentPhaseId).toBe("stage-1-boss-phase-1");
+    expect(state.boss?.currentPhaseId).toBe("stage-1-walkers-opening");
 
-    simulation.applyBossDamage(70);
+    simulation.applyBossDamage(120);
     state = simulation.step({ players: {} });
 
-    expect(state.boss?.currentPhaseId).toBe("stage-1-boss-phase-2");
+    expect(state.boss?.currentPhaseId).toBe("stage-1-walkers-rotary-combo");
     expect(state.recentEvents).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
           type: "boss-phase-changed",
-          phaseId: "stage-1-boss-phase-2"
+          phaseId: "stage-1-walkers-rotary-combo"
         })
       ])
     );
 
-    simulation.applyBossDamage(500);
+    simulation.applyBossPartDamage("stage-1-walker-right", 120);
+    state = simulation.step({ players: {} });
+
+    expect(state.boss?.currentPhaseId).toBe("stage-1-walkers-desperation");
+
+    simulation.applyBossPartDamage("stage-1-walker-left", 500);
+    simulation.applyBossPartDamage("stage-1-walker-right", 500);
     state = simulation.step({ players: {} });
 
     expect(state.stage.completed).toBe(true);

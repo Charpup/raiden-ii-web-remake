@@ -46,13 +46,18 @@ function cloneState(state: SimulationState): SimulationState {
     boss: state.boss
       ? {
           ...state.boss,
-          position: { ...state.boss.position }
+          position: { ...state.boss.position },
+          parts: state.boss.parts.map((part) => ({
+            ...part,
+            position: { ...part.position }
+          }))
         }
       : null,
     stage: {
       ...state.stage,
       triggeredHiddenIds: [...state.stage.triggeredHiddenIds],
-      defeatedEnemyIds: [...state.stage.defeatedEnemyIds]
+      defeatedEnemyIds: [...state.stage.defeatedEnemyIds],
+      pendingSpawns: state.stage.pendingSpawns.map((pending) => ({ ...pending }))
     },
     recentEvents: state.recentEvents.map((event) => ({ ...event }))
   };
@@ -269,7 +274,7 @@ export class Simulation {
         this.state.stage = this.stageRunner.restoreStageFromCheckpoint(this.state.stage);
         this.state.enemies = [];
         this.state.bullets = [];
-        this.state.pickups = [];
+        this.state.pickups = this.stageRunner.createCheckpointRespawnRewards(this.state.stage);
         this.state.boss = null;
       }
 
@@ -302,9 +307,53 @@ export class Simulation {
       return;
     }
 
+    if (this.state.boss.parts.length > 0) {
+      const nextPart = this.state.boss.parts.find((part) => part.active);
+      if (!nextPart) {
+        return;
+      }
+
+      this.applyBossPartDamage(nextPart.id, amount);
+      return;
+    }
+
     const nextHealth = Math.max(0, this.state.boss.health - amount);
     this.state.boss = {
       ...this.state.boss,
+      health: nextHealth,
+      defeated: nextHealth === 0
+    };
+  }
+
+  applyBossPartDamage(partId: string, amount: number): void {
+    if (!this.state.boss || !this.state.boss.active || this.state.boss.defeated) {
+      return;
+    }
+
+    let changed = false;
+    const nextParts = this.state.boss.parts.map((part) => {
+      if (part.id !== partId || !part.active) {
+        return part;
+      }
+
+      changed = true;
+      const nextHealth = Math.max(0, part.health - amount);
+
+      return {
+        ...part,
+        health: nextHealth,
+        active: nextHealth > 0
+      };
+    });
+
+    if (!changed) {
+      return;
+    }
+
+    const nextHealth = nextParts.reduce((total, part) => total + part.health, 0);
+    this.state.boss = {
+      ...this.state.boss,
+      parts: nextParts,
       health: nextHealth,
       defeated: nextHealth === 0
     };

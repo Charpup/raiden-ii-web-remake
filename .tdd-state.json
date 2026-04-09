@@ -1,20 +1,20 @@
 {
-  "spec_id": "STG-002",
+  "spec_id": "STG-102",
   "phase": "complete",
   "red_evidence": {
-    "timestamp": "2026-04-09T23:26:24+08:00",
+    "timestamp": "2026-04-10T00:06:04+08:00",
     "test_command": "npm run test:run",
-    "tests_total": 33,
+    "tests_total": 38,
     "tests_failed": 2,
-    "output_snapshot": "FAIL tests/simulationStageIntegration.test.ts > Simulation and stage integration > STG-002 single-player respawn restores checkpoint bookkeeping without stale hidden rewards"
+    "output_snapshot": "FAIL tests/stage1GoldenSlice.test.ts > Stage 1 golden slice > STG-102 respawns single-player runs from the crater-exit checkpoint"
   },
   "green_evidence": {
-    "timestamp": "2026-04-09T23:26:38+08:00",
-    "tests_total": 33,
-    "tests_passed": 33
+    "timestamp": "2026-04-10T00:06:50+08:00",
+    "tests_total": 38,
+    "tests_passed": 38
   },
   "coverage": {
-    "percentage": 94.74,
+    "percentage": 95.88,
     "meets_threshold": true
   },
   "cycle_history": [
@@ -47,6 +47,18 @@
       "completed_at": "2026-04-09T23:27:02+08:00",
       "coverage": 94.74,
       "red_snapshot": "FAIL tests/simulationStageIntegration.test.ts > Simulation and stage integration > STG-002 single-player respawn restores checkpoint bookkeeping without stale hidden rewards"
+    },
+    {
+      "spec_id": "STG-101",
+      "completed_at": "2026-04-10T00:01:23+08:00",
+      "coverage": 95.86,
+      "red_snapshot": "FAIL tests/stage1GoldenSlice.test.ts > Stage 1 golden slice > AUTH-101 exposes the authored macro route and metadata for Stage 1"
+    },
+    {
+      "spec_id": "BOS-101",
+      "completed_at": "2026-04-10T00:02:34+08:00",
+      "coverage": 95.86,
+      "red_snapshot": "FAIL tests/stage1GoldenSlice.test.ts > Stage 1 golden slice > BOS-101 uses the authored Walker phase ladder before stage clear"
     }
   ]
 }

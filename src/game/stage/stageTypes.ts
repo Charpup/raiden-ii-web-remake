@@ -16,6 +16,8 @@ export interface SpawnDefinition {
   position: Vector2;
   health: number;
   scoreValue: number;
+  spawnOffsetFrames?: number;
+  behaviorId?: string;
 }
 
 export interface WaveDefinition {
@@ -52,11 +54,20 @@ export interface HiddenTriggerDefinition {
   id: string;
   trigger: HiddenTriggerCondition;
   reward: HiddenRewardDefinition;
+  rewardOverrides?: Partial<Record<CabinetProfile, HiddenRewardDefinition>>;
+  checkpointRespawnRewards?: HiddenRewardDefinition[];
 }
 
 export interface BossPhaseDefinition {
   id: string;
   healthAtOrBelow: number;
+  patternId?: string;
+}
+
+export interface BossPartDefinition {
+  id: string;
+  position: Vector2;
+  maxHealth: number;
 }
 
 export interface BossDefinition {
@@ -69,6 +80,7 @@ export interface BossDefinition {
   maxHealth: number;
   scoreValue: number;
   phases: BossPhaseDefinition[];
+  parts?: BossPartDefinition[];
 }
 
 export interface DifficultyTuning {

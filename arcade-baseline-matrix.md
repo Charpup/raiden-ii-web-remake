@@ -16,7 +16,7 @@ This is the working baseline artifact for content authoring. It separates:
 ## Stage Matrix
 | Stage | Current Dev Status | Wave Data | Checkpoints | Hidden Items | Boss Phases | Loop/Cabinet Notes |
 |------|---------------------|-----------|-------------|--------------|-------------|--------------------|
-| 1 | Schema-backed calibration slice implemented | One provisional wave implemented in `stageCatalog`; exact arcade capture still to refine | One provisional checkpoint implemented; exact arcade mapping pending | One provisional hidden trigger implemented; exact arcade mapping pending | One provisional multi-phase boss implemented; exact arcade mapping pending | Easy/hard tuning hooks already flow through data |
+| 1 | Macro golden slice implemented | Eight authored macro beats now cover opening farms, first cache, swamp pressure, crater, fairy tree, and pre-boss cache route; exact per-wave arcade scroll values still subject to capture refinement | Crater-exit checkpoint implemented and verified as the late-stage recovery checkpoint | Fairy tree hidden route, checkpoint recovery drops, and pre-boss cache reward are implemented; easy/hard cache reward split now lives in data | Death Walkers encounter now carries named phases, pattern labels, and dual walker parts; exact attack timings still subject to capture refinement | Easy/hard reward split and health tuning flow through data without code forks |
 | 2 | Pending authoring | TBD from arcade capture | TBD | TBD | TBD | Must remain data-driven |
 | 3 | Pending authoring | TBD from arcade capture | TBD | TBD | TBD | Must remain data-driven |
 | 4 | Pending authoring | TBD from arcade capture | TBD | TBD | TBD | Must remain data-driven |
@@ -35,9 +35,9 @@ This is the working baseline artifact for content authoring. It separates:
 - Shared simulation state that works for 1P and 2P
 
 ## Implemented Calibration Slice
-- `stage-1` currently proves scroll-driven wave spawning, checkpoint arming, hidden reward emission, boss phase changes, and stage clear state.
+- `stage-1` now proves macro-route authoring, staggered wave spawning, crater-exit checkpoint recovery, fairy checkpoint drops, cabinet-gated hidden rewards, and a dual-part Death Walkers finale.
 - `stage-8` currently proves loop-advance behavior after a final-stage boss clear.
-- Both slices are calibration scaffolds, not final arcade-authentic authoring.
+- `stage-8` remains a calibration scaffold for loop validation, while `stage-1` is the first macro-authored content slice.
 
 ## Capture Backlog
 - Exact stage-by-stage wave ordering and scroll trigger points

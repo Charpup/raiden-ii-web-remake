@@ -247,3 +247,71 @@ requirements:
         given: "a loop-ending stage definition and a defeated final boss"
         when: "the simulation resolves stage clear"
         then: "the session loop index increments and a loop-advanced event is emitted"
+  - id: STG-101
+    description: "Stage 1 is authored as a locked golden slice with a stable macro route, staggered wave cadence, and a pre-boss resource stretch."
+    priority: high
+    scenarios:
+      - name: "stage 1 definition exposes the golden-route beats"
+        given: "the authored stage 1 definition"
+        when: "its wave list is inspected"
+        then: "the route is organized into the opening farms, first cache, swamp pressure, crater, fairy-tree recovery, and pre-boss medal-cache beats"
+      - name: "opening scoutcraft wave staggers entries within one authored wave"
+        given: "the stage 1 opening wave"
+        when: "the simulation advances through the first few frames after that wave triggers"
+        then: "the scoutcraft do not all spawn on the same frame and their authored cadence is preserved"
+  - id: STG-102
+    description: "Stage 1 checkpoint recovery restores the player to the crater-exit checkpoint and preserves the intended post-checkpoint route."
+    priority: high
+    scenarios:
+      - name: "crater-exit checkpoint is armed before the fairy route"
+        given: "stage 1 has advanced into the crater section"
+        when: "the checkpoint threshold is crossed"
+        then: "the crater-exit checkpoint becomes the armed respawn target"
+      - name: "death after the crater exits respawns into the late-stage route"
+        given: "the crater-exit checkpoint is armed"
+        when: "the player loses a life in single-player mode"
+        then: "the player respawns at the crater-exit checkpoint with the later stage cursor restored"
+  - id: HID-101
+    description: "Stage 1 hidden routes include the post-crater fairy tree and the pre-boss cache reward, and both remain one-shot rewards."
+    priority: high
+    scenarios:
+      - name: "destroying the fairy tree reveals a fairy reward"
+        given: "the player reaches the post-crater hidden tree in stage 1"
+        when: "that hidden target is destroyed"
+        then: "a fairy reward appears exactly once"
+      - name: "finding the fairy seeds checkpoint recovery drops"
+        given: "the stage 1 fairy route has already been triggered before a checkpoint death"
+        when: "the player respawns from the crater-exit checkpoint"
+        then: "the checkpoint restart emits recovery pickups without retriggering the fairy hidden target"
+      - name: "hard cabinet medal cache upgrades to a Miclus reward"
+        given: "the player destroys the pre-boss cache trigger in stage 1"
+        when: "the session uses the hard cabinet profile"
+        then: "the authored hidden reward resolves to a Miclus rather than the easy-cabinet fallback"
+  - id: BOS-101
+    description: "Stage 1 culminates in a multi-phase Death Walkers encounter with authored phase names and pattern labels."
+    priority: high
+    scenarios:
+      - name: "the stage 1 boss starts with the paired-walker opening pattern"
+        given: "all stage 1 waves are cleared and the boss encounter starts"
+        when: "the first boss frame resolves"
+        then: "the boss enters the paired-walker opening phase with its authored pattern label"
+      - name: "the stage 1 boss exposes two independently damageable walkers"
+        given: "the Death Walkers encounter is active"
+        when: "one walker is destroyed before the other"
+        then: "the surviving walker remains active and stage clear waits until both walkers are defeated"
+      - name: "the boss advances through the rotary combo and desperation phases before clear"
+        given: "the stage 1 boss is active"
+        when: "its health crosses the authored thresholds"
+        then: "the boss phase ladder follows opening, rotary combo, desperation, and then stage clear"
+  - id: AUTH-101
+    description: "Stage 1 authoring data carries the metadata needed for future full-content authoring without moving rules into renderer or audio."
+    priority: high
+    scenarios:
+      - name: "stage 1 wave spawns can express delayed cadence and behavior labels"
+        given: "the authored stage 1 wave and spawn data"
+        when: "the opening scoutcraft beat is inspected"
+        then: "spawn cadence offsets and behavior labels are present in the authoring layer"
+      - name: "stage 1 boss phases expose authored pattern labels"
+        given: "the authored stage 1 boss definition"
+        when: "its phases are inspected"
+        then: "each phase includes a stable pattern label for later behavior implementation"
