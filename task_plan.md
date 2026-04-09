@@ -81,3 +81,14 @@ Phase 5
 - Do not bind gameplay rules to renderer objects.
 - Public release must use remade assets only.
 - Current implementation baseline includes a minimal stage catalog and stage runner, but full arcade-authentic content authoring is still pending.
+- Remaining development roadmap is now locked to 3 implementation stages:
+  1. Full Content Authoring
+  2. 2P + Cabinet + Asset/UI Integration
+  3. Verification + Release
+- Recommended PR cadence after the current seam PR:
+  - `codex/stage1-golden-slice`
+  - `codex/stages-2-4-content`
+  - `codex/stages-5-8-content-loop`
+  - `codex/2p-and-cabinet`
+  - `codex/ui-assets-flow`
+  - `codex/release-verification`

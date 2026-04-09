@@ -77,6 +77,19 @@
   - `tests/combatCore.test.ts`
   - `tests/simulationStageIntegration.test.ts`
 
+### Phase 4: GitHub Workflow Recovery and Roadmap Inventory
+- **Status:** complete
+- Actions taken:
+  - Diagnosed the failed HTTPS git transport separately from working `gh` API access.
+  - Generated a dedicated SSH deploy key for `raiden-ii-web-remake` and registered it on the repository through `gh api`.
+  - Configured `github.com` to use `ssh.github.com:443`, rewired `origin` to the SSH remote, and restored `git push`.
+  - Pushed `codex/stage-runner-spec-and-state` and created ready-for-review PR `#1`.
+  - Reconciled the remaining roadmap against `triadev-handoff.json` and confirmed 3 development stages remain: full content authoring, 2P/cabinet/asset integration, and verification/release.
+  - Locked the follow-on PR cadence into 6 smaller reviewable branches after the current seam PR.
+- Files created/modified:
+  - `task_plan.md`
+  - `progress.md`
+
 ## Test Results
 | Test | Input | Expected | Actual | Status |
 |------|-------|----------|--------|--------|
@@ -92,6 +105,7 @@
 | Stage Seam GREEN | `npm run test:run` after seam implementation and reviewer hardening | Runtime, combat, and stage integration tests all pass | 32/32 tests passed | PASS |
 | Stage Seam Coverage | `npm run coverage` after seam implementation and reviewer hardening | Coverage >= 80% | 94.73% total coverage | PASS |
 | Stage Seam Build | `npm run build` after seam implementation | Strict type check and production build pass | Build passed | PASS |
+| GitHub Recovery | `git ls-remote origin`, `git push -u origin codex/stage-runner-spec-and-state`, `gh pr create`, `gh pr view` | SSH over 443 works, branch pushes, and PR opens ready for review | Remote connectivity restored and PR #1 opened successfully | PASS |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
@@ -102,12 +116,13 @@
 | 2026-04-09 20:25 CST | Reviewer found permanent invulnerability, audio retention growth, and edge clamping issues | 1 | Added targeted tests and updated the affected systems. |
 | 2026-04-09 22:48 CST | Partial patch inserted an `apply_patch` marker into `combatCore.test.ts` | 1 | Removed the stray marker, created the missing integration test file properly, and resumed the RED cycle cleanly. |
 | 2026-04-09 22:57 CST | Reviewer found boss projection, checkpoint rewind, co-op respawn, and loop continuity regressions | 1 | Added regression tests first, then updated simulation and renderer logic until the new tests passed. |
+| 2026-04-09 23:10 CST | `git` over HTTPS to GitHub kept resetting while `gh` API remained reachable | 1 | Switched repository transport to SSH over `ssh.github.com:443` with a repo-scoped deploy key and restored push/PR flow. |
 
 ## 5-Question Reboot Check
 | Question | Answer |
 |----------|--------|
 | Where am I? | Phase 5 stage authoring and content preparation after finishing runtime and combat batches. |
-| Where am I going? | Into full content authoring, Stage 1 golden-slice refinement, and completion of 2P/cabinet/loop delivery features. |
+| Where am I going? | Into three remaining delivery stages: full content authoring, 2P/cabinet/asset integration, and final verification/release. |
 | What's the goal? | Build a public static browser remake of arcade Raiden II with TriadDev Extended workflow. |
 | What have I learned? | Scope is large, fidelity depends on deterministic systems, and gameplay rules should remain data-driven, simulation-owned, and renderer-independent. |
-| What have I done? | Completed discovery, value gate, runtime foundation, combat core, GitHub bootstrap, and the first stage-authoring seam with tests, coverage, and build verification. |
+| What have I done? | Completed discovery, value gate, runtime foundation, combat core, GitHub bootstrap, the first stage-authoring seam, and restored branch/PR publishing on GitHub. |
