@@ -5,7 +5,8 @@ A public browser remake project targeting the arcade version of **Raiden II**.
 ## Current Status
 - Runtime foundation implemented and verified
 - Combat core implemented and verified
-- Next tranche: simulation/content seam, stage runner contracts, and Stage 1 golden slice
+- Simulation/content seam and stage runner contracts implemented and verified
+- Next tranche: expand the Stage 1 golden slice, author the remaining stage content, and finish 2P/cabinet/loop delivery details
 
 ## Stack
 - Vite
@@ -24,6 +25,9 @@ A public browser remake project targeting the arcade version of **Raiden II**.
 This repository must contain **replacement/remade assets only**.
 
 See [PUBLIC_ASSET_POLICY.md](./PUBLIC_ASSET_POLICY.md).
+
+## Repository
+- GitHub: [Charpup/raiden-ii-web-remake](https://github.com/Charpup/raiden-ii-web-remake)
 
 ## Useful Commands
 ```bash

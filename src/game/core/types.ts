@@ -1,4 +1,18 @@
+export type SessionMode = "single" | "co-op";
+export type CabinetProfile = "easy" | "hard";
 export type PlayerSlot = "player1" | "player2";
+export type MainWeaponType = "vulcan" | "laser" | "plasma";
+export type SubWeaponType = "homing" | "straight";
+export type PickupKind =
+  | "medal"
+  | "hidden-medal"
+  | "main-vulcan"
+  | "main-laser"
+  | "main-plasma"
+  | "sub-homing"
+  | "sub-straight"
+  | "bomb"
+  | "extend";
 
 export interface Vector2 {
   x: number;
@@ -20,17 +34,111 @@ export interface SimulationFrameInput {
   players: Partial<Record<PlayerSlot, PlayerInputState>>;
 }
 
-export interface PlayerState {
+export interface WeaponState<TType extends string> {
+  type: TType;
+  level: number;
+}
+
+export interface CombatRules {
+  moveSpeed: number;
+  focusMultiplier: number;
+  hitRadius: number;
+  maxMainWeaponLevel: number;
+  maxSubWeaponLevel: number;
+  bombInvulnerabilityFrames: number;
+  respawnInvulnerabilityFrames: number;
+  extendThresholds: number[];
+  medalValues: number[];
+  respawnMainWeaponLevel(previousLevel: number): number;
+  respawnSubWeaponLevel(previousLevel: number): number;
+}
+
+export interface ArenaBounds {
+  width: number;
+  height: number;
+}
+
+export interface BulletState {
+  id: string;
+  owner: "player" | "enemy";
+  position: Vector2;
+  velocity: Vector2;
+}
+
+export interface CheckpointState {
+  checkpointId: string;
+  position: Vector2;
+  waveCursor: number;
+  scrollY: number;
+}
+
+export interface PlayerRuntimeState {
   id: PlayerSlot;
   position: Vector2;
   hitRadius: number;
+  moveSpeed: number;
+  focusMultiplier: number;
+  lives: number;
+  bombs: number;
+  invulnerableFrames: number;
+  score: number;
+  extendsAwarded: number;
+  medalTier: number;
+  mainWeapon: WeaponState<MainWeaponType>;
+  subWeapon: WeaponState<SubWeaponType> | null;
+  active: boolean;
   animation: "idle" | "bank-left" | "bank-right";
 }
 
 export interface EnemyState {
   id: string;
+  kind: string;
   position: Vector2;
+  health: number;
+  maxHealth: number;
+  scoreValue: number;
+  spawnedByWaveId: string;
   animation: "idle";
+}
+
+export interface RuntimePickupState {
+  id: string;
+  kind: PickupKind;
+  position: Vector2;
+  collected: boolean;
+  scoreValue: number;
+  sourceId?: string;
+}
+
+export interface BossRuntimeState {
+  bossId: string;
+  active: boolean;
+  defeated: boolean;
+  currentPhaseId: string | null;
+  position: Vector2;
+  health: number;
+  maxHealth: number;
+  enteredAtFrame: number | null;
+}
+
+export interface StageRuntimeState {
+  stageId: string;
+  scrollY: number;
+  waveCursor: number;
+  checkpointCursor: number;
+  armedCheckpointId: string | null;
+  activeBossId: string | null;
+  activeBossPhaseId: string | null;
+  triggeredHiddenIds: string[];
+  defeatedEnemyIds: string[];
+  completed: boolean;
+}
+
+export interface SessionConfig {
+  mode: SessionMode;
+  cabinetProfile: CabinetProfile;
+  stageId: string;
+  loopIndex: number;
 }
 
 export type RuntimeEvent =
@@ -43,13 +151,67 @@ export type RuntimeEvent =
       type: "player-fired";
       playerId: PlayerSlot;
       atFrame: number;
+    }
+  | {
+      type: "bomb-triggered";
+      playerId: PlayerSlot;
+      atFrame: number;
+    }
+  | {
+      type: "wave-spawned";
+      waveId: string;
+      enemyIds: string[];
+      atFrame: number;
+    }
+  | {
+      type: "checkpoint-armed";
+      checkpointId: string;
+      atFrame: number;
+    }
+  | {
+      type: "hidden-triggered";
+      triggerId: string;
+      pickupId: string;
+      atFrame: number;
+    }
+  | {
+      type: "boss-started";
+      bossId: string;
+      phaseId: string;
+      atFrame: number;
+    }
+  | {
+      type: "boss-phase-changed";
+      bossId: string;
+      phaseId: string;
+      atFrame: number;
+    }
+  | {
+      type: "player-respawned";
+      playerId: PlayerSlot;
+      checkpointId: string;
+      atFrame: number;
+    }
+  | {
+      type: "stage-cleared";
+      stageId: string;
+      atFrame: number;
+    }
+  | {
+      type: "loop-advanced";
+      loopIndex: number;
+      atFrame: number;
     };
 
 export interface SimulationState {
   frame: number;
-  stageId: string;
-  players: PlayerState[];
+  session: SessionConfig;
+  players: PlayerRuntimeState[];
   enemies: EnemyState[];
+  bullets: BulletState[];
+  pickups: RuntimePickupState[];
+  boss: BossRuntimeState | null;
+  stage: StageRuntimeState;
   recentEvents: RuntimeEvent[];
 }
 
@@ -65,6 +227,8 @@ export interface PresentationalScene {
   stageId: string;
   players: PresentationalEntity[];
   enemies: PresentationalEntity[];
+  pickups: PresentationalEntity[];
+  boss: PresentationalEntity | null;
 }
 
 export interface AudioFrame {

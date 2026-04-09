@@ -16,14 +16,14 @@ This is the working baseline artifact for content authoring. It separates:
 ## Stage Matrix
 | Stage | Current Dev Status | Wave Data | Checkpoints | Hidden Items | Boss Phases | Loop/Cabinet Notes |
 |------|---------------------|-----------|-------------|--------------|-------------|--------------------|
-| 1 | Golden-slice target for current tranche | Provisional schema-backed slice in current tranche; exact arcade capture still to refine | Provisional single checkpoint in current tranche; exact arcade mapping pending | Provisional single hidden trigger in current tranche; exact arcade mapping pending | Provisional multi-phase boss in current tranche; exact arcade mapping pending | Must validate easy/hard tuning hooks without branching code |
+| 1 | Schema-backed calibration slice implemented | One provisional wave implemented in `stageCatalog`; exact arcade capture still to refine | One provisional checkpoint implemented; exact arcade mapping pending | One provisional hidden trigger implemented; exact arcade mapping pending | One provisional multi-phase boss implemented; exact arcade mapping pending | Easy/hard tuning hooks already flow through data |
 | 2 | Pending authoring | TBD from arcade capture | TBD | TBD | TBD | Must remain data-driven |
 | 3 | Pending authoring | TBD from arcade capture | TBD | TBD | TBD | Must remain data-driven |
 | 4 | Pending authoring | TBD from arcade capture | TBD | TBD | TBD | Must remain data-driven |
 | 5 | Pending authoring | TBD from arcade capture | TBD | TBD | TBD | Must remain data-driven |
 | 6 | Pending authoring | TBD from arcade capture | TBD | TBD | TBD | Must remain data-driven |
 | 7 | Pending authoring | TBD from arcade capture | TBD | TBD | TBD | Must remain data-driven |
-| 8 | Pending authoring | TBD from arcade capture | TBD | TBD | TBD | Stage clear must feed loop rules |
+| 8 | Loop-validation slice implemented | One provisional wave implemented for loop testing; full arcade capture pending | TBD | TBD | One provisional boss implemented for loop testing | Stage clear already advances loop index through data |
 
 ## Current Golden Slice Requirements
 - One schema-backed stage definition
@@ -33,6 +33,11 @@ This is the working baseline artifact for content authoring. It separates:
 - One boss encounter with multiple phases
 - Cabinet-profile tuning applied through data
 - Shared simulation state that works for 1P and 2P
+
+## Implemented Calibration Slice
+- `stage-1` currently proves scroll-driven wave spawning, checkpoint arming, hidden reward emission, boss phase changes, and stage clear state.
+- `stage-8` currently proves loop-advance behavior after a final-stage boss clear.
+- Both slices are calibration scaffolds, not final arcade-authentic authoring.
 
 ## Capture Backlog
 - Exact stage-by-stage wave ordering and scroll trigger points

@@ -39,7 +39,7 @@ Phase 5
 - **Status:** complete
 
 ### Phase 5: Stage Authoring & Content
-- [ ] Implement stage, wave, boss phase, checkpoint, and hidden trigger data systems
+- [x] Implement stage, wave, boss phase, checkpoint, and hidden trigger data systems
 - [ ] Author Stage 1-8 content baselines and loop entry
 - [ ] Implement cabinet presets and 2P lifecycle rules
 - [ ] Integrate remade audiovisual assets and UI flow
@@ -65,15 +65,30 @@ Phase 5
 | Greenfield the runtime core | Existing repos are too partial, old, or license-risky to be the product base. |
 | Treat open-source repos as references only | Preserves control over deterministic rules and public release safety. |
 | Keep combat rules pure and configurable | Supports later tuning toward arcade fidelity without coupling rules to rendering. |
+| Bootstrap GitHub early and keep `main` stable | Preserves reviewable history and keeps each implementation tranche PR-ready. |
+| Use Stage 1 and Stage 8 as calibration slices | Proves stage, boss, checkpoint, hidden, cabinet, co-op, and loop seams before full content entry. |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |
 |-------|---------|------------|
-| Existing workspace is not a git repository | 1 | Proceed as a greenfield workspace; do not assume git-based automation. |
+| Existing workspace is not a git repository | 1 | Initialized git, created the public GitHub repo, and switched future work to branch/PR flow. |
 | Several early subagents disconnected during research | 1 | Re-ran narrower tasks with longer 3-5 minute waits and recovered usable results. |
 | `npm run build` surfaced strict test typing issues | 1 | Split frame-input types and tightened null-safe combat expectations. |
+| A partial patch injected staged test content into `combatCore.test.ts` | 1 | Restored the file, moved the integration suite into its own test file, and re-ran RED before implementation. |
 
 ## Notes
 - Keep all arcade-specific behavior expressible through data/config where possible.
 - Do not bind gameplay rules to renderer objects.
 - Public release must use remade assets only.
+- Current implementation baseline includes a minimal stage catalog and stage runner, but full arcade-authentic content authoring is still pending.
+- Remaining development roadmap is now locked to 3 implementation stages:
+  1. Full Content Authoring
+  2. 2P + Cabinet + Asset/UI Integration
+  3. Verification + Release
+- Recommended PR cadence after the current seam PR:
+  - `codex/stage1-golden-slice`
+  - `codex/stages-2-4-content`
+  - `codex/stages-5-8-content-loop`
+  - `codex/2p-and-cabinet`
+  - `codex/ui-assets-flow`
+  - `codex/release-verification`

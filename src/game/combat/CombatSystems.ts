@@ -1,66 +1,25 @@
-import type { PlayerInputState, PlayerSlot, Vector2 } from "../core/types";
-
-export type MainWeaponType = "vulcan" | "laser" | "plasma";
-export type SubWeaponType = "homing" | "straight";
-
-export interface WeaponState<TType extends string> {
-  type: TType;
-  level: number;
-}
-
-export interface CombatPlayerState {
-  id: PlayerSlot;
-  position: Vector2;
-  hitRadius: number;
-  moveSpeed: number;
-  focusMultiplier: number;
-  lives: number;
-  bombs: number;
-  invulnerableFrames: number;
-  score: number;
-  extendsAwarded: number;
-  medalTier: number;
-  mainWeapon: WeaponState<MainWeaponType>;
-  subWeapon: WeaponState<SubWeaponType> | null;
-}
-
-export interface CombatRules {
-  moveSpeed: number;
-  focusMultiplier: number;
-  hitRadius: number;
-  maxMainWeaponLevel: number;
-  maxSubWeaponLevel: number;
-  bombInvulnerabilityFrames: number;
-  respawnInvulnerabilityFrames: number;
-  extendThresholds: number[];
-  medalValues: number[];
-  respawnMainWeaponLevel(previousLevel: number): number;
-  respawnSubWeaponLevel(previousLevel: number): number;
-}
-
-export interface ArenaBounds {
-  width: number;
-  height: number;
-}
-
-export interface BulletState {
-  id: string;
-}
+import type {
+  ArenaBounds,
+  BulletState,
+  CheckpointState,
+  CombatRules,
+  MainWeaponType,
+  PlayerInputState,
+  PlayerRuntimeState,
+  PlayerSlot,
+  SubWeaponType,
+  Vector2
+} from "../core/types";
 
 export interface BombResult {
   activated: boolean;
-  player: CombatPlayerState;
+  player: PlayerRuntimeState;
   remainingBullets: BulletState[];
-}
-
-export interface CheckpointState {
-  checkpointId: string;
-  position: Vector2;
 }
 
 export interface DamageResult {
   outcome: "blocked" | "respawned" | "destroyed";
-  player: CombatPlayerState;
+  player: PlayerRuntimeState;
   checkpointId: string;
 }
 
@@ -99,10 +58,10 @@ function normalize(vector: Vector2): Vector2 {
 }
 
 function awardExtends(
-  player: CombatPlayerState,
+  player: PlayerRuntimeState,
   previousScore: number,
   rules: CombatRules
-): CombatPlayerState {
+): PlayerRuntimeState {
   let awarded = 0;
 
   for (const threshold of rules.extendThresholds) {
@@ -124,9 +83,9 @@ function awardExtends(
 
 export function createCombatPlayerState(
   id: PlayerSlot,
-  overrides: Partial<CombatPlayerState> = {},
+  overrides: Partial<PlayerRuntimeState> = {},
   rules: CombatRules = defaultCombatRules
-): CombatPlayerState {
+): PlayerRuntimeState {
   return {
     id,
     position: { x: 160, y: 520 },
@@ -141,16 +100,18 @@ export function createCombatPlayerState(
     medalTier: 0,
     mainWeapon: { type: "vulcan", level: 1 },
     subWeapon: null,
+    active: true,
+    animation: "idle",
     ...overrides
   };
 }
 
 export function advancePlayerMovement(
-  player: CombatPlayerState,
+  player: PlayerRuntimeState,
   input: PlayerInputState,
   bounds: ArenaBounds,
   rules: CombatRules = defaultCombatRules
-): CombatPlayerState {
+): PlayerRuntimeState {
   const direction = normalize(input.move);
   const speed = input.focus
     ? rules.moveSpeed * rules.focusMultiplier
@@ -169,15 +130,17 @@ export function advancePlayerMovement(
     hitRadius: rules.hitRadius,
     moveSpeed: rules.moveSpeed,
     focusMultiplier: rules.focusMultiplier,
-    invulnerableFrames: Math.max(0, player.invulnerableFrames - 1)
+    invulnerableFrames: Math.max(0, player.invulnerableFrames - 1),
+    animation:
+      direction.x < 0 ? "bank-left" : direction.x > 0 ? "bank-right" : "idle"
   };
 }
 
 export function applyMainWeaponPickup(
-  player: CombatPlayerState,
+  player: PlayerRuntimeState,
   pickupType: MainWeaponType,
   rules: CombatRules = defaultCombatRules
-): CombatPlayerState {
+): PlayerRuntimeState {
   const nextLevel =
     player.mainWeapon.type === pickupType
       ? Math.min(player.mainWeapon.level + 1, rules.maxMainWeaponLevel)
@@ -193,10 +156,10 @@ export function applyMainWeaponPickup(
 }
 
 export function applySubWeaponPickup(
-  player: CombatPlayerState,
+  player: PlayerRuntimeState,
   pickupType: SubWeaponType,
   rules: CombatRules = defaultCombatRules
-): CombatPlayerState {
+): PlayerRuntimeState {
   const nextLevel =
     player.subWeapon?.type === pickupType
       ? Math.min(player.subWeapon.level + 1, rules.maxSubWeaponLevel)
@@ -212,7 +175,7 @@ export function applySubWeaponPickup(
 }
 
 export function triggerBomb(
-  player: CombatPlayerState,
+  player: PlayerRuntimeState,
   bullets: BulletState[],
   rules: CombatRules = defaultCombatRules
 ): BombResult {
@@ -239,7 +202,7 @@ export function triggerBomb(
 }
 
 export function applyPlayerDamage(
-  player: CombatPlayerState,
+  player: PlayerRuntimeState,
   checkpoint: CheckpointState,
   rules: CombatRules = defaultCombatRules
 ): DamageResult {
@@ -254,7 +217,10 @@ export function applyPlayerDamage(
   if (player.lives <= 0) {
     return {
       outcome: "destroyed",
-      player,
+      player: {
+        ...player,
+        active: false
+      },
       checkpointId: checkpoint.checkpointId
     };
   }
@@ -264,10 +230,12 @@ export function applyPlayerDamage(
     checkpointId: checkpoint.checkpointId,
     player: {
       ...player,
+      active: true,
       lives: player.lives - 1,
       position: { ...checkpoint.position },
       bombs: Math.max(1, player.bombs),
       invulnerableFrames: rules.respawnInvulnerabilityFrames,
+      animation: "idle",
       mainWeapon: {
         ...player.mainWeapon,
         level: rules.respawnMainWeaponLevel(player.mainWeapon.level)
@@ -283,10 +251,10 @@ export function applyPlayerDamage(
 }
 
 export function awardPoints(
-  player: CombatPlayerState,
+  player: PlayerRuntimeState,
   points: number,
   rules: CombatRules = defaultCombatRules
-): CombatPlayerState {
+): PlayerRuntimeState {
   const previousScore = player.score;
   const next = {
     ...player,
@@ -297,9 +265,9 @@ export function awardPoints(
 }
 
 export function collectMedal(
-  player: CombatPlayerState,
+  player: PlayerRuntimeState,
   rules: CombatRules = defaultCombatRules
-): CombatPlayerState {
+): PlayerRuntimeState {
   const medalTier = Math.min(player.medalTier, rules.medalValues.length - 1);
   const scoreAward = rules.medalValues[medalTier];
   const awarded = awardPoints(player, scoreAward, rules);

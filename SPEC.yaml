@@ -1,7 +1,7 @@
 specification:
-  name: "Raiden II Web Remake Runtime Foundation"
-  version: "0.1.0"
-  description: "Batch A runtime architecture for deterministic simulation, input mapping, renderer sync, and audio sync."
+  name: "Raiden II Web Remake Runtime and Stage Systems"
+  version: "0.2.0"
+  description: "Deterministic runtime, combat core, and data-driven stage orchestration for the web remake."
 
 tdd_config:
   test_framework: vitest
@@ -143,3 +143,107 @@ requirements:
         given: "a player just below an extend threshold"
         when: "points are awarded past the threshold"
         then: "exactly one extend is granted for that threshold crossing"
+  - id: SIM-003
+    description: "The simulation owns gameplay runtime state for session, players, enemies, pickups, boss progress, and stage cursors."
+    priority: high
+    scenarios:
+      - name: "simulation initializes session-owned runtime state"
+        given: "a new simulation with an explicit session config"
+        when: "its initial state is queried"
+        then: "the returned snapshot contains the configured session, runtime players, and empty encounter state"
+      - name: "co-op mode initializes two player runtime models"
+        given: "a simulation configured for co-op play"
+        when: "its initial state is queried"
+        then: "two independent runtime players are present in the same simulation snapshot"
+  - id: SIM-004
+    description: "Simulation.step consumes frame input and produces end-to-end gameplay state transitions without delegating rules to renderer or audio layers."
+    priority: high
+    scenarios:
+      - name: "step applies player movement and fire input"
+        given: "a running simulation and a player input snapshot"
+        when: "the simulation steps one frame"
+        then: "player position updates and a fire event is emitted from simulation state"
+      - name: "inactive players ignore gameplay input"
+        given: "a player that has already been destroyed and marked inactive"
+        when: "movement fire and bomb input are supplied on a later frame"
+        then: "the inactive player does not move and emits no gameplay events"
+      - name: "step keeps renderer and audio as read-only projections"
+        given: "a simulation snapshot after gameplay updates"
+        when: "renderer and audio sync are called"
+        then: "they derive presentation cues without mutating the simulation snapshot"
+  - id: STG-001
+    description: "The stage runner advances scroll state and emits scripted wave spawns from data-driven stage definitions."
+    priority: high
+    scenarios:
+      - name: "scroll-driven wave trigger spawns configured enemies"
+        given: "a stage definition with a wave waiting on scroll progress"
+        when: "simulation advances past the trigger point"
+        then: "the configured enemies are instantiated and a wave-spawned event is emitted"
+      - name: "checkpoint trigger arms the current respawn cursor"
+        given: "a stage definition with checkpoint thresholds"
+        when: "simulation scroll reaches a checkpoint threshold"
+        then: "the active checkpoint cursor updates and a checkpoint-armed event is emitted"
+  - id: STG-002
+    description: "Checkpoint recovery restores player position and stage cursor state after fatal damage."
+    priority: high
+    scenarios:
+      - name: "fatal damage respawns at armed checkpoint"
+        given: "a player with reserve lives and an armed checkpoint"
+        when: "fatal damage is applied"
+        then: "the player respawns at the checkpoint position and stage cursor state is restored"
+      - name: "checkpoint restoration preserves scripted wave cursor"
+        given: "a stage already progressed beyond earlier content"
+        when: "the player respawns from the current checkpoint"
+        then: "the stage retains the armed checkpoint wave cursor instead of resetting to the beginning"
+      - name: "checkpoint restoration keeps one-time hidden state consumed"
+        given: "a hidden trigger already consumed before a checkpoint respawn"
+        when: "the player respawns and the trigger condition becomes true again"
+        then: "the hidden reward does not spawn a second time"
+  - id: BOS-001
+    description: "Boss encounters are expressed through explicit data-driven phase state and clear conditions."
+    priority: high
+    scenarios:
+      - name: "boss phase changes when health crosses configured threshold"
+        given: "an active boss with multiple phases"
+        when: "its health is reduced beyond a phase threshold"
+        then: "the boss phase changes and a boss-phase-changed event is emitted"
+      - name: "defeating the boss clears the stage"
+        given: "an active boss at zero health"
+        when: "the next simulation frame resolves boss state"
+        then: "the stage is marked complete and a stage-cleared event is emitted"
+  - id: HID-001
+    description: "Hidden triggers are evaluated from stage data, reward the player once, and cannot double-award."
+    priority: high
+    scenarios:
+      - name: "hidden trigger spawns configured reward once"
+        given: "a hidden trigger tied to stage conditions"
+        when: "the trigger condition becomes true"
+        then: "one reward pickup is created and a hidden-triggered event is emitted"
+      - name: "hidden trigger cannot fire twice"
+        given: "a hidden trigger already marked as triggered"
+        when: "its source condition becomes true again"
+        then: "no second reward is created"
+  - id: CAB-001
+    description: "Cabinet difficulty differences are expressed through data-only tuning and do not fork gameplay code paths."
+    priority: high
+    scenarios:
+      - name: "hard cabinet increases encounter health from data"
+        given: "the same stage loaded under easy and hard cabinet profiles"
+        when: "the first scripted enemy wave spawns"
+        then: "the hard profile enemy health is higher than the easy profile health"
+  - id: COOP-001
+    description: "A single simulation supports 1P and 2P local cooperative lifecycle rules."
+    priority: high
+    scenarios:
+      - name: "co-op simulation updates both players from one frame input"
+        given: "a co-op session with independent player inputs"
+        when: "the simulation steps"
+        then: "both player runtime states update within the same simulation snapshot"
+  - id: LOP-001
+    description: "Loop progression advances through stage data and applies difficulty carryover in simulation state."
+    priority: high
+    scenarios:
+      - name: "final stage clear advances loop index"
+        given: "a loop-ending stage definition and a defeated final boss"
+        when: "the simulation resolves stage clear"
+        then: "the session loop index increments and a loop-advanced event is emitted"
