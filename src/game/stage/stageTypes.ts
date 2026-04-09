@@ -26,6 +26,7 @@ export interface SpawnDefinition {
   position: Vector2;
   health: number;
   scoreValue: number;
+  blocksProgression?: boolean;
   spawnOffsetFrames?: number;
   behaviorId?: string;
   scriptedDefeats?: EnemyScriptedDefeatState[];
@@ -51,6 +52,10 @@ export type HiddenTriggerCondition =
       scrollY: number;
     }
   | {
+      type: "all-enemies-destroyed";
+      enemyIds: string[];
+    }
+  | {
       type: "enemy-destroyed";
       enemyId: string;
     }
@@ -70,9 +75,10 @@ export interface HiddenRewardDefinition {
 export interface HiddenTriggerDefinition {
   id: string;
   trigger: HiddenTriggerCondition;
-  reward: HiddenRewardDefinition;
+  reward?: HiddenRewardDefinition;
   rewardOverrides?: Partial<Record<CabinetProfile, HiddenRewardDefinition>>;
   checkpointRespawnRewards?: HiddenRewardDefinition[];
+  revealEnemies?: SpawnDefinition[];
 }
 
 export interface BossPhaseDefinition {

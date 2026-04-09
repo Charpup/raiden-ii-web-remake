@@ -106,6 +106,7 @@ export interface EnemyState {
   scoreValue: number;
   spawnedByWaveId: string;
   spawnedAtFrame: number;
+  blocksProgression: boolean;
   behaviorId?: string;
   scriptedDefeats?: EnemyScriptedDefeatState[];
   animation: "idle";

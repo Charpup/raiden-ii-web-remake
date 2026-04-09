@@ -346,11 +346,11 @@ requirements:
       - name: "stage 4 definition exposes the forest, ruins, lake defense, platform, and tower beats"
         given: "the authored stage 4 definition"
         when: "its wave list is inspected"
-        then: "the route includes the ring-defense targets, first platform, third-platform kamikaze rush, and twin-tower approach"
+        then: "the route includes the ring-defense targets, first platform, third-platform kamikaze rush, and twin-tower approach without making the hidden fairy route a required wave gate"
       - name: "stage 4 chained hidden route stays in the authoring layer"
         given: "the authored stage 4 wave and hidden trigger data"
         when: "the ring targets and revealed bush route are inspected"
-        then: "the fairy path is expressed through authored trigger conditions and reveal content rather than a simulation-side special case"
+        then: "the fairy path is expressed through authored hidden-trigger conditions and reveal content rather than a simulation-side special case"
   - id: CHK-201
     description: "Stages 2 through 4 expose coarse checkpoint recovery anchors that preserve late-route progress without resetting to the beginning."
     priority: medium
@@ -374,7 +374,7 @@ requirements:
       - name: "stage 4 ring targets reveal the bush before the fairy reward"
         given: "the stage 4 lake defense route"
         when: "all eight ring targets are destroyed and the revealed bush is then destroyed"
-        then: "the bush appears first and the fairy reward appears only after the bush is destroyed"
+        then: "the bush appears first as a non-blocking hidden reveal and the fairy reward appears only after the bush is destroyed"
   - id: BOS-201
     description: "Stages 2 through 4 culminate in authored boss encounters with named phase ladders and multipart structure where needed."
     priority: high
@@ -395,10 +395,10 @@ requirements:
     description: "Stage 2 through 4 authoring data extends the Stage 1 model with only the minimal new trigger metadata needed for special-route fidelity."
     priority: high
     scenarios:
-      - name: "waves can wait on the defeat of authored targets"
-        given: "a stage definition with a reveal wave gated on multiple destroyed targets"
+      - name: "hidden routes can reveal authored enemies after grouped target clears"
+        given: "a stage definition with a hidden reveal gated on multiple destroyed targets"
         when: "the authoring data is inspected"
-        then: "the wave trigger can express all-target-destroyed gating in data"
+        then: "the hidden trigger can express all-target-destroyed gating and reveal authored enemies in data"
       - name: "hidden routes can require a specific authored destroy source"
         given: "a hidden trigger for the stage 3 crusher-tank route"
         when: "the authoring data is inspected"

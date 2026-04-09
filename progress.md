@@ -141,6 +141,7 @@
   - Added minimal generic authoring/runtime support for source-aware hidden triggers, all-target-cleared reveal waves, scripted enemy-caused destroys, and Stage 2 cabinet-gated waves.
   - Addressed reviewer findings by turning the Stage 3 silver-crate 1UP into a simulation-reachable scripted destroy route and upgrading Thunder Fortress into a multipart boss with barricade, tower, and core structures.
   - Added a hard-cabinet late-car regression test so the Stage 2 special target remains data-gated.
+  - Addressed PR `#3` review feedback by moving the Stage 4 fairy-bush reveal out of the ordered wave list into a non-blocking hidden reveal trigger, and by marking Stage 4's optional hidden-route scenery as non-blocking for boss progression.
 - Files created/modified:
   - `SPEC.yaml`
   - `.tdd-state.json`
@@ -185,6 +186,10 @@
 | Stage 2-4 Content GREEN | `npm run test:run` after Stage 2-4 authoring implementation and reviewer follow-up fixes | Runtime, seam, Stage 1, and Stage 2-4 suites all pass | 45/45 tests passed | PASS |
 | Stage 2-4 Content Coverage | `npm run coverage` after reviewer follow-up fixes | Coverage >= 80% | 97.29% total coverage | PASS |
 | Stage 2-4 Content Build | `npm run build` after reviewer follow-up fixes | Strict type check and production build pass | Build passed | PASS |
+| PR #3 Feedback RED | `npm run test:run -- tests/stages2to4Content.test.ts` after tightening Stage 4 optional-route assertions | The ordered-wave fairy reveal should fail before the review fix lands | Failed on Stage 4 wave ordering and boss progression without clearing ring targets | PASS |
+| PR #3 Feedback GREEN | `npm run test:run` after the Stage 4 hidden-reveal refactor | Full test suite stays green after the review fix | 46/46 tests passed | PASS |
+| PR #3 Feedback Coverage | `npm run coverage` after the Stage 4 hidden-reveal refactor | Coverage >= 80% | 97.16% total coverage | PASS |
+| PR #3 Feedback Build | `npm run build` after the Stage 4 hidden-reveal refactor | Strict type check and production build pass | Build passed | PASS |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
@@ -200,6 +205,7 @@
 | 2026-04-10 00:00 CST | Stage 1 reviewer flagged missing fairy checkpoint recovery and missing twin-Walker representation | 1 | Added a second RED cycle, implemented checkpoint respawn drops for the fairy route, and upgraded the Death Walkers boss to a dual-part model. |
 | 2026-04-10 00:06 CST | Final Stage 1 reviewer found checkpoint-unsafe delayed spawns and missing twin-Walker render projection | 1 | Tightened late Stage 1 spawn offsets around the crater checkpoint and projected boss parts through the renderer. |
 | 2026-04-10 00:41 CST | Stage 2-4 reviewer flagged a non-playable Stage 3 1UP route and a non-multipart Thunder Fortress boss | 1 | Added generic scripted enemy-caused defeats, upgraded Thunder Fortress to multipart data, updated the tests to exercise both paths, and re-ran verification. |
+| 2026-04-10 01:10 CST | PR `#3` review flagged Stage 4's fairy-bush reveal as an ordered-wave progression gate | 1 | Moved the bush reveal into a non-blocking hidden trigger, marked optional hidden-route scenery as non-blocking, and added regressions for mainline progression without clearing the ring set. |
 
 ## 5-Question Reboot Check
 | Question | Answer |

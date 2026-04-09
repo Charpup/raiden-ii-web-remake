@@ -926,6 +926,7 @@ export const stageCatalog: Record<string, StageDefinition> = {
             position: { x: 160, y: 132 },
             health: 10,
             scoreValue: 400,
+            blocksProgression: false,
             behaviorId: "static-scenery"
           },
           {
@@ -934,6 +935,7 @@ export const stageCatalog: Record<string, StageDefinition> = {
             position: { x: 194, y: 142 },
             health: 10,
             scoreValue: 400,
+            blocksProgression: false,
             spawnOffsetFrames: 1,
             behaviorId: "static-scenery"
           },
@@ -943,6 +945,7 @@ export const stageCatalog: Record<string, StageDefinition> = {
             position: { x: 216, y: 170 },
             health: 10,
             scoreValue: 400,
+            blocksProgression: false,
             spawnOffsetFrames: 2,
             behaviorId: "static-scenery"
           },
@@ -952,6 +955,7 @@ export const stageCatalog: Record<string, StageDefinition> = {
             position: { x: 194, y: 198 },
             health: 10,
             scoreValue: 400,
+            blocksProgression: false,
             spawnOffsetFrames: 3,
             behaviorId: "static-scenery"
           },
@@ -961,6 +965,7 @@ export const stageCatalog: Record<string, StageDefinition> = {
             position: { x: 160, y: 208 },
             health: 10,
             scoreValue: 400,
+            blocksProgression: false,
             spawnOffsetFrames: 4,
             behaviorId: "static-scenery"
           },
@@ -970,6 +975,7 @@ export const stageCatalog: Record<string, StageDefinition> = {
             position: { x: 126, y: 198 },
             health: 10,
             scoreValue: 400,
+            blocksProgression: false,
             spawnOffsetFrames: 5,
             behaviorId: "static-scenery"
           },
@@ -979,6 +985,7 @@ export const stageCatalog: Record<string, StageDefinition> = {
             position: { x: 104, y: 170 },
             health: 10,
             scoreValue: 400,
+            blocksProgression: false,
             spawnOffsetFrames: 6,
             behaviorId: "static-scenery"
           },
@@ -988,33 +995,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             position: { x: 126, y: 142 },
             health: 10,
             scoreValue: 400,
+            blocksProgression: false,
             spawnOffsetFrames: 7,
-            behaviorId: "static-scenery"
-          }
-        ]
-      },
-      {
-        id: "stage-4-revealed-fairy-bush",
-        trigger: {
-          type: "all-enemies-destroyed",
-          enemyIds: [
-            "stage-4-ring-target-1",
-            "stage-4-ring-target-2",
-            "stage-4-ring-target-3",
-            "stage-4-ring-target-4",
-            "stage-4-ring-target-5",
-            "stage-4-ring-target-6",
-            "stage-4-ring-target-7",
-            "stage-4-ring-target-8"
-          ]
-        },
-        enemies: [
-          {
-            id: "stage-4-fairy-bush",
-            kind: "hidden-bush",
-            position: { x: 160, y: 176 },
-            health: 14,
-            scoreValue: 250,
             behaviorId: "static-scenery"
           }
         ]
@@ -1121,10 +1103,37 @@ export const stageCatalog: Record<string, StageDefinition> = {
         id: "stage-4-checkpoint-kamikaze-rush",
         scrollY: 214,
         position: { x: 160, y: 472 },
-        waveCursor: 4
+        waveCursor: 3
       }
     ],
     hiddenTriggers: [
+      {
+        id: "stage-4-hidden-fairy-reveal",
+        trigger: {
+          type: "all-enemies-destroyed",
+          enemyIds: [
+            "stage-4-ring-target-1",
+            "stage-4-ring-target-2",
+            "stage-4-ring-target-3",
+            "stage-4-ring-target-4",
+            "stage-4-ring-target-5",
+            "stage-4-ring-target-6",
+            "stage-4-ring-target-7",
+            "stage-4-ring-target-8"
+          ]
+        },
+        revealEnemies: [
+          {
+            id: "stage-4-fairy-bush",
+            kind: "hidden-bush",
+            position: { x: 160, y: 176 },
+            health: 14,
+            scoreValue: 250,
+            blocksProgression: false,
+            behaviorId: "static-scenery"
+          }
+        ]
+      },
       {
         id: "stage-4-hidden-fairy",
         trigger: {

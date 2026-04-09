@@ -60,7 +60,6 @@ describe("Stages 2-4 content authoring", () => {
     expect(stage4.waves.map((wave) => wave.id)).toEqual([
       "stage-4-forest-advance",
       "stage-4-ring-defense-circle",
-      "stage-4-revealed-fairy-bush",
       "stage-4-first-platform-push",
       "stage-4-third-platform-kamikaze-rush",
       "stage-4-twin-cannon-towers"
@@ -78,10 +77,10 @@ describe("Stages 2-4 content authoring", () => {
         })
       ])
     );
-    expect(stage4.waves).toEqual(
+    expect(stage4.hiddenTriggers).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: "stage-4-revealed-fairy-bush",
+          id: "stage-4-hidden-fairy-reveal",
           trigger: expect.objectContaining({
             type: "all-enemies-destroyed",
             enemyIds: [
@@ -94,7 +93,12 @@ describe("Stages 2-4 content authoring", () => {
               "stage-4-ring-target-7",
               "stage-4-ring-target-8"
             ]
-          })
+          }),
+          revealEnemies: [
+            expect.objectContaining({
+              id: "stage-4-fairy-bush"
+            })
+          ]
         })
       ])
     );
@@ -215,6 +219,29 @@ describe("Stages 2-4 content authoring", () => {
     expect(state.boss?.currentPhaseId).toBe("stage-3-battle-axe-exposed-core");
   });
 
+  it("STG-203 keeps the Stage 4 fairy route optional for mainline progression", () => {
+    const simulation = new Simulation({ stageId: "stage-4" });
+    let state = simulation.getState();
+
+    while (!state.boss?.active && state.frame < 860) {
+      for (const enemy of state.enemies) {
+        if (
+          enemy.id.startsWith("stage-4-ring-target") ||
+          enemy.id === "stage-4-fairy-bush"
+        ) {
+          continue;
+        }
+
+        simulation.defeatEnemy(enemy.id);
+      }
+
+      state = simulation.step({ players: {} });
+    }
+
+    expect(state.boss?.bossId).toBe("stage-4-thunder-fortress");
+    expect(state.stage.waveCursor).toBeGreaterThanOrEqual(5);
+  });
+
   it("STG-203 and HID-201 reveal the Stage 4 fairy bush after the ring targets are cleared", () => {
     const simulation = new Simulation({ stageId: "stage-4" });
     let state = stepUntil(
@@ -237,15 +264,23 @@ describe("Stages 2-4 content authoring", () => {
       simulation.defeatEnemy(enemyId);
     }
 
-    state = stepUntil(
-      simulation,
-      (nextState) => nextState.enemies.some((enemy) => enemy.id === "stage-4-fairy-bush"),
-      340
-    );
+    state = stepUntil(simulation, (nextState) => {
+      const bushRevealed = nextState.enemies.some(
+        (enemy) => enemy.id === "stage-4-fairy-bush"
+      );
+      const laterWaveSpawned = nextState.enemies.some(
+        (enemy) => enemy.id === "stage-4-platform-core-left"
+      );
+
+      return bushRevealed && laterWaveSpawned;
+    }, 340);
 
     expect(
       state.pickups.filter((pickup) => pickup.kind === "fairy")
     ).toHaveLength(0);
+    expect(state.enemies.some((enemy) => enemy.id === "stage-4-platform-core-left")).toBe(
+      true
+    );
 
     simulation.defeatEnemy("stage-4-fairy-bush");
     state = simulation.step({ players: {} });

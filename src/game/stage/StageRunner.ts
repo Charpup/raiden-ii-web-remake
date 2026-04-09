@@ -104,6 +104,10 @@ function isHiddenTriggered(
   switch (condition.type) {
     case "scroll":
       return stage.scrollY >= condition.scrollY;
+    case "all-enemies-destroyed":
+      return condition.enemyIds.every((enemyId) =>
+        stage.defeatedEnemyIds.includes(enemyId)
+      );
     case "enemy-destroyed-by":
       return stage.defeatedEnemyRecords.some(
         (record) =>
@@ -118,8 +122,12 @@ function isHiddenTriggered(
 function resolveHiddenReward(
   trigger: HiddenTriggerDefinition,
   session: SessionConfig
-): HiddenTriggerDefinition["reward"] {
-  return trigger.rewardOverrides?.[session.cabinetProfile] ?? trigger.reward;
+): HiddenTriggerDefinition["reward"] | null {
+  return trigger.rewardOverrides?.[session.cabinetProfile] ?? trigger.reward ?? null;
+}
+
+function hasBlockingEnemies(enemies: EnemyState[]): boolean {
+  return enemies.some((enemy) => enemy.blocksProgression);
 }
 
 export class StageRunner {
@@ -312,20 +320,29 @@ export class StageRunner {
 
       const reward = resolveHiddenReward(hidden, state.session);
       stage.triggeredHiddenIds.push(hidden.id);
-      pickups.push({
-        id: reward.pickupId,
-        kind: reward.kind,
-        position: { ...reward.position },
-        collected: false,
-        scoreValue: reward.scoreValue,
-        sourceId: hidden.id
-      });
-      events.push({
-        type: "hidden-triggered",
-        triggerId: hidden.id,
-        pickupId: reward.pickupId,
-        atFrame: state.frame
-      });
+      if (hidden.revealEnemies?.length) {
+        enemies.push(
+          ...hidden.revealEnemies.map((spawn) =>
+            this.createEnemyState(spawn, hidden.id, state.session, state.frame)
+          )
+        );
+      }
+      if (reward) {
+        pickups.push({
+          id: reward.pickupId,
+          kind: reward.kind,
+          position: { ...reward.position },
+          collected: false,
+          scoreValue: reward.scoreValue,
+          sourceId: hidden.id
+        });
+        events.push({
+          type: "hidden-triggered",
+          triggerId: hidden.id,
+          pickupId: reward.pickupId,
+          atFrame: state.frame
+        });
+      }
     }
 
     if (
@@ -333,7 +350,7 @@ export class StageRunner {
       !boss &&
       stage.waveCursor >= definition.waves.length &&
       stage.pendingSpawns.length === 0 &&
-      enemies.length === 0 &&
+      !hasBlockingEnemies(enemies) &&
       stage.scrollY >= definition.boss.trigger.minScrollY
     ) {
       boss = this.createBossState(definition.boss, state.session, state.frame);
@@ -415,6 +432,7 @@ export class StageRunner {
       scoreValue: spawn.scoreValue,
       spawnedByWaveId: waveId,
       spawnedAtFrame: frame,
+      blocksProgression: spawn.blocksProgression ?? true,
       behaviorId: spawn.behaviorId,
       scriptedDefeats: spawn.scriptedDefeats?.map((defeat) => ({ ...defeat })),
       animation: "idle"
