@@ -32,7 +32,8 @@ export interface StageAdvanceResult {
 function cloneEnemy(enemy: EnemyState): EnemyState {
   return {
     ...enemy,
-    position: { ...enemy.position }
+    position: { ...enemy.position },
+    scriptedDefeats: enemy.scriptedDefeats?.map((defeat) => ({ ...defeat }))
   };
 }
 
@@ -77,11 +78,18 @@ function selectBossPhase(
 
 function isWaveTriggered(
   wave: WaveDefinition,
+  stage: StageRuntimeState,
   frame: number,
   scrollY: number
 ): boolean {
   if (wave.trigger.type === "frame") {
     return frame >= wave.trigger.frame;
+  }
+
+  if (wave.trigger.type === "all-enemies-destroyed") {
+    return wave.trigger.enemyIds.every((enemyId) =>
+      stage.defeatedEnemyIds.includes(enemyId)
+    );
   }
 
   return scrollY >= wave.trigger.scrollY;
@@ -91,11 +99,20 @@ function isHiddenTriggered(
   trigger: HiddenTriggerDefinition,
   stage: StageRuntimeState
 ): boolean {
-  if (trigger.trigger.type === "scroll") {
-    return stage.scrollY >= trigger.trigger.scrollY;
-  }
+  const condition = trigger.trigger;
 
-  return stage.defeatedEnemyIds.includes(trigger.trigger.enemyId);
+  switch (condition.type) {
+    case "scroll":
+      return stage.scrollY >= condition.scrollY;
+    case "enemy-destroyed-by":
+      return stage.defeatedEnemyRecords.some(
+        (record) =>
+          record.enemyId === condition.enemyId &&
+          record.sourceEnemyId === condition.sourceEnemyId
+      );
+    case "enemy-destroyed":
+      return stage.defeatedEnemyIds.includes(condition.enemyId);
+  }
 }
 
 function resolveHiddenReward(
@@ -125,6 +142,7 @@ export class StageRunner {
       activeBossPhaseId: null,
       triggeredHiddenIds: [],
       defeatedEnemyIds: [],
+      defeatedEnemyRecords: [],
       pendingSpawns: [],
       completed: false
     };
@@ -165,6 +183,7 @@ export class StageRunner {
       activeBossPhaseId: null,
       triggeredHiddenIds: [...stage.triggeredHiddenIds],
       defeatedEnemyIds: [],
+      defeatedEnemyRecords: [],
       pendingSpawns: [],
       completed: false
     };
@@ -202,6 +221,7 @@ export class StageRunner {
       ...state.stage,
       triggeredHiddenIds: [...state.stage.triggeredHiddenIds],
       defeatedEnemyIds: [...state.stage.defeatedEnemyIds],
+      defeatedEnemyRecords: state.stage.defeatedEnemyRecords.map((record) => ({ ...record })),
       pendingSpawns: state.stage.pendingSpawns.map((pending) => ({ ...pending }))
     };
     let boss = cloneBoss(state.boss);
@@ -227,12 +247,23 @@ export class StageRunner {
 
     while (
       stage.waveCursor < definition.waves.length &&
-      isWaveTriggered(definition.waves[stage.waveCursor], state.frame, stage.scrollY)
+      isWaveTriggered(definition.waves[stage.waveCursor], stage, state.frame, stage.scrollY)
     ) {
       const wave = definition.waves[stage.waveCursor];
+      const enabledForCabinet =
+        !wave.cabinetProfiles ||
+        wave.cabinetProfiles.includes(state.session.cabinetProfile);
+
+      if (!enabledForCabinet) {
+        stage.waveCursor += 1;
+        continue;
+      }
+
       const spawned = wave.enemies
         .filter((spawn) => (spawn.spawnOffsetFrames ?? 0) <= 0)
-        .map((spawn) => this.createEnemyState(spawn, wave.id, state.session));
+        .map((spawn) =>
+          this.createEnemyState(spawn, wave.id, state.session, state.frame)
+        );
 
       const delayedSpawns = wave.enemies
         .filter((spawn) => (spawn.spawnOffsetFrames ?? 0) > 0)
@@ -266,10 +297,13 @@ export class StageRunner {
         continue;
       }
 
-      enemies.push(this.createEnemyState(spawn, pending.waveId, state.session));
+      enemies.push(
+        this.createEnemyState(spawn, pending.waveId, state.session, state.frame)
+      );
     }
 
     stage.pendingSpawns = remainingPendingSpawns;
+    this.resolveScriptedEnemyDefeats(enemies, stage, state.frame);
 
     for (const hidden of definition.hiddenTriggers) {
       if (stage.triggeredHiddenIds.includes(hidden.id) || !isHiddenTriggered(hidden, stage)) {
@@ -365,7 +399,8 @@ export class StageRunner {
   private createEnemyState(
     spawn: WaveDefinition["enemies"][number],
     waveId: string,
-    session: SessionConfig
+    session: SessionConfig,
+    frame: number
   ): EnemyState {
     const definition = this.getDefinition(session.stageId);
     const multiplier = this.getEnemyHealthMultiplier(definition, session);
@@ -379,7 +414,9 @@ export class StageRunner {
       maxHealth,
       scoreValue: spawn.scoreValue,
       spawnedByWaveId: waveId,
+      spawnedAtFrame: frame,
       behaviorId: spawn.behaviorId,
+      scriptedDefeats: spawn.scriptedDefeats?.map((defeat) => ({ ...defeat })),
       animation: "idle"
     };
   }
@@ -457,5 +494,37 @@ export class StageRunner {
       definition.difficulty[session.cabinetProfile].scrollSpeedMultiplier *
       (1 + definition.loopTuning.scrollSpeedMultiplierPerLoop * session.loopIndex)
     );
+  }
+
+  private resolveScriptedEnemyDefeats(
+    enemies: EnemyState[],
+    stage: StageRuntimeState,
+    frame: number
+  ): void {
+    for (const sourceEnemy of [...enemies]) {
+      for (const scriptedDefeat of sourceEnemy.scriptedDefeats ?? []) {
+        if (frame - sourceEnemy.spawnedAtFrame < scriptedDefeat.afterFrames) {
+          continue;
+        }
+
+        if (stage.defeatedEnemyIds.includes(scriptedDefeat.targetEnemyId)) {
+          continue;
+        }
+
+        const targetIndex = enemies.findIndex(
+          (enemy) => enemy.id === scriptedDefeat.targetEnemyId
+        );
+        if (targetIndex === -1) {
+          continue;
+        }
+
+        enemies.splice(targetIndex, 1);
+        stage.defeatedEnemyIds.push(scriptedDefeat.targetEnemyId);
+        stage.defeatedEnemyRecords.push({
+          enemyId: scriptedDefeat.targetEnemyId,
+          sourceEnemyId: sourceEnemy.id
+        });
+      }
+    }
   }
 }

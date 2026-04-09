@@ -1,4 +1,10 @@
-import type { ArenaBounds, CabinetProfile, PickupKind, Vector2 } from "../core/types";
+import type {
+  ArenaBounds,
+  CabinetProfile,
+  EnemyScriptedDefeatState,
+  PickupKind,
+  Vector2
+} from "../core/types";
 
 export type WaveTrigger =
   | {
@@ -8,6 +14,10 @@ export type WaveTrigger =
   | {
       type: "frame";
       frame: number;
+    }
+  | {
+      type: "all-enemies-destroyed";
+      enemyIds: string[];
     };
 
 export interface SpawnDefinition {
@@ -18,12 +28,14 @@ export interface SpawnDefinition {
   scoreValue: number;
   spawnOffsetFrames?: number;
   behaviorId?: string;
+  scriptedDefeats?: EnemyScriptedDefeatState[];
 }
 
 export interface WaveDefinition {
   id: string;
   trigger: WaveTrigger;
   enemies: SpawnDefinition[];
+  cabinetProfiles?: CabinetProfile[];
 }
 
 export interface CheckpointDefinition {
@@ -41,6 +53,11 @@ export type HiddenTriggerCondition =
   | {
       type: "enemy-destroyed";
       enemyId: string;
+    }
+  | {
+      type: "enemy-destroyed-by";
+      enemyId: string;
+      sourceEnemyId: string;
     };
 
 export interface HiddenRewardDefinition {

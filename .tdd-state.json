@@ -1,20 +1,20 @@
 {
-  "spec_id": "STG-102",
+  "spec_id": "AUTH-201",
   "phase": "complete",
   "red_evidence": {
-    "timestamp": "2026-04-10T00:06:04+08:00",
+    "timestamp": "2026-04-10T00:32:21+08:00",
     "test_command": "npm run test:run",
-    "tests_total": 38,
-    "tests_failed": 2,
-    "output_snapshot": "FAIL tests/stage1GoldenSlice.test.ts > Stage 1 golden slice > STG-102 respawns single-player runs from the crater-exit checkpoint"
+    "tests_total": 44,
+    "tests_failed": 6,
+    "output_snapshot": "FAIL tests/stages2to4Content.test.ts > Stages 2-4 content authoring > AUTH-201 locks the Stage 2-4 macro beats and minimal new trigger metadata"
   },
   "green_evidence": {
-    "timestamp": "2026-04-10T00:06:50+08:00",
-    "tests_total": 38,
-    "tests_passed": 38
+    "timestamp": "2026-04-10T00:43:33+08:00",
+    "tests_total": 45,
+    "tests_passed": 45
   },
   "coverage": {
-    "percentage": 95.88,
+    "percentage": 97.29,
     "meets_threshold": true
   },
   "cycle_history": [
@@ -59,6 +59,12 @@
       "completed_at": "2026-04-10T00:02:34+08:00",
       "coverage": 95.86,
       "red_snapshot": "FAIL tests/stage1GoldenSlice.test.ts > Stage 1 golden slice > BOS-101 uses the authored Walker phase ladder before stage clear"
+    },
+    {
+      "spec_id": "AUTH-201",
+      "completed_at": "2026-04-10T00:43:41+08:00",
+      "coverage": 97.29,
+      "red_snapshot": "FAIL tests/stages2to4Content.test.ts > Stages 2-4 content authoring > AUTH-201 locks the Stage 2-4 macro beats and minimal new trigger metadata"
     }
   ]
 }

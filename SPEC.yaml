@@ -1,6 +1,6 @@
 specification:
   name: "Raiden II Web Remake Runtime and Stage Systems"
-  version: "0.2.0"
+  version: "0.3.0"
   description: "Deterministic runtime, combat core, and data-driven stage orchestration for the web remake."
 
 tdd_config:
@@ -315,3 +315,91 @@ requirements:
         given: "the authored stage 1 boss definition"
         when: "its phases are inspected"
         then: "each phase includes a stable pattern label for later behavior implementation"
+  - id: STG-201
+    description: "Stage 2 is authored as a macro-locked golden route covering suburb streets, canal pressure, amphibious tank setpiece, base entrance, and the Albatross finale."
+    priority: high
+    scenarios:
+      - name: "stage 2 definition exposes the authored macro route"
+        given: "the authored stage 2 definition"
+        when: "its wave list is inspected"
+        then: "the route is organized into suburb approach, canal gunboats, amphibious pair, base entrance, return-to-town pressure, and the hard-only late-car beat"
+      - name: "stage 2 can progress from authored waves into the boss encounter"
+        given: "a stage 2 simulation"
+        when: "the authored waves are cleared in order"
+        then: "the Albatross encounter starts from data without any stage-specific simulation branch"
+  - id: STG-202
+    description: "Stage 3 is authored as a harbor-to-open-water route with a scripted 1UP crush route, a Miclus platform route, and the Battle Axe finale."
+    priority: high
+    scenarios:
+      - name: "stage 3 definition exposes the harbor, sea, and war-barge beats"
+        given: "the authored stage 3 definition"
+        when: "its wave list is inspected"
+        then: "the route includes the opening crusher tanks, harbor pressure, open-water segment, dual-platform route, and war-barge approach"
+      - name: "stage 3 special routes stay data-driven"
+        given: "the authored stage 3 hidden trigger set"
+        when: "the silver crate and right platform routes are inspected"
+        then: "the 1UP crush route and Miclus route are expressed as authored triggers rather than hard-coded stage logic"
+  - id: STG-203
+    description: "Stage 4 is authored as a forest-to-fortress route with a chained fairy reveal route, late kamikaze rush, and the Thunder Fortress finale."
+    priority: high
+    scenarios:
+      - name: "stage 4 definition exposes the forest, ruins, lake defense, platform, and tower beats"
+        given: "the authored stage 4 definition"
+        when: "its wave list is inspected"
+        then: "the route includes the ring-defense targets, first platform, third-platform kamikaze rush, and twin-tower approach"
+      - name: "stage 4 chained hidden route stays in the authoring layer"
+        given: "the authored stage 4 wave and hidden trigger data"
+        when: "the ring targets and revealed bush route are inspected"
+        then: "the fairy path is expressed through authored trigger conditions and reveal content rather than a simulation-side special case"
+  - id: CHK-201
+    description: "Stages 2 through 4 expose coarse checkpoint recovery anchors that preserve late-route progress without resetting to the beginning."
+    priority: medium
+    scenarios:
+      - name: "stage 2 arms a late-route checkpoint after the amphibious setpiece"
+        given: "a stage 2 simulation"
+        when: "scroll advances through the base-return segment"
+        then: "a late-route checkpoint becomes the active respawn anchor"
+      - name: "stage 3 and stage 4 checkpoint definitions remain data-driven"
+        given: "the authored stage 3 and stage 4 definitions"
+        when: "their checkpoint lists are inspected"
+        then: "each stage exposes at least one explicit checkpoint definition for future capture refinement"
+  - id: HID-201
+    description: "Stages 2 through 4 express their special routes through data, including source-aware rewards and chained reveal routes."
+    priority: high
+    scenarios:
+      - name: "stage 3 extend route only rewards when the silver crate is crushed by the second tank"
+        given: "the stage 3 opening silver crate route"
+        when: "the silver crate is destroyed by the authored crusher tank rather than the player"
+        then: "an extend reward appears exactly once"
+      - name: "stage 4 ring targets reveal the bush before the fairy reward"
+        given: "the stage 4 lake defense route"
+        when: "all eight ring targets are destroyed and the revealed bush is then destroyed"
+        then: "the bush appears first and the fairy reward appears only after the bush is destroyed"
+  - id: BOS-201
+    description: "Stages 2 through 4 culminate in authored boss encounters with named phase ladders and multipart structure where needed."
+    priority: high
+    scenarios:
+      - name: "Albatross advances through authored missile and desperation phases"
+        given: "the stage 2 boss encounter"
+        when: "its health crosses the authored thresholds"
+        then: "the boss phase ladder follows opening, hornet missile pressure, and desperation"
+      - name: "Battle Axe advances through pop-up battery and exposed-core phases"
+        given: "the stage 3 boss encounter"
+        when: "its health crosses the authored thresholds"
+        then: "the boss phase ladder follows pop-up battery, broadside pressure, and exposed core"
+      - name: "Thunder Fortress exposes defensive structures before the core phase"
+        given: "the stage 4 boss encounter"
+        when: "its health crosses the authored thresholds"
+        then: "the boss phase ladder follows barricade opening, tower battery, and core storm"
+  - id: AUTH-201
+    description: "Stage 2 through 4 authoring data extends the Stage 1 model with only the minimal new trigger metadata needed for special-route fidelity."
+    priority: high
+    scenarios:
+      - name: "waves can wait on the defeat of authored targets"
+        given: "a stage definition with a reveal wave gated on multiple destroyed targets"
+        when: "the authoring data is inspected"
+        then: "the wave trigger can express all-target-destroyed gating in data"
+      - name: "hidden routes can require a specific authored destroy source"
+        given: "a hidden trigger for the stage 3 crusher-tank route"
+        when: "the authoring data is inspected"
+        then: "the trigger can require the authored source enemy that caused the destruction"
