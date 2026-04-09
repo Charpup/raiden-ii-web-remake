@@ -1,20 +1,20 @@
 {
-  "spec_id": "COOP-202",
+  "spec_id": "RNT-001",
   "phase": "complete",
   "red_evidence": {
-    "timestamp": "2026-04-10T02:33:02+08:00",
-    "test_command": "npm run test:run -- tests/coopCabinetIntegration.test.ts",
-    "tests_total": 7,
-    "tests_failed": 7,
-    "output_snapshot": "FAIL tests/coopCabinetIntegration.test.ts > Co-op and cabinet rules integration > COOP-201 leaves the shared encounter intact when only one player enters continue-pending"
+    "timestamp": "2026-04-10T03:20:07+08:00",
+    "test_command": "npm run test:run -- tests/uiFlowState.test.ts tests/hudProjection.test.ts tests/assetManifest.test.ts tests/runtimeShell.dom.test.ts",
+    "tests_total": 4,
+    "tests_failed": 4,
+    "output_snapshot": "FAIL tests/uiFlowState.test.ts Error: Cannot find module '../src/app/GameFlowController'"
   },
   "green_evidence": {
-    "timestamp": "2026-04-10T02:39:03+08:00",
-    "tests_total": 62,
-    "tests_passed": 62
+    "timestamp": "2026-04-10T03:34:17+08:00",
+    "tests_total": 76,
+    "tests_passed": 76
   },
   "coverage": {
-    "percentage": 96.77,
+    "percentage": 91,
     "meets_threshold": true
   },
   "cycle_history": [
@@ -89,6 +89,12 @@
       "completed_at": "2026-04-10T02:40:44+08:00",
       "coverage": 96.77,
       "red_snapshot": "FAIL tests/coopCabinetIntegration.test.ts > Co-op and cabinet rules integration > COOP-201 leaves the shared encounter intact when only one player enters continue-pending"
+    },
+    {
+      "spec_id": "RNT-001",
+      "completed_at": "2026-04-10T03:34:31+08:00",
+      "coverage": 91,
+      "red_snapshot": "FAIL tests/uiFlowState.test.ts Error: Cannot find module '../src/app/GameFlowController'"
     }
   ]
 }

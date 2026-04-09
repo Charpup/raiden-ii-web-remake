@@ -204,6 +204,42 @@
   - `src/game/combat/CombatSystems.ts`
   - `tests/coopCabinetIntegration.test.ts`
 
+### Phase 10: Browser Runtime Shell, UI Flow, And Asset Manifests
+- **Status:** complete
+- Actions taken:
+  - Kept gameplay authority inside simulation while adding an app-layer flow controller for `title -> mode-select -> cabinet-select -> gameplay -> continue -> game-over -> ending -> loop-transition`.
+  - Expanded `SPEC.yaml` with `UIF-001`, `HUD-001`, `AST-001`, `AUD-101`, and `RNT-001` to define browser-shell behavior, HUD projection, asset manifest structure, browser audio unlock semantics, and runtime orchestration.
+  - Added RED-first tests for the flow controller, HUD projection, asset manifest, and jsdom-backed browser shell.
+  - Introduced `src/app/` with `GameFlowController`, `hudProjection`, `assetManifest`, `WebAudioPlaybackAdapter`, `PixiSceneAdapter`, `BrowserRuntime`, `BrowserRuntimeView`, and `createRaidenApp`.
+  - Replaced the placeholder landing page with a functional browser shell that mounts a Pixi gameplay viewport plus DOM HUD and overlay layers.
+  - Added placeholder replacement asset/audio manifest structure and Web Audio synthesis hooks without introducing original game assets.
+  - Installed `jsdom` and kept DOM tests file-scoped so the repo-wide Vitest baseline remains `node`.
+  - Re-ran the targeted browser-shell suite, then the full suite, coverage, and production build.
+- Files created/modified:
+  - `SPEC.yaml`
+  - `package.json`
+  - `package-lock.json`
+  - `vite.config.ts`
+  - `.tdd-state.json`
+  - `task_plan.md`
+  - `progress.md`
+  - `triadev-handoff.json`
+  - `src/main.ts`
+  - `src/style.css`
+  - `src/app/GameFlowController.ts`
+  - `src/app/hudProjection.ts`
+  - `src/app/createRaidenApp.ts`
+  - `src/app/assets/assetManifest.ts`
+  - `src/app/audio/AudioPlaybackAdapter.ts`
+  - `src/app/render/PixiSceneAdapter.ts`
+  - `src/app/runtime/GameFlowState.ts`
+  - `src/app/runtime/BrowserRuntime.ts`
+  - `src/app/runtime/BrowserRuntimeView.ts`
+  - `tests/uiFlowState.test.ts`
+  - `tests/hudProjection.test.ts`
+  - `tests/assetManifest.test.ts`
+  - `tests/runtimeShell.dom.test.ts`
+
 ## Test Results
 | Test | Input | Expected | Actual | Status |
 |------|-------|----------|--------|--------|
@@ -247,6 +283,10 @@
 | 2P/Cabinet RED | `npm run test:run -- tests/coopCabinetIntegration.test.ts` after adding co-op and cabinet tests | Continue flow, ownership, and cabinet policy expectations fail before implementation | Failed on missing continue-pending, missing cabinet rules, and missing pickup/kill attribution | PASS |
 | 2P/Cabinet GREEN | `npm run test:run` after implementing 2P lifecycle and cabinet rules | Full suite stays green with co-op and cabinet behavior added | 62/62 tests passed | PASS |
 | 2P/Cabinet Build | `npm run build` after implementing 2P lifecycle and cabinet rules | Strict type check and production build pass | Build passed | PASS |
+| UI/Assets RED | `npm run test:run -- tests/uiFlowState.test.ts tests/hudProjection.test.ts tests/assetManifest.test.ts tests/runtimeShell.dom.test.ts` after adding browser-shell tests | New UI/runtime shell expectations fail before implementation | Failed on missing `src/app` modules and missing `jsdom` package | PASS |
+| UI/Assets GREEN | `npm run test:run` after implementing the browser runtime shell and DOM overlays | Full suite stays green with app-layer flow, HUD, assets, audio playback, and DOM shell coverage | 76/76 tests passed | PASS |
+| UI/Assets Coverage | `npm run coverage` after implementing the browser runtime shell and DOM overlays | Coverage >= 80% | 91.00% total coverage | PASS |
+| UI/Assets Build | `npm run build` after implementing the browser runtime shell and DOM overlays | Strict type check and production build pass | Build passed | PASS |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
@@ -266,12 +306,13 @@
 | 2026-04-10 01:27 CST | Full-suite `LOP-001` still expected the old provisional Stage 8 boss scaffold after the new final-stage content landed | 1 | Updated the legacy Stage 8 integration test to follow Mother Haven's authored shell/siege/core ladder before loop carryover. |
 | 2026-04-10 01:35 CST | Reviewer found that Stage 7/8 hidden routes could still fire during boss fights and that Stage 6's red crystal route was only age-gated, not state-gated | 1 | Added a second Stage 5-8 RED cycle, introduced authored enemy state transitions and boss-start hidden expiry flags, and updated the hidden-route tests before rerunning verification. |
 | 2026-04-10 02:33 CST | The new co-op RED suite initially burned too many frames and timed out while trying to reach `continue-pending` on the pre-implementation branch state | 1 | Tightened the test helper to cap attempts during RED, then switched the helper to a direct invulnerability-drain path once the new continue lifecycle existed. |
+| 2026-04-10 03:20 CST | The new browser-shell RED cycle failed immediately on missing `src/app` modules and absent `jsdom` support | 1 | Added the `src/app` browser shell modules, installed `jsdom`, and re-ran the targeted DOM and full-suite verification. |
 
 ## 5-Question Reboot Check
 | Question | Answer |
 |----------|--------|
-| Where am I? | At the end of the rules-first half of `2P + Cabinet + Asset/UI Integration`, with co-op lifecycle and cabinet session policy now implemented in simulation. |
-| Where am I going? | Next into `implement-ui-assets-flow`, followed by the final verification/release tranche. |
+| Where am I? | At the end of `implement-ui-assets-flow`, with a playable browser shell, DOM overlays, Pixi gameplay viewport, and placeholder replacement asset/audio manifests wired on top of the deterministic runtime. |
+| Where am I going? | Next into `polish-and-verify-build`, the final verification/release tranche. |
 | What's the goal? | Build a public static browser remake of arcade Raiden II with TriadDev Extended workflow. |
 | What have I learned? | Scope is large, fidelity depends on deterministic systems, and gameplay rules should remain data-driven, simulation-owned, renderer-independent, and per-player in co-op. |
-| What have I done? | Completed discovery, value gate, runtime foundation, combat core, GitHub bootstrap, the stage-authoring seam, PR feedback fixes, full Stage 1-8 content authoring with loop carryover, and the 2P/cabinet rules tranche. |
+| What have I done? | Completed discovery, value gate, runtime foundation, combat core, GitHub bootstrap, the stage-authoring seam, PR feedback fixes, full Stage 1-8 content authoring with loop carryover, the 2P/cabinet rules tranche, and the browser runtime shell/UI/assets tranche. |
