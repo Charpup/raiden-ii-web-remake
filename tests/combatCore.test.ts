@@ -114,8 +114,18 @@ describe("Combat core", () => {
     const player = createCombatPlayerState("player1", { bombs: 2 });
 
     const result = triggerBomb(player, [
-      { id: "bullet-a" },
-      { id: "bullet-b" }
+      {
+        id: "bullet-a",
+        owner: "enemy",
+        position: { x: 100, y: 100 },
+        velocity: { x: 0, y: 2 }
+      },
+      {
+        id: "bullet-b",
+        owner: "enemy",
+        position: { x: 120, y: 100 },
+        velocity: { x: 0, y: 2 }
+      }
     ]);
 
     expect(result.activated).toBe(true);
@@ -129,7 +139,14 @@ describe("Combat core", () => {
   it("BMB-001 does nothing when no bombs remain", () => {
     const player = createCombatPlayerState("player1", { bombs: 0 });
 
-    const result = triggerBomb(player, [{ id: "bullet-a" }]);
+    const result = triggerBomb(player, [
+      {
+        id: "bullet-a",
+        owner: "enemy",
+        position: { x: 100, y: 100 },
+        velocity: { x: 0, y: 2 }
+      }
+    ]);
 
     expect(result.activated).toBe(false);
     expect(result.player.bombs).toBe(0);
@@ -145,7 +162,9 @@ describe("Combat core", () => {
 
     const result = applyPlayerDamage(player, {
       checkpointId: "cp-1",
-      position: { x: 140, y: 460 }
+      position: { x: 140, y: 460 },
+      waveCursor: 2,
+      scrollY: 180
     });
 
     expect(result.outcome).toBe("respawned");
@@ -166,7 +185,9 @@ describe("Combat core", () => {
 
     const result = applyPlayerDamage(player, {
       checkpointId: "cp-1",
-      position: { x: 120, y: 420 }
+      position: { x: 120, y: 420 },
+      waveCursor: 1,
+      scrollY: 120
     });
 
     expect(result.outcome).toBe("blocked");
@@ -180,7 +201,9 @@ describe("Combat core", () => {
 
     const result = applyPlayerDamage(player, {
       checkpointId: "cp-1",
-      position: { x: 120, y: 420 }
+      position: { x: 120, y: 420 },
+      waveCursor: 1,
+      scrollY: 120
     });
 
     expect(result.outcome).toBe("destroyed");

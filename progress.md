@@ -50,6 +50,33 @@
   - `tests/runtimeFoundation.test.ts`
   - `tests/combatCore.test.ts`
 
+### Phase 3: GitHub Bootstrap and Stage Authoring Seam
+- **Status:** complete
+- Actions taken:
+  - Initialized git locally, configured the public GitHub remote, and pushed the bootstrap commit to `main`.
+  - Created the `codex/stage-runner-spec-and-state` feature branch for the next implementation tranche.
+  - Expanded `SPEC.yaml` with simulation-owned state, stage runner, hidden trigger, boss, cabinet, co-op, and loop requirements.
+  - Added RED-first integration tests for simulation/content state ownership and stage progression behavior.
+  - Implemented `StageRunner`, stage definitions, richer `SimulationState`, checkpoint restoration, hidden reward emission, boss phase transitions, cabinet tuning hooks, and loop advancement.
+  - Updated renderer and audio projections to remain read-only consumers of the richer simulation state.
+  - Added calibration stage definitions for `stage-1` and `stage-8` to validate the seam before full content authoring.
+  - Addressed reviewer-found regressions by projecting boss state to the renderer, isolating co-op respawns from shared encounter resets, restoring consistent single-player checkpoint bookkeeping, and turning loop advance into an actual next-loop stage transition.
+- Files created/modified:
+  - `README.md`
+  - `arcade-baseline-matrix.md`
+  - `SPEC.yaml`
+  - `task_plan.md`
+  - `src/game/core/types.ts`
+  - `src/game/core/Simulation.ts`
+  - `src/game/stage/stageTypes.ts`
+  - `src/game/stage/stageCatalog.ts`
+  - `src/game/stage/StageRunner.ts`
+  - `src/game/render/Renderer.ts`
+  - `src/game/audio/AudioDirector.ts`
+  - `tests/runtimeFoundation.test.ts`
+  - `tests/combatCore.test.ts`
+  - `tests/simulationStageIntegration.test.ts`
+
 ## Test Results
 | Test | Input | Expected | Actual | Status |
 |------|-------|----------|--------|--------|
@@ -61,6 +88,10 @@
 | Combat GREEN | `npm run test:run` after combat implementation | All current tests pass | 16/16 tests passed | PASS |
 | Current Coverage | `npm run coverage` after reviewer fixes | Coverage >= 80% | 94.49% total coverage | PASS |
 | Current Build | `npm run build` | Strict type check and production build pass | Build passed | PASS |
+| Stage Seam RED | `npm run test:run` after adding stage seam requirements/tests | New simulation/content expectations should fail before implementation | Failed on missing richer simulation state, missing stage runner methods, and outdated renderer/audio assumptions | PASS |
+| Stage Seam GREEN | `npm run test:run` after seam implementation and reviewer hardening | Runtime, combat, and stage integration tests all pass | 32/32 tests passed | PASS |
+| Stage Seam Coverage | `npm run coverage` after seam implementation and reviewer hardening | Coverage >= 80% | 94.73% total coverage | PASS |
+| Stage Seam Build | `npm run build` after seam implementation | Strict type check and production build pass | Build passed | PASS |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
@@ -69,12 +100,14 @@
 | 2026-04-09 20:09 CST | `npm run build` failed on possibly undefined player inputs in tests | 1 | Split captured frame input from simulation frame input types. |
 | 2026-04-09 20:15 CST | `npm run build` failed on nullable sub-weapon access in tests | 1 | Tightened null-safe expectations in combat tests. |
 | 2026-04-09 20:25 CST | Reviewer found permanent invulnerability, audio retention growth, and edge clamping issues | 1 | Added targeted tests and updated the affected systems. |
+| 2026-04-09 22:48 CST | Partial patch inserted an `apply_patch` marker into `combatCore.test.ts` | 1 | Removed the stray marker, created the missing integration test file properly, and resumed the RED cycle cleanly. |
+| 2026-04-09 22:57 CST | Reviewer found boss projection, checkpoint rewind, co-op respawn, and loop continuity regressions | 1 | Added regression tests first, then updated simulation and renderer logic until the new tests passed. |
 
 ## 5-Question Reboot Check
 | Question | Answer |
 |----------|--------|
 | Where am I? | Phase 5 stage authoring and content preparation after finishing runtime and combat batches. |
-| Where am I going? | Into stage authoring schemas, hidden/checkpoint systems, 2P, and cabinet variants. |
+| Where am I going? | Into full content authoring, Stage 1 golden-slice refinement, and completion of 2P/cabinet/loop delivery features. |
 | What's the goal? | Build a public static browser remake of arcade Raiden II with TriadDev Extended workflow. |
-| What have I learned? | Scope is large, fidelity depends on deterministic systems, and gameplay rules should remain data-driven and renderer-independent. |
-| What have I done? | Completed discovery, value gate, runtime foundation, and combat core with tests, coverage, and build verification. |
+| What have I learned? | Scope is large, fidelity depends on deterministic systems, and gameplay rules should remain data-driven, simulation-owned, and renderer-independent. |
+| What have I done? | Completed discovery, value gate, runtime foundation, combat core, GitHub bootstrap, and the first stage-authoring seam with tests, coverage, and build verification. |

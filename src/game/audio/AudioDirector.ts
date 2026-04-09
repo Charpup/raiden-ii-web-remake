@@ -24,6 +24,14 @@ export class AudioDirector {
       if (event.type === "player-fired") {
         sfxCues.push(`sfx-${event.playerId}-fire`);
       }
+
+      if (event.type === "bomb-triggered") {
+        sfxCues.push(`sfx-${event.playerId}-bomb`);
+      }
+
+      if (event.type === "boss-phase-changed") {
+        sfxCues.push(`sfx-${event.bossId}-${event.phaseId}`);
+      }
     }
 
     return {

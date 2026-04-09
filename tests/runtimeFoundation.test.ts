@@ -83,7 +83,7 @@ describe("Runtime foundation", () => {
 
   it("REN-001 renderer mirrors simulation entities without mutating rules", () => {
     const simulation = new Simulation();
-    const state = simulation.getState();
+    const state = simulation.step({ players: {} });
     const renderer = new Renderer();
     const frozen = JSON.parse(JSON.stringify(state));
 
@@ -91,16 +91,42 @@ describe("Runtime foundation", () => {
 
     expect(scene.players).toHaveLength(state.players.length);
     expect(scene.enemies).toHaveLength(state.enemies.length);
+    expect(scene.stageId).toBe(state.stage.stageId);
     expect(state).toEqual(frozen);
+  });
+
+  it("REN-001 renderer projects the active boss when an encounter starts", () => {
+    const simulation = new Simulation({ stageId: "stage-1" });
+    const renderer = new Renderer();
+    let state = simulation.getState();
+
+    while (!state.boss?.active && state.frame < 60) {
+      for (const enemy of state.enemies) {
+        simulation.defeatEnemy(enemy.id);
+      }
+
+      state = simulation.step({ players: {} });
+    }
+
+    const scene = renderer.sync(state);
+
+    expect(scene.boss?.id).toBe("stage-1-boss");
   });
 
   it("AUD-001 emits stage bgm and edge-triggered fire cues", () => {
     const simulation = new Simulation();
     const director = new AudioDirector();
 
-    simulation.queueEvent({ type: "stage-started", stageId: "stage-1", atFrame: 0 });
-    simulation.queueEvent({ type: "player-fired", playerId: "player1", atFrame: 0 });
-    simulation.step({ players: {} });
+    simulation.step({
+      players: {
+        player1: {
+          move: { x: 0, y: 0 },
+          fire: true,
+          bomb: false,
+          focus: false
+        }
+      }
+    });
     const first = director.sync(simulation.getState());
 
     simulation.step({ players: {} });
@@ -115,8 +141,16 @@ describe("Runtime foundation", () => {
     const simulation = new Simulation();
     const director = new AudioDirector();
 
-    simulation.queueEvent({ type: "player-fired", playerId: "player1", atFrame: 0 });
-    simulation.step({ players: {} });
+    simulation.step({
+      players: {
+        player1: {
+          move: { x: 0, y: 0 },
+          fire: true,
+          bomb: false,
+          focus: false
+        }
+      }
+    });
 
     const first = director.sync(simulation.getState());
     const second = director.sync(simulation.getState());

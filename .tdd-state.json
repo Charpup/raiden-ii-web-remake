@@ -1,20 +1,20 @@
 {
-  "spec_id": "SCR-001",
+  "spec_id": "LOP-001",
   "phase": "complete",
   "red_evidence": {
-    "timestamp": "2026-04-09T20:14:27+08:00",
+    "timestamp": "2026-04-09T22:57:06+08:00",
     "test_command": "npm run test:run",
-    "tests_total": 16,
-    "tests_failed": 1,
-    "output_snapshot": "FAIL tests/combatCore.test.ts Error: Cannot find module '../src/game/combat/CombatSystems'"
+    "tests_total": 32,
+    "tests_failed": 4,
+    "output_snapshot": "FAIL tests/runtimeFoundation.test.ts > Runtime foundation > REN-001 renderer projects the active boss when an encounter starts"
   },
   "green_evidence": {
-    "timestamp": "2026-04-09T20:26:15+08:00",
-    "tests_total": 20,
-    "tests_passed": 20
+    "timestamp": "2026-04-09T22:58:16+08:00",
+    "tests_total": 32,
+    "tests_passed": 32
   },
   "coverage": {
-    "percentage": 94.49,
+    "percentage": 94.73,
     "meets_threshold": true
   },
   "cycle_history": [
@@ -29,6 +29,18 @@
       "completed_at": "2026-04-09T20:26:15+08:00",
       "coverage": 94.49,
       "red_snapshot": "FAIL tests/combatCore.test.ts Error: Cannot find module '../src/game/combat/CombatSystems'"
+    },
+    {
+      "spec_id": "LOP-001",
+      "completed_at": "2026-04-09T22:54:13+08:00",
+      "coverage": 94.09,
+      "red_snapshot": "FAIL tests/simulationStageIntegration.test.ts > Simulation and stage integration > SIM-003 initializes session-owned runtime state"
+    },
+    {
+      "spec_id": "LOP-001",
+      "completed_at": "2026-04-09T22:58:21+08:00",
+      "coverage": 94.73,
+      "red_snapshot": "FAIL tests/runtimeFoundation.test.ts > Runtime foundation > REN-001 renderer projects the active boss when an encounter starts"
     }
   ]
 }
