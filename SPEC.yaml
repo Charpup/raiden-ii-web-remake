@@ -519,3 +519,59 @@ requirements:
         given: "a pre-boss hidden route on stage 7 or stage 8"
         when: "the authoring data is inspected"
         then: "the hidden trigger can declare that it expires on boss start without introducing simulation-side stage branches"
+  - id: COOP-201
+    description: "A co-op session keeps encounter progression shared even when one player exhausts stock and enters an independent continue state."
+    priority: high
+    scenarios:
+      - name: "one player entering continue does not reset the shared encounter"
+        given: "a co-op session with live enemies on screen"
+        when: "player one exhausts reserve stock while player two remains alive"
+        then: "player one enters continue-pending, player two keeps playing, and the shared encounter state is preserved"
+  - id: COOP-202
+    description: "Continue windows are tracked per player and can resolve independently into a resumed session or a full session game over."
+    priority: high
+    scenarios:
+      - name: "accepting continue restores one pending player"
+        given: "a player in continue-pending with continue enabled"
+        when: "that player accepts continue"
+        then: "the player re-enters at a checkpoint-safe position with starting stock and a continue-accepted event is emitted"
+      - name: "ignoring continue for both players ends the session"
+        given: "both co-op players are in continue-pending"
+        when: "their continue countdowns expire without acceptance"
+        then: "both players become game-over and the session enters session-game-over"
+  - id: COOP-203
+    description: "The simulation exposes a join or rejoin path for player two without pushing lifecycle rules into the UI layer."
+    priority: medium
+    scenarios:
+      - name: "player two can rejoin from a checkpoint-safe position"
+        given: "player two has already reached game-over in a co-op session"
+        when: "the simulation receives a joinPlayer request for player two"
+        then: "player two re-enters from a checkpoint-safe position and gameplay continues without rewinding the shared encounter"
+  - id: COOP-204
+    description: "Enemy defeats and pickup collection are attributed to the correct local player for score, extends, weapons, bombs, and rewards."
+    priority: high
+    scenarios:
+      - name: "enemy defeat credit is applied to the source player"
+        given: "a live enemy in a co-op session"
+        when: "the simulation defeats that enemy with player two as the source"
+        then: "player two receives the score credit while player one remains unchanged"
+      - name: "pickup collection affects only the collecting player"
+        given: "a live pickup in a co-op session"
+        when: "player one collects the pickup"
+        then: "only player one receives the pickup effect and the pickup-collected event identifies player one as the collector"
+  - id: CAB-201
+    description: "Cabinet rules define starting stock, extend thresholds, and continue policy for the session without forking simulation ownership."
+    priority: high
+    scenarios:
+      - name: "cabinet rules seed starting stock and extend thresholds"
+        given: "easy and hard sessions"
+        when: "their initial simulation state is inspected"
+        then: "starting lives, starting bombs, extend thresholds, and continue policy come from cabinet rules"
+  - id: CAB-202
+    description: "Hard-only content gates, reward overrides, and encounter tuning remain data-driven while cabinet rules supply session-level policy."
+    priority: high
+    scenarios:
+      - name: "hard-only authoring data remains intact beside cabinet rules"
+        given: "the authored stage data for cabinet-gated content"
+        when: "hard-only waves and reward overrides are inspected"
+        then: "the authoring layer still carries those cabinet gates rather than moving them into simulation branches"

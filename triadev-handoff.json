@@ -83,12 +83,20 @@
         ]
       },
       {
+        "id": "implement-ui-assets-flow",
+        "name": "Implement browser runtime shell, UI flow, and asset manifests",
+        "complexity": 8,
+        "dependencies": [
+          "author-full-content",
+          "implement-2p-and-cabinet"
+        ]
+      },
+      {
         "id": "polish-and-verify-build",
         "name": "Run performance checks build verification and deploy preparation",
         "complexity": 6,
         "dependencies": [
-          "author-full-content",
-          "implement-2p-and-cabinet"
+          "implement-ui-assets-flow"
         ]
       }
     ]
@@ -120,6 +128,9 @@
         "implement-2p-and-cabinet"
       ],
       [
+        "implement-ui-assets-flow"
+      ],
+      [
         "polish-and-verify-build"
       ]
     ]
@@ -139,9 +150,10 @@
       "spec-combat-core",
       "implement-combat-core",
       "implement-stage-authoring",
-      "author-full-content"
+      "author-full-content",
+      "implement-2p-and-cabinet"
     ],
-    "current": "implement-2p-and-cabinet",
+    "current": "implement-ui-assets-flow",
     "spec_path": "SPEC.yaml",
     "tdd_state_path": ".tdd-state.json"
   }

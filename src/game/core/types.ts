@@ -3,6 +3,12 @@ export type CabinetProfile = "easy" | "hard";
 export type PlayerSlot = "player1" | "player2";
 export type MainWeaponType = "vulcan" | "laser" | "plasma";
 export type SubWeaponType = "homing" | "straight";
+export type PlayerLifeState =
+  | "alive"
+  | "respawning"
+  | "continue-pending"
+  | "game-over";
+export type SessionFlowState = "playing" | "continue" | "session-game-over";
 export type PickupKind =
   | "medal"
   | "hidden-medal"
@@ -74,6 +80,18 @@ export interface CheckpointState {
   scrollY: number;
 }
 
+export interface CabinetRules {
+  profile: CabinetProfile;
+  startingLives: number;
+  startingBombs: number;
+  extendThresholds: number[];
+  continueEnabled: boolean;
+  continueCountdownFrames: number;
+  enemyHealthMultiplier: number;
+  bossHealthMultiplier: number;
+  scrollSpeedMultiplier: number;
+}
+
 export interface PlayerRuntimeState {
   id: PlayerSlot;
   position: Vector2;
@@ -88,6 +106,9 @@ export interface PlayerRuntimeState {
   medalTier: number;
   mainWeapon: WeaponState<MainWeaponType>;
   subWeapon: WeaponState<SubWeaponType> | null;
+  joined: boolean;
+  lifeState: PlayerLifeState;
+  continueFramesRemaining: number | null;
   active: boolean;
   animation: "idle" | "bank-left" | "bank-right";
 }
@@ -126,6 +147,7 @@ export interface RuntimePickupState {
   collected: boolean;
   scoreValue: number;
   sourceId?: string;
+  collectedByPlayerId?: PlayerSlot;
 }
 
 export interface BossRuntimeState {
@@ -158,6 +180,7 @@ export interface PendingSpawnState {
 
 export interface EnemyDefeatRecord {
   enemyId: string;
+  sourcePlayerId?: PlayerSlot;
   sourceEnemyId?: string;
   atFrame: number;
   enemyAgeFrames: number;
@@ -240,6 +263,38 @@ export type RuntimeEvent =
       atFrame: number;
     }
   | {
+      type: "player-joined";
+      playerId: PlayerSlot;
+      atFrame: number;
+    }
+  | {
+      type: "pickup-collected";
+      playerId: PlayerSlot;
+      pickupId: string;
+      pickupKind: PickupKind;
+      atFrame: number;
+    }
+  | {
+      type: "continue-opened";
+      playerId: PlayerSlot;
+      countdownFrames: number;
+      atFrame: number;
+    }
+  | {
+      type: "continue-accepted";
+      playerId: PlayerSlot;
+      atFrame: number;
+    }
+  | {
+      type: "player-game-over";
+      playerId: PlayerSlot;
+      atFrame: number;
+    }
+  | {
+      type: "session-game-over";
+      atFrame: number;
+    }
+  | {
       type: "stage-cleared";
       stageId: string;
       atFrame: number;
@@ -253,6 +308,8 @@ export type RuntimeEvent =
 export interface SimulationState {
   frame: number;
   session: SessionConfig;
+  cabinetRules: CabinetRules;
+  flow: SessionFlowState;
   players: PlayerRuntimeState[];
   enemies: EnemyState[];
   bullets: BulletState[];

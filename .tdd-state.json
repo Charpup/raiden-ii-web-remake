@@ -1,20 +1,20 @@
 {
-  "spec_id": "HID-301",
+  "spec_id": "COOP-202",
   "phase": "complete",
   "red_evidence": {
-    "timestamp": "2026-04-10T01:35:34+08:00",
-    "test_command": "npm run test:run -- tests/stages5to8Content.test.ts",
-    "tests_total": 8,
-    "tests_failed": 3,
-    "output_snapshot": "FAIL tests/stages5to8Content.test.ts > Stages 5-8 content authoring > HID-301 expires the Stage 7 rocket-cache route once the Huge Satellite encounter starts"
+    "timestamp": "2026-04-10T02:33:02+08:00",
+    "test_command": "npm run test:run -- tests/coopCabinetIntegration.test.ts",
+    "tests_total": 7,
+    "tests_failed": 7,
+    "output_snapshot": "FAIL tests/coopCabinetIntegration.test.ts > Co-op and cabinet rules integration > COOP-201 leaves the shared encounter intact when only one player enters continue-pending"
   },
   "green_evidence": {
-    "timestamp": "2026-04-10T01:36:39+08:00",
-    "tests_total": 8,
-    "tests_passed": 8
+    "timestamp": "2026-04-10T02:39:03+08:00",
+    "tests_total": 62,
+    "tests_passed": 62
   },
   "coverage": {
-    "percentage": 97.86,
+    "percentage": 96.77,
     "meets_threshold": true
   },
   "cycle_history": [
@@ -83,6 +83,12 @@
       "completed_at": "2026-04-10T01:36:45+08:00",
       "coverage": 97.86,
       "red_snapshot": "FAIL tests/stages5to8Content.test.ts > Stages 5-8 content authoring > HID-301 expires the Stage 7 rocket-cache route once the Huge Satellite encounter starts"
+    },
+    {
+      "spec_id": "COOP-202",
+      "completed_at": "2026-04-10T02:40:44+08:00",
+      "coverage": 96.77,
+      "red_snapshot": "FAIL tests/coopCabinetIntegration.test.ts > Co-op and cabinet rules integration > COOP-201 leaves the shared encounter intact when only one player enters continue-pending"
     }
   ]
 }

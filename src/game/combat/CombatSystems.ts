@@ -7,6 +7,7 @@ import type {
   PlayerInputState,
   PlayerRuntimeState,
   PlayerSlot,
+  RuntimePickupState,
   SubWeaponType,
   Vector2
 } from "../core/types";
@@ -100,6 +101,9 @@ export function createCombatPlayerState(
     medalTier: 0,
     mainWeapon: { type: "vulcan", level: 1 },
     subWeapon: null,
+    joined: true,
+    lifeState: "alive",
+    continueFramesRemaining: null,
     active: true,
     animation: "idle",
     ...overrides
@@ -275,5 +279,69 @@ export function collectMedal(
   return {
     ...awarded,
     medalTier: Math.min(player.medalTier + 1, rules.medalValues.length - 1)
+  };
+}
+
+export function applyPickupToPlayer(
+  player: PlayerRuntimeState,
+  pickup: RuntimePickupState,
+  rules: CombatRules = defaultCombatRules
+): PlayerRuntimeState {
+  const awardedPlayer =
+    pickup.scoreValue > 0 ? awardPoints(player, pickup.scoreValue, rules) : player;
+
+  switch (pickup.kind) {
+    case "medal":
+      return collectMedal(awardedPlayer, rules);
+    case "main-vulcan":
+      return applyMainWeaponPickup(awardedPlayer, "vulcan", rules);
+    case "main-laser":
+      return applyMainWeaponPickup(awardedPlayer, "laser", rules);
+    case "main-plasma":
+      return applyMainWeaponPickup(awardedPlayer, "plasma", rules);
+    case "sub-homing":
+      return applySubWeaponPickup(awardedPlayer, "homing", rules);
+    case "sub-straight":
+      return applySubWeaponPickup(awardedPlayer, "straight", rules);
+    case "bomb":
+      return {
+        ...awardedPlayer,
+        bombs: awardedPlayer.bombs + 1
+      };
+    case "extend":
+      return {
+        ...awardedPlayer,
+        lives: awardedPlayer.lives + 1
+      };
+    case "hidden-medal":
+    case "fairy":
+    case "miclus":
+      return awardedPlayer;
+  }
+}
+
+export function resetPlayerForContinue(
+  player: PlayerRuntimeState,
+  checkpoint: CheckpointState,
+  stock: { lives: number; bombs: number },
+  rules: CombatRules = defaultCombatRules
+): PlayerRuntimeState {
+  return {
+    ...createCombatPlayerState(
+      player.id,
+      {
+        position: { ...checkpoint.position },
+        lives: stock.lives,
+        bombs: stock.bombs
+      },
+      rules
+    ),
+    score: player.score,
+    extendsAwarded: player.extendsAwarded,
+    invulnerableFrames: rules.respawnInvulnerabilityFrames,
+    joined: true,
+    lifeState: "respawning",
+    continueFramesRemaining: null,
+    active: true
   };
 }

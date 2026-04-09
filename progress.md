@@ -181,6 +181,29 @@
   - `tests/simulationStageIntegration.test.ts`
   - `tests/stages5to8Content.test.ts`
 
+### Phase 9: 2P Lifecycle And Cabinet Session Rules
+- **Status:** complete
+- Actions taken:
+  - Merged PR `#4`, synced `main`, and created the new feature branch `codex/2p-and-cabinet`.
+  - Read the unresolved PR `#4` review thread, implemented the `bossEncounterStarted` latch fix, replied on GitHub, resolved the thread, and squash-merged the tranche.
+  - Expanded `SPEC.yaml` with `COOP-201` through `COOP-204` and `CAB-201` through `CAB-202` to lock co-op lifecycle, continue windows, ownership attribution, and cabinet session policy.
+  - Added a new `tests/coopCabinetIntegration.test.ts` suite and captured a RED run showing the missing continue state, pickup attribution, and cabinet-rules behavior.
+  - Added `CabinetRules`, `PlayerLifeState`, `SessionFlowState`, per-player continue countdowns, continue acceptance, player rejoin support, pickup collection ownership, and enemy defeat attribution to the simulation-owned runtime model.
+  - Added a dedicated `cabinetRules.ts` module so starting stock, extend thresholds, and continue policy come from the session profile without moving stage-local hard-only content out of data.
+  - Kept stage-local difficulty, hard-only waves, and reward overrides in authored stage data while the session layer now owns stock, extends, and continue policy.
+  - Re-ran the full test and build suite after the new co-op/cabinet integration path landed.
+- Files created/modified:
+  - `SPEC.yaml`
+  - `.tdd-state.json`
+  - `task_plan.md`
+  - `progress.md`
+  - `triadev-handoff.json`
+  - `src/game/core/types.ts`
+  - `src/game/core/Simulation.ts`
+  - `src/game/core/cabinetRules.ts`
+  - `src/game/combat/CombatSystems.ts`
+  - `tests/coopCabinetIntegration.test.ts`
+
 ## Test Results
 | Test | Input | Expected | Actual | Status |
 |------|-------|----------|--------|--------|
@@ -221,6 +244,9 @@
 | Stage 5-8 Content GREEN | `npm run test:run` after Stage 5-8 authoring implementation and reviewer follow-up fixes | Runtime, seam, Stage 1, Stage 2-4, and Stage 5-8 suites all pass | 54/54 tests passed | PASS |
 | Stage 5-8 Content Coverage | `npm run coverage` after Stage 5-8 authoring implementation and reviewer follow-up fixes | Coverage >= 80% | 97.86% total coverage | PASS |
 | Stage 5-8 Content Build | `npm run build` after Stage 5-8 authoring implementation | Strict type check and production build pass | Build passed | PASS |
+| 2P/Cabinet RED | `npm run test:run -- tests/coopCabinetIntegration.test.ts` after adding co-op and cabinet tests | Continue flow, ownership, and cabinet policy expectations fail before implementation | Failed on missing continue-pending, missing cabinet rules, and missing pickup/kill attribution | PASS |
+| 2P/Cabinet GREEN | `npm run test:run` after implementing 2P lifecycle and cabinet rules | Full suite stays green with co-op and cabinet behavior added | 62/62 tests passed | PASS |
+| 2P/Cabinet Build | `npm run build` after implementing 2P lifecycle and cabinet rules | Strict type check and production build pass | Build passed | PASS |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
@@ -239,12 +265,13 @@
 | 2026-04-10 01:10 CST | PR `#3` review flagged Stage 4's fairy-bush reveal as an ordered-wave progression gate | 1 | Moved the bush reveal into a non-blocking hidden trigger, marked optional hidden-route scenery as non-blocking, and added regressions for mainline progression without clearing the ring set. |
 | 2026-04-10 01:27 CST | Full-suite `LOP-001` still expected the old provisional Stage 8 boss scaffold after the new final-stage content landed | 1 | Updated the legacy Stage 8 integration test to follow Mother Haven's authored shell/siege/core ladder before loop carryover. |
 | 2026-04-10 01:35 CST | Reviewer found that Stage 7/8 hidden routes could still fire during boss fights and that Stage 6's red crystal route was only age-gated, not state-gated | 1 | Added a second Stage 5-8 RED cycle, introduced authored enemy state transitions and boss-start hidden expiry flags, and updated the hidden-route tests before rerunning verification. |
+| 2026-04-10 02:33 CST | The new co-op RED suite initially burned too many frames and timed out while trying to reach `continue-pending` on the pre-implementation branch state | 1 | Tightened the test helper to cap attempts during RED, then switched the helper to a direct invulnerability-drain path once the new continue lifecycle existed. |
 
 ## 5-Question Reboot Check
 | Question | Answer |
 |----------|--------|
-| Where am I? | At the end of Full Content Authoring, with Stage 1-8 and loop entry now authored through the generic stage seam. |
-| Where am I going? | Next into `implement-2p-and-cabinet`, followed by UI/assets integration and the final verification/release tranche. |
+| Where am I? | At the end of the rules-first half of `2P + Cabinet + Asset/UI Integration`, with co-op lifecycle and cabinet session policy now implemented in simulation. |
+| Where am I going? | Next into `implement-ui-assets-flow`, followed by the final verification/release tranche. |
 | What's the goal? | Build a public static browser remake of arcade Raiden II with TriadDev Extended workflow. |
-| What have I learned? | Scope is large, fidelity depends on deterministic systems, and gameplay rules should remain data-driven, simulation-owned, and renderer-independent. |
-| What have I done? | Completed discovery, value gate, runtime foundation, combat core, GitHub bootstrap, the stage-authoring seam, PR feedback fixes, and full Stage 1-8 content authoring with loop carryover. |
+| What have I learned? | Scope is large, fidelity depends on deterministic systems, and gameplay rules should remain data-driven, simulation-owned, renderer-independent, and per-player in co-op. |
+| What have I done? | Completed discovery, value gate, runtime foundation, combat core, GitHub bootstrap, the stage-authoring seam, PR feedback fixes, full Stage 1-8 content authoring with loop carryover, and the 2P/cabinet rules tranche. |
