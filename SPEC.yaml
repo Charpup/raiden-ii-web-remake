@@ -1,0 +1,145 @@
+specification:
+  name: "Raiden II Web Remake Runtime Foundation"
+  version: "0.1.0"
+  description: "Batch A runtime architecture for deterministic simulation, input mapping, renderer sync, and audio sync."
+
+tdd_config:
+  test_framework: vitest
+  coverage_threshold: 80
+  test_types:
+    - unit
+    - integration
+
+requirements:
+  - id: SIM-001
+    description: "The runtime advances deterministic fixed-step frames at 60 Hz regardless of variable host delta input."
+    priority: high
+    scenarios:
+      - name: "fixed-step accumulator emits exact frame count"
+        given: "a new clock and a host delta larger than one frame"
+        when: "the clock ticks with 50 milliseconds"
+        then: "it emits exactly three 60 Hz simulation steps and preserves sub-frame remainder"
+      - name: "paused clock suppresses steps"
+        given: "a paused clock"
+        when: "it receives host delta"
+        then: "it emits zero simulation steps"
+  - id: SIM-002
+    description: "The runtime can pause, resume, and clamp large host deltas after background throttling."
+    priority: high
+    scenarios:
+      - name: "background spike is clamped"
+        given: "a running clock with a maximum delta clamp"
+        when: "the host delta exceeds the clamp threshold"
+        then: "the consumed delta is capped before frame accumulation"
+      - name: "resume continues from previous remainder"
+        given: "a paused clock with stored remainder"
+        when: "it resumes and receives a normal host delta"
+        then: "the previously stored remainder contributes to the next fixed-step output"
+  - id: INP-001
+    description: "The runtime maps keyboard and gamepad input into independent 1P and 2P frame input snapshots."
+    priority: high
+    scenarios:
+      - name: "keyboard mapping yields independent player controls"
+        given: "default 1P and 2P keyboard bindings"
+        when: "key sets for both players are pressed in the same frame"
+        then: "each player snapshot reflects only its own configured actions"
+      - name: "gamepad binding can target a specific player slot"
+        given: "a gamepad state assigned to player two"
+        when: "it reports analog movement and fire input"
+        then: "player two receives normalized movement and action state while player one remains unchanged"
+  - id: REN-001
+    description: "The renderer synchronizes visual state from simulation snapshots without mutating game rules."
+    priority: high
+    scenarios:
+      - name: "renderer mirrors simulation entities"
+        given: "a simulation snapshot with players and enemies"
+        when: "the renderer syncs"
+        then: "it returns a presentational scene graph model that matches positions and animation intents"
+      - name: "renderer does not mutate simulation state"
+        given: "an immutable simulation snapshot"
+        when: "renderer sync is called"
+        then: "the original simulation snapshot remains unchanged"
+  - id: AUD-001
+    description: "The audio director derives BGM and SFX cues from simulation state transitions rather than owning game rules."
+    priority: high
+    scenarios:
+      - name: "bgm cue changes with stage state"
+        given: "a simulation snapshot entering a new stage"
+        when: "audio sync runs"
+        then: "it emits a BGM cue for that stage"
+      - name: "sfx cues are edge-triggered"
+        given: "two consecutive snapshots where only the first contains a new fire event"
+        when: "audio sync runs over both snapshots"
+        then: "the fire cue is emitted only once"
+  - id: PLY-001
+    description: "The combat core advances player movement with normalized directional input, focus-speed handling, and a stable hitbox."
+    priority: high
+    scenarios:
+      - name: "diagonal movement is normalized"
+        given: "a player with standard movement speed"
+        when: "the player moves diagonally in one frame"
+        then: "the resulting displacement is normalized and does not exceed straight-line speed"
+      - name: "focused movement uses slower speed"
+        given: "a player with focus held"
+        when: "the player moves horizontally"
+        then: "the resulting displacement uses the focus movement multiplier"
+  - id: WPN-001
+    description: "Main weapon pickups level the active main weapon or switch to a new route at base level."
+    priority: high
+    scenarios:
+      - name: "same-color pickup increases level"
+        given: "a player holding a main weapon route"
+        when: "the same route pickup is collected"
+        then: "the main weapon level increases and respects the maximum cap"
+      - name: "different-color pickup switches route"
+        given: "a player holding one main weapon route"
+        when: "a different route pickup is collected"
+        then: "the player switches to that route at level one"
+  - id: WPN-002
+    description: "Sub-weapon pickups level or switch the current missile route independently from the main weapon."
+    priority: high
+    scenarios:
+      - name: "same sub-weapon pickup increases level"
+        given: "a player with a sub-weapon"
+        when: "the same sub-weapon pickup is collected"
+        then: "its level increases and respects the maximum cap"
+      - name: "different sub-weapon pickup switches route"
+        given: "a player with one sub-weapon route"
+        when: "a different sub-weapon pickup is collected"
+        then: "the sub-weapon route switches to the new one at level one"
+  - id: BMB-001
+    description: "Bomb activation consumes stock, clears active bullets, and grants a temporary invulnerability window."
+    priority: high
+    scenarios:
+      - name: "bomb clears bullets when stock exists"
+        given: "a player with at least one bomb and active enemy bullets"
+        when: "bomb activation occurs"
+        then: "bomb stock decreases, bullets are cleared, and invulnerability begins"
+      - name: "bomb does nothing when no stock remains"
+        given: "a player with zero bombs"
+        when: "bomb activation occurs"
+        then: "state remains unchanged and no clear effect occurs"
+  - id: DMG-001
+    description: "Damage applies invulnerability gating, life loss, downgrade rules, and checkpoint respawn state."
+    priority: high
+    scenarios:
+      - name: "damage respawns player from checkpoint with downgraded gear"
+        given: "a vulnerable player with reserve lives and upgraded weapons"
+        when: "the player takes fatal damage"
+        then: "the player respawns at the checkpoint with reserve life spent, temporary invulnerability, and downgraded weapon levels"
+      - name: "invulnerable player ignores damage"
+        given: "a player inside an invulnerability window"
+        when: "damage is applied"
+        then: "lives and gear remain unchanged"
+  - id: SCR-001
+    description: "Score and medal rules award points, advance medal value, and grant extends at configured thresholds."
+    priority: high
+    scenarios:
+      - name: "medals increase score and medal tier"
+        given: "a player collecting medals in sequence"
+        when: "two medals are collected"
+        then: "score increases by the configured medal values and the medal tier advances"
+      - name: "crossing an extend threshold grants one reserve life"
+        given: "a player just below an extend threshold"
+        when: "points are awarded past the threshold"
+        then: "exactly one extend is granted for that threshold crossing"

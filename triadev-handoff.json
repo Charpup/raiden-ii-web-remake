@@ -1,0 +1,146 @@
+{
+  "version": "1.0.0",
+  "project": "raiden-ii-web-remake",
+  "route": "extended",
+  "current_phase": "implementation",
+  "planning": {
+    "status": "complete",
+    "files": [
+      "task_plan.md",
+      "findings.md",
+      "progress.md"
+    ],
+    "tasks_extracted": [
+      {
+        "id": "value-gate-full-release-scope",
+        "name": "Write value gate review for full-scope public release",
+        "complexity": 4,
+        "dependencies": []
+      },
+      {
+        "id": "scaffold-runtime-project",
+        "name": "Scaffold Vite TypeScript Vitest PixiJS project",
+        "complexity": 5,
+        "dependencies": [
+          "value-gate-full-release-scope"
+        ]
+      },
+      {
+        "id": "spec-runtime-foundation",
+        "name": "Author runtime foundation SPEC and RED tests",
+        "complexity": 6,
+        "dependencies": [
+          "value-gate-full-release-scope"
+        ]
+      },
+      {
+        "id": "implement-runtime-foundation",
+        "name": "Implement runtime foundation batch",
+        "complexity": 7,
+        "dependencies": [
+          "scaffold-runtime-project",
+          "spec-runtime-foundation"
+        ]
+      },
+      {
+        "id": "spec-combat-core",
+        "name": "Author combat core SPEC and RED tests",
+        "complexity": 6,
+        "dependencies": [
+          "implement-runtime-foundation"
+        ]
+      },
+      {
+        "id": "implement-combat-core",
+        "name": "Implement combat core batch",
+        "complexity": 8,
+        "dependencies": [
+          "spec-combat-core"
+        ]
+      },
+      {
+        "id": "implement-stage-authoring",
+        "name": "Implement stage authoring data and runner",
+        "complexity": 8,
+        "dependencies": [
+          "implement-combat-core"
+        ]
+      },
+      {
+        "id": "author-full-content",
+        "name": "Author stage content boss phases hidden rules and loop entry",
+        "complexity": 10,
+        "dependencies": [
+          "implement-stage-authoring"
+        ]
+      },
+      {
+        "id": "implement-2p-and-cabinet",
+        "name": "Implement 2P lifecycle and cabinet variants",
+        "complexity": 7,
+        "dependencies": [
+          "implement-stage-authoring"
+        ]
+      },
+      {
+        "id": "polish-and-verify-build",
+        "name": "Run performance checks build verification and deploy preparation",
+        "complexity": 6,
+        "dependencies": [
+          "author-full-content",
+          "implement-2p-and-cabinet"
+        ]
+      }
+    ]
+  },
+  "scheduling": {
+    "status": "complete",
+    "batches": [
+      [
+        "value-gate-full-release-scope"
+      ],
+      [
+        "scaffold-runtime-project",
+        "spec-runtime-foundation"
+      ],
+      [
+        "implement-runtime-foundation"
+      ],
+      [
+        "spec-combat-core"
+      ],
+      [
+        "implement-combat-core"
+      ],
+      [
+        "implement-stage-authoring"
+      ],
+      [
+        "author-full-content",
+        "implement-2p-and-cabinet"
+      ],
+      [
+        "polish-and-verify-build"
+      ]
+    ]
+  },
+  "value_gate": {
+    "status": "passed",
+    "verdict": "GO",
+    "review_path": "value-review.md"
+  },
+  "implementation": {
+    "status": "in_progress",
+    "completed": [
+      "value-gate-full-release-scope",
+      "scaffold-runtime-project",
+      "spec-runtime-foundation",
+      "implement-runtime-foundation",
+      "spec-combat-core",
+      "implement-combat-core"
+    ],
+    "current": "implement-stage-authoring",
+    "spec_path": "SPEC.yaml",
+    "tdd_state_path": ".tdd-state.json"
+  }
+}

@@ -1,0 +1,52 @@
+:root {
+  color-scheme: dark;
+  font-family: "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(66, 120, 186, 0.3), transparent 45%),
+    linear-gradient(180deg, #04101f 0%, #02050b 100%);
+  color: #e8f3ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+}
+
+.hero {
+  width: min(52rem, 100%);
+  padding: 2rem;
+  border: 1px solid rgba(138, 186, 255, 0.24);
+  border-radius: 1.5rem;
+  background: rgba(4, 10, 20, 0.72);
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.35);
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #7ab6ff;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+.lede {
+  margin: 1rem 0 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: rgba(232, 243, 255, 0.78);
+}
