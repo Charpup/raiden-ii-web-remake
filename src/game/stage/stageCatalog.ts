@@ -1216,40 +1216,1027 @@ export const stageCatalog: Record<string, StageDefinition> = {
       ]
     }
   },
-  "stage-8": {
-    id: "stage-8",
-    name: "Orbital Descent",
+  "stage-5": {
+    id: "stage-5",
+    name: "Overrun Stronghold",
     arenaBounds: { width: 320, height: 568 },
-    baseScrollSpeed: 16,
+    baseScrollSpeed: 13,
     difficulty: sharedDifficulty,
     loopTuning: sharedLoopTuning,
     waves: [
       {
-        id: "stage-8-wave-1",
-        trigger: { type: "scroll", scrollY: 16 },
+        id: "stage-5-ground-base-advance",
+        trigger: { type: "scroll", scrollY: 18 },
         enemies: [
           {
-            id: "stage-8-wave-1-escort",
-            kind: "escort",
-            position: { x: 160, y: 96 },
+            id: "stage-5-base-tank-left",
+            kind: "base-tank",
+            position: { x: 86, y: 124 },
+            health: 20,
+            scoreValue: 900,
+            behaviorId: "ground-lane-advance"
+          },
+          {
+            id: "stage-5-base-tank-right",
+            kind: "base-tank",
+            position: { x: 234, y: 124 },
+            health: 20,
+            scoreValue: 900,
+            spawnOffsetFrames: 2,
+            behaviorId: "ground-lane-advance"
+          },
+          {
+            id: "stage-5-base-bunker-core",
+            kind: "base-bunker",
+            position: { x: 160, y: 110 },
+            health: 36,
+            scoreValue: 1_800,
+            spawnOffsetFrames: 4,
+            behaviorId: "fixed-aimed-burst"
+          }
+        ]
+      },
+      {
+        id: "stage-5-rail-tank-gauntlet",
+        trigger: { type: "scroll", scrollY: 58 },
+        enemies: [
+          {
+            id: "stage-5-rail-tank-left",
+            kind: "rail-tank",
+            position: { x: 96, y: 118 },
+            health: 28,
+            scoreValue: 1_400,
+            behaviorId: "rail-strafe"
+          },
+          {
+            id: "stage-5-rail-tank-right",
+            kind: "rail-tank",
+            position: { x: 224, y: 118 },
+            health: 28,
+            scoreValue: 1_400,
+            spawnOffsetFrames: 2,
+            behaviorId: "rail-strafe"
+          },
+          {
+            id: "stage-5-rail-gunship-center",
+            kind: "rail-gunship",
+            position: { x: 160, y: 84 },
+            health: 18,
+            scoreValue: 900,
+            spawnOffsetFrames: 4,
+            behaviorId: "escort-sweep"
+          }
+        ]
+      },
+      {
+        id: "stage-5-bomber-corridor",
+        trigger: { type: "scroll", scrollY: 106 },
+        enemies: [
+          {
+            id: "stage-5-bomber-center",
+            kind: "heavy-bomber",
+            position: { x: 160, y: 78 },
+            health: 44,
+            scoreValue: 2_600,
+            behaviorId: "bomber-lane"
+          },
+          {
+            id: "stage-5-bomber-left",
+            kind: "heavy-bomber",
+            position: { x: 96, y: 92 },
+            health: 40,
+            scoreValue: 2_400,
+            spawnOffsetFrames: 3,
+            behaviorId: "bomber-lane"
+          },
+          {
+            id: "stage-5-bomber-right",
+            kind: "heavy-bomber",
+            position: { x: 224, y: 92 },
+            health: 40,
+            scoreValue: 2_400,
+            spawnOffsetFrames: 6,
+            behaviorId: "bomber-lane"
+          }
+        ]
+      },
+      {
+        id: "stage-5-refinery-crossfire",
+        trigger: { type: "scroll", scrollY: 154 },
+        enemies: [
+          {
+            id: "stage-5-refinery-core",
+            kind: "refinery-core",
+            position: { x: 160, y: 116 },
+            health: 48,
+            scoreValue: 2_400,
+            behaviorId: "fixed-aimed-burst"
+          },
+          {
+            id: "stage-5-refinery-turret-left",
+            kind: "refinery-turret",
+            position: { x: 104, y: 148 },
+            health: 22,
+            scoreValue: 900,
+            spawnOffsetFrames: 2,
+            behaviorId: "static-scenery"
+          },
+          {
+            id: "stage-5-refinery-turret-right",
+            kind: "refinery-turret",
+            position: { x: 216, y: 148 },
+            health: 22,
+            scoreValue: 900,
+            spawnOffsetFrames: 4,
+            behaviorId: "static-scenery"
+          }
+        ]
+      },
+      {
+        id: "stage-5-late-armor-surge",
+        trigger: { type: "scroll", scrollY: 214 },
+        enemies: [
+          {
+            id: "stage-5-armor-column-left",
+            kind: "armor-column",
+            position: { x: 100, y: 128 },
             health: 30,
-            scoreValue: 1_500
+            scoreValue: 1_500,
+            behaviorId: "ground-lane-advance"
+          },
+          {
+            id: "stage-5-armor-column-center",
+            kind: "armor-column",
+            position: { x: 160, y: 118 },
+            health: 36,
+            scoreValue: 1_800,
+            spawnOffsetFrames: 2,
+            behaviorId: "ground-lane-advance"
+          },
+          {
+            id: "stage-5-armor-column-right",
+            kind: "armor-column",
+            position: { x: 220, y: 128 },
+            health: 30,
+            scoreValue: 1_500,
+            spawnOffsetFrames: 4,
+            behaviorId: "ground-lane-advance"
+          },
+          {
+            id: "stage-5-late-fighter",
+            kind: "late-fighter",
+            position: { x: 160, y: 84 },
+            health: 16,
+            scoreValue: 800,
+            spawnOffsetFrames: 6,
+            behaviorId: "escort-sweep"
+          }
+        ]
+      },
+      {
+        id: "stage-5-pre-boss-cache",
+        trigger: { type: "scroll", scrollY: 266 },
+        enemies: [
+          {
+            id: "stage-5-cache-left",
+            kind: "hidden-cache",
+            position: { x: 112, y: 150 },
+            health: 14,
+            scoreValue: 500,
+            behaviorId: "static-scenery"
+          },
+          {
+            id: "stage-5-cache-core",
+            kind: "hidden-cache",
+            position: { x: 160, y: 132 },
+            health: 20,
+            scoreValue: 800,
+            spawnOffsetFrames: 2,
+            behaviorId: "static-scenery"
+          },
+          {
+            id: "stage-5-cache-right",
+            kind: "hidden-cache",
+            position: { x: 208, y: 150 },
+            health: 14,
+            scoreValue: 500,
+            spawnOffsetFrames: 4,
+            behaviorId: "static-scenery"
           }
         ]
       }
     ],
-    checkpoints: [],
-    hiddenTriggers: [],
+    checkpoints: [
+      {
+        id: "stage-5-checkpoint-refinery-exit",
+        scrollY: 204,
+        position: { x: 160, y: 472 },
+        waveCursor: 4
+      }
+    ],
+    hiddenTriggers: [
+      {
+        id: "stage-5-hidden-cache-medal",
+        trigger: {
+          type: "enemy-destroyed",
+          enemyId: "stage-5-cache-core"
+        },
+        reward: {
+          pickupId: "stage-5-hidden-cache-medal",
+          kind: "hidden-medal",
+          position: { x: 160, y: 216 },
+          scoreValue: 10_000
+        }
+      }
+    ],
     boss: {
-      id: "stage-8-boss",
+      id: "stage-5-black-bird",
       trigger: {
         type: "waves-cleared",
-        minScrollY: 48
+        minScrollY: 318
       },
       position: { x: 160, y: 88 },
-      maxHealth: 140,
-      scoreValue: 75_000,
-      phases: [{ id: "stage-8-boss-phase-1", healthAtOrBelow: 140 }]
+      maxHealth: 880,
+      scoreValue: 100_000,
+      phases: [
+        {
+          id: "stage-5-black-bird-opening",
+          healthAtOrBelow: 880,
+          patternId: "bomber-shell"
+        },
+        {
+          id: "stage-5-black-bird-blue-form",
+          healthAtOrBelow: 600,
+          patternId: "blue-form-pincer"
+        },
+        {
+          id: "stage-5-black-bird-red-form",
+          healthAtOrBelow: 340,
+          patternId: "red-form-desperation"
+        }
+      ]
+    }
+  },
+  "stage-6": {
+    id: "stage-6",
+    name: "Crystal Orbit",
+    arenaBounds: { width: 320, height: 568 },
+    baseScrollSpeed: 13,
+    difficulty: sharedDifficulty,
+    loopTuning: sharedLoopTuning,
+    waves: [
+      {
+        id: "stage-6-launch-scramble",
+        trigger: { type: "scroll", scrollY: 18 },
+        enemies: [
+          {
+            id: "stage-6-launch-fighter-left",
+            kind: "launch-fighter",
+            position: { x: 88, y: 88 },
+            health: 16,
+            scoreValue: 800,
+            behaviorId: "escort-sweep"
+          },
+          {
+            id: "stage-6-launch-fighter-right",
+            kind: "launch-fighter",
+            position: { x: 232, y: 88 },
+            health: 16,
+            scoreValue: 800,
+            spawnOffsetFrames: 2,
+            behaviorId: "escort-sweep"
+          },
+          {
+            id: "stage-6-launch-turret-core",
+            kind: "launch-turret",
+            position: { x: 160, y: 116 },
+            health: 34,
+            scoreValue: 1_700,
+            spawnOffsetFrames: 4,
+            behaviorId: "fixed-aimed-burst"
+          }
+        ]
+      },
+      {
+        id: "stage-6-crystal-corridor",
+        trigger: { type: "scroll", scrollY: 60 },
+        enemies: [
+          {
+            id: "stage-6-crystal-spire-left",
+            kind: "crystal-spire",
+            position: { x: 98, y: 146 },
+            health: 24,
+            scoreValue: 1_000,
+            behaviorId: "static-scenery"
+          },
+          {
+            id: "stage-6-crystal-spire-core",
+            kind: "crystal-spire",
+            position: { x: 160, y: 128 },
+            health: 28,
+            scoreValue: 1_200,
+            spawnOffsetFrames: 2,
+            behaviorId: "static-scenery"
+          },
+          {
+            id: "stage-6-crystal-spire-right",
+            kind: "crystal-spire",
+            position: { x: 222, y: 146 },
+            health: 24,
+            scoreValue: 1_000,
+            spawnOffsetFrames: 4,
+            behaviorId: "static-scenery"
+          }
+        ]
+      },
+      {
+        id: "stage-6-asteroid-ambush",
+        trigger: { type: "scroll", scrollY: 112 },
+        enemies: [
+          {
+            id: "stage-6-asteroid-fighter-left",
+            kind: "asteroid-fighter",
+            position: { x: 92, y: 82 },
+            health: 18,
+            scoreValue: 900,
+            behaviorId: "escort-sweep"
+          },
+          {
+            id: "stage-6-asteroid-fighter-right",
+            kind: "asteroid-fighter",
+            position: { x: 228, y: 82 },
+            health: 18,
+            scoreValue: 900,
+            spawnOffsetFrames: 2,
+            behaviorId: "escort-sweep"
+          },
+          {
+            id: "stage-6-meteor-carrier",
+            kind: "meteor-carrier",
+            position: { x: 160, y: 102 },
+            health: 40,
+            scoreValue: 2_000,
+            spawnOffsetFrames: 5,
+            behaviorId: "carrier-drift"
+          }
+        ]
+      },
+      {
+        id: "stage-6-defense-array",
+        trigger: { type: "scroll", scrollY: 166 },
+        enemies: [
+          {
+            id: "stage-6-defense-turret-left",
+            kind: "defense-turret",
+            position: { x: 104, y: 144 },
+            health: 26,
+            scoreValue: 1_100,
+            behaviorId: "fixed-aimed-burst"
+          },
+          {
+            id: "stage-6-defense-array-core",
+            kind: "defense-array-core",
+            position: { x: 160, y: 116 },
+            health: 52,
+            scoreValue: 2_600,
+            spawnOffsetFrames: 2,
+            behaviorId: "fixed-aimed-burst"
+          },
+          {
+            id: "stage-6-defense-turret-right",
+            kind: "defense-turret",
+            position: { x: 216, y: 144 },
+            health: 26,
+            scoreValue: 1_100,
+            spawnOffsetFrames: 4,
+            behaviorId: "fixed-aimed-burst"
+          }
+        ]
+      },
+      {
+        id: "stage-6-red-crystal-escape",
+        trigger: { type: "scroll", scrollY: 222 },
+        enemies: [
+          {
+            id: "stage-6-red-crystal",
+            kind: "red-crystal",
+            position: { x: 160, y: 154 },
+            health: 12,
+            scoreValue: 600,
+            blocksProgression: false,
+            stateTag: "hovering",
+            stateTransitions: [
+              {
+                afterFrames: 12,
+                stateTag: "escape-window"
+              }
+            ],
+            behaviorId: "escape-crystal"
+          },
+          {
+            id: "stage-6-escape-escort-left",
+            kind: "crystal-escort",
+            position: { x: 96, y: 98 },
+            health: 16,
+            scoreValue: 800,
+            spawnOffsetFrames: 2,
+            behaviorId: "escort-sweep"
+          },
+          {
+            id: "stage-6-escape-escort-right",
+            kind: "crystal-escort",
+            position: { x: 224, y: 98 },
+            health: 16,
+            scoreValue: 800,
+            spawnOffsetFrames: 4,
+            behaviorId: "escort-sweep"
+          }
+        ]
+      },
+      {
+        id: "stage-6-reactor-approach",
+        trigger: { type: "scroll", scrollY: 278 },
+        enemies: [
+          {
+            id: "stage-6-reactor-guard-left",
+            kind: "reactor-guard",
+            position: { x: 102, y: 134 },
+            health: 28,
+            scoreValue: 1_300,
+            behaviorId: "ground-lane-advance"
+          },
+          {
+            id: "stage-6-reactor-core",
+            kind: "reactor-core",
+            position: { x: 160, y: 116 },
+            health: 56,
+            scoreValue: 3_200,
+            spawnOffsetFrames: 2,
+            behaviorId: "fixed-aimed-burst"
+          },
+          {
+            id: "stage-6-reactor-guard-right",
+            kind: "reactor-guard",
+            position: { x: 218, y: 134 },
+            health: 28,
+            scoreValue: 1_300,
+            spawnOffsetFrames: 4,
+            behaviorId: "ground-lane-advance"
+          }
+        ]
+      }
+    ],
+    checkpoints: [
+      {
+        id: "stage-6-checkpoint-defense-exit",
+        scrollY: 212,
+        position: { x: 160, y: 472 },
+        waveCursor: 4
+      }
+    ],
+    hiddenTriggers: [
+      {
+        id: "stage-6-hidden-red-crystal-extend",
+        trigger: {
+          type: "enemy-destroyed-in-state",
+          enemyId: "stage-6-red-crystal",
+          stateTag: "escape-window"
+        },
+        reward: {
+          pickupId: "stage-6-red-crystal-extend",
+          kind: "extend",
+          position: { x: 160, y: 230 },
+          scoreValue: 0
+        }
+      }
+    ],
+    boss: {
+      id: "stage-6-graphite",
+      trigger: {
+        type: "waves-cleared",
+        minScrollY: 336
+      },
+      position: { x: 160, y: 88 },
+      maxHealth: 960,
+      scoreValue: 110_000,
+      phases: [
+        {
+          id: "stage-6-graphite-prism-opening",
+          healthAtOrBelow: 960,
+          patternId: "prism-opening"
+        },
+        {
+          id: "stage-6-graphite-rotary-lattice",
+          healthAtOrBelow: 620,
+          patternId: "rotary-lattice"
+        },
+        {
+          id: "stage-6-graphite-core-rush",
+          healthAtOrBelow: 260,
+          patternId: "core-rush"
+        }
+      ]
+    }
+  },
+  "stage-7": {
+    id: "stage-7",
+    name: "Battleship Gauntlet",
+    arenaBounds: { width: 320, height: 568 },
+    baseScrollSpeed: 13,
+    difficulty: sharedDifficulty,
+    loopTuning: sharedLoopTuning,
+    waves: [
+      {
+        id: "stage-7-battleship-deck",
+        trigger: { type: "scroll", scrollY: 18 },
+        enemies: [
+          {
+            id: "stage-7-deck-gunship-left",
+            kind: "deck-gunship",
+            position: { x: 84, y: 90 },
+            health: 16,
+            scoreValue: 800,
+            behaviorId: "escort-sweep"
+          },
+          {
+            id: "stage-7-deck-gunship-right",
+            kind: "deck-gunship",
+            position: { x: 236, y: 90 },
+            health: 16,
+            scoreValue: 800,
+            spawnOffsetFrames: 2,
+            behaviorId: "escort-sweep"
+          },
+          {
+            id: "stage-7-deck-turret-core",
+            kind: "deck-turret",
+            position: { x: 160, y: 118 },
+            health: 36,
+            scoreValue: 1_800,
+            spawnOffsetFrames: 4,
+            behaviorId: "fixed-aimed-burst"
+          }
+        ]
+      },
+      {
+        id: "stage-7-meteor-scramble",
+        trigger: { type: "scroll", scrollY: 72 },
+        enemies: [
+          {
+            id: "stage-7-meteor-fighter-left",
+            kind: "meteor-fighter",
+            position: { x: 92, y: 80 },
+            health: 18,
+            scoreValue: 900,
+            behaviorId: "escort-sweep"
+          },
+          {
+            id: "stage-7-meteor-fighter-right",
+            kind: "meteor-fighter",
+            position: { x: 228, y: 80 },
+            health: 18,
+            scoreValue: 900,
+            spawnOffsetFrames: 2,
+            behaviorId: "escort-sweep"
+          },
+          {
+            id: "stage-7-meteor-barge",
+            kind: "meteor-barge",
+            position: { x: 160, y: 106 },
+            health: 44,
+            scoreValue: 2_200,
+            spawnOffsetFrames: 4,
+            behaviorId: "barge-broadside"
+          }
+        ]
+      },
+      {
+        id: "stage-7-nuclear-rocket-battery",
+        trigger: { type: "scroll", scrollY: 134 },
+        enemies: [
+          {
+            id: "stage-7-rocket-battery-1",
+            kind: "rocket-battery",
+            position: { x: 100, y: 152 },
+            health: 16,
+            scoreValue: 600,
+            blocksProgression: false,
+            behaviorId: "static-scenery"
+          },
+          {
+            id: "stage-7-rocket-battery-2",
+            kind: "rocket-battery",
+            position: { x: 140, y: 136 },
+            health: 16,
+            scoreValue: 600,
+            blocksProgression: false,
+            spawnOffsetFrames: 1,
+            behaviorId: "static-scenery"
+          },
+          {
+            id: "stage-7-rocket-battery-3",
+            kind: "rocket-battery",
+            position: { x: 180, y: 136 },
+            health: 16,
+            scoreValue: 600,
+            blocksProgression: false,
+            spawnOffsetFrames: 2,
+            behaviorId: "static-scenery"
+          },
+          {
+            id: "stage-7-rocket-battery-4",
+            kind: "rocket-battery",
+            position: { x: 220, y: 152 },
+            health: 16,
+            scoreValue: 600,
+            blocksProgression: false,
+            spawnOffsetFrames: 3,
+            behaviorId: "static-scenery"
+          }
+        ]
+      },
+      {
+        id: "stage-7-artillery-corridor",
+        trigger: { type: "scroll", scrollY: 198 },
+        enemies: [
+          {
+            id: "stage-7-artillery-left",
+            kind: "artillery-tower",
+            position: { x: 104, y: 140 },
+            health: 30,
+            scoreValue: 1_400,
+            behaviorId: "fixed-aimed-burst"
+          },
+          {
+            id: "stage-7-artillery-core",
+            kind: "artillery-core",
+            position: { x: 160, y: 116 },
+            health: 60,
+            scoreValue: 3_000,
+            spawnOffsetFrames: 2,
+            behaviorId: "fixed-aimed-burst"
+          },
+          {
+            id: "stage-7-artillery-right",
+            kind: "artillery-tower",
+            position: { x: 216, y: 140 },
+            health: 30,
+            scoreValue: 1_400,
+            spawnOffsetFrames: 4,
+            behaviorId: "fixed-aimed-burst"
+          }
+        ]
+      },
+      {
+        id: "stage-7-launch-apron",
+        trigger: { type: "scroll", scrollY: 264 },
+        enemies: [
+          {
+            id: "stage-7-launch-apron-core",
+            kind: "launch-apron-core",
+            position: { x: 160, y: 118 },
+            health: 64,
+            scoreValue: 3_600,
+            behaviorId: "fixed-aimed-burst"
+          },
+          {
+            id: "stage-7-launch-apron-guard-left",
+            kind: "launch-apron-guard",
+            position: { x: 102, y: 132 },
+            health: 24,
+            scoreValue: 1_200,
+            spawnOffsetFrames: 2,
+            behaviorId: "ground-lane-advance"
+          },
+          {
+            id: "stage-7-launch-apron-guard-right",
+            kind: "launch-apron-guard",
+            position: { x: 218, y: 132 },
+            health: 24,
+            scoreValue: 1_200,
+            spawnOffsetFrames: 4,
+            behaviorId: "ground-lane-advance"
+          }
+        ]
+      }
+    ],
+    checkpoints: [
+      {
+        id: "stage-7-checkpoint-artillery-corridor",
+        scrollY: 252,
+        position: { x: 160, y: 472 },
+        waveCursor: 4
+      }
+    ],
+    hiddenTriggers: [
+      {
+        id: "stage-7-hidden-rocket-cache-reveal",
+        expiresOnBossStart: true,
+        trigger: {
+          type: "all-enemies-destroyed",
+          enemyIds: [
+            "stage-7-rocket-battery-1",
+            "stage-7-rocket-battery-2",
+            "stage-7-rocket-battery-3",
+            "stage-7-rocket-battery-4"
+          ]
+        },
+        revealEnemies: [
+          {
+            id: "stage-7-fairy-beacon",
+            kind: "fairy-beacon",
+            position: { x: 160, y: 188 },
+            health: 14,
+            scoreValue: 250,
+            blocksProgression: false,
+            behaviorId: "static-scenery"
+          }
+        ]
+      },
+      {
+        id: "stage-7-hidden-fairy",
+        expiresOnBossStart: true,
+        trigger: {
+          type: "enemy-destroyed",
+          enemyId: "stage-7-fairy-beacon"
+        },
+        reward: {
+          pickupId: "stage-7-hidden-fairy-reward",
+          kind: "fairy",
+          position: { x: 160, y: 228 },
+          scoreValue: 10_000
+        }
+      }
+    ],
+    boss: {
+      id: "stage-7-huge-satellite",
+      trigger: {
+        type: "waves-cleared",
+        minScrollY: 332
+      },
+      position: { x: 160, y: 86 },
+      maxHealth: 1_020,
+      scoreValue: 120_000,
+      phases: [
+        {
+          id: "stage-7-huge-satellite-dish-array",
+          healthAtOrBelow: 1_020,
+          patternId: "dish-array"
+        },
+        {
+          id: "stage-7-huge-satellite-orbital-burst",
+          healthAtOrBelow: 640,
+          patternId: "orbital-burst"
+        },
+        {
+          id: "stage-7-huge-satellite-core-collapse",
+          healthAtOrBelow: 280,
+          patternId: "core-collapse"
+        }
+      ]
+    }
+  },
+  "stage-8": {
+    id: "stage-8",
+    name: "Alien Hive",
+    arenaBounds: { width: 320, height: 568 },
+    baseScrollSpeed: 14,
+    difficulty: sharedDifficulty,
+    loopTuning: sharedLoopTuning,
+    waves: [
+      {
+        id: "stage-8-alien-surface",
+        trigger: { type: "scroll", scrollY: 18 },
+        enemies: [
+          {
+            id: "stage-8-surface-fighter-left",
+            kind: "alien-fighter",
+            position: { x: 88, y: 88 },
+            health: 18,
+            scoreValue: 900,
+            behaviorId: "escort-sweep"
+          },
+          {
+            id: "stage-8-surface-fighter-right",
+            kind: "alien-fighter",
+            position: { x: 232, y: 88 },
+            health: 18,
+            scoreValue: 900,
+            spawnOffsetFrames: 2,
+            behaviorId: "escort-sweep"
+          },
+          {
+            id: "stage-8-surface-node-core",
+            kind: "surface-node",
+            position: { x: 160, y: 116 },
+            health: 42,
+            scoreValue: 2_200,
+            spawnOffsetFrames: 4,
+            behaviorId: "fixed-aimed-burst"
+          }
+        ]
+      },
+      {
+        id: "stage-8-roaming-crystal-chase",
+        trigger: { type: "scroll", scrollY: 76 },
+        enemies: [
+          {
+            id: "stage-8-roaming-crystal",
+            kind: "roaming-crystal",
+            position: { x: 160, y: 150 },
+            health: 18,
+            scoreValue: 1_000,
+            blocksProgression: false,
+            behaviorId: "roaming-crystal"
+          },
+          {
+            id: "stage-8-chase-escort-left",
+            kind: "chase-escort",
+            position: { x: 92, y: 96 },
+            health: 18,
+            scoreValue: 900,
+            spawnOffsetFrames: 2,
+            behaviorId: "escort-sweep"
+          },
+          {
+            id: "stage-8-chase-escort-right",
+            kind: "chase-escort",
+            position: { x: 228, y: 96 },
+            health: 18,
+            scoreValue: 900,
+            spawnOffsetFrames: 4,
+            behaviorId: "escort-sweep"
+          }
+        ]
+      },
+      {
+        id: "stage-8-facility-crossfire",
+        trigger: { type: "scroll", scrollY: 146 },
+        enemies: [
+          {
+            id: "stage-8-facility-turret-left",
+            kind: "facility-turret",
+            position: { x: 104, y: 144 },
+            health: 26,
+            scoreValue: 1_100,
+            behaviorId: "fixed-aimed-burst"
+          },
+          {
+            id: "stage-8-facility-core",
+            kind: "facility-core",
+            position: { x: 160, y: 116 },
+            health: 58,
+            scoreValue: 3_200,
+            spawnOffsetFrames: 2,
+            behaviorId: "fixed-aimed-burst"
+          },
+          {
+            id: "stage-8-facility-turret-right",
+            kind: "facility-turret",
+            position: { x: 216, y: 144 },
+            health: 26,
+            scoreValue: 1_100,
+            spawnOffsetFrames: 4,
+            behaviorId: "fixed-aimed-burst"
+          }
+        ]
+      },
+      {
+        id: "stage-8-pre-boss-miclus-line",
+        trigger: { type: "scroll", scrollY: 224 },
+        enemies: [
+          {
+            id: "stage-8-miclus-obelisk",
+            kind: "miclus-obelisk",
+            position: { x: 160, y: 162 },
+            health: 18,
+            scoreValue: 800,
+            blocksProgression: false,
+            behaviorId: "static-scenery"
+          },
+          {
+            id: "stage-8-preboss-escort-left",
+            kind: "preboss-escort",
+            position: { x: 96, y: 102 },
+            health: 18,
+            scoreValue: 900,
+            spawnOffsetFrames: 2,
+            behaviorId: "escort-sweep"
+          },
+          {
+            id: "stage-8-preboss-escort-right",
+            kind: "preboss-escort",
+            position: { x: 224, y: 102 },
+            health: 18,
+            scoreValue: 900,
+            spawnOffsetFrames: 4,
+            behaviorId: "escort-sweep"
+          }
+        ]
+      },
+      {
+        id: "stage-8-mother-haven-approach",
+        trigger: { type: "scroll", scrollY: 294 },
+        enemies: [
+          {
+            id: "stage-8-approach-core",
+            kind: "approach-core",
+            position: { x: 160, y: 116 },
+            health: 72,
+            scoreValue: 4_000,
+            behaviorId: "fixed-aimed-burst"
+          },
+          {
+            id: "stage-8-approach-guard-left",
+            kind: "approach-guard",
+            position: { x: 104, y: 132 },
+            health: 28,
+            scoreValue: 1_300,
+            spawnOffsetFrames: 2,
+            behaviorId: "ground-lane-advance"
+          },
+          {
+            id: "stage-8-approach-guard-right",
+            kind: "approach-guard",
+            position: { x: 216, y: 132 },
+            health: 28,
+            scoreValue: 1_300,
+            spawnOffsetFrames: 4,
+            behaviorId: "ground-lane-advance"
+          }
+        ]
+      }
+    ],
+    checkpoints: [
+      {
+        id: "stage-8-checkpoint-facility-exit",
+        scrollY: 214,
+        position: { x: 160, y: 472 },
+        waveCursor: 3
+      }
+    ],
+    hiddenTriggers: [
+      {
+        id: "stage-8-hidden-miclus-line",
+        expiresOnBossStart: true,
+        trigger: {
+          type: "enemy-destroyed",
+          enemyId: "stage-8-miclus-obelisk"
+        },
+        rewards: [
+          {
+            pickupId: "stage-8-hidden-miclus",
+            kind: "miclus",
+            position: { x: 128, y: 232 },
+            scoreValue: 10_000
+          },
+          {
+            pickupId: "stage-8-hidden-medal-1",
+            kind: "medal",
+            position: { x: 152, y: 220 },
+            scoreValue: 500
+          },
+          {
+            pickupId: "stage-8-hidden-medal-2",
+            kind: "medal",
+            position: { x: 176, y: 208 },
+            scoreValue: 500
+          },
+          {
+            pickupId: "stage-8-hidden-medal-3",
+            kind: "medal",
+            position: { x: 200, y: 196 },
+            scoreValue: 500
+          }
+        ]
+      }
+    ],
+    boss: {
+      id: "stage-8-mother-haven",
+      trigger: {
+        type: "waves-cleared",
+        minScrollY: 360
+      },
+      position: { x: 160, y: 84 },
+      maxHealth: 960,
+      scoreValue: 150_000,
+      phases: [
+        {
+          id: "stage-8-mother-haven-shell",
+          healthAtOrBelow: 960,
+          patternId: "shell-volley"
+        },
+        {
+          id: "stage-8-mother-haven-siege",
+          healthAtOrBelow: 600,
+          patternId: "siege-lattice"
+        },
+        {
+          id: "stage-8-mother-haven-core",
+          healthAtOrBelow: 280,
+          patternId: "core-collapse"
+        }
+      ]
     },
     loopAdvance: {
       enabled: true,

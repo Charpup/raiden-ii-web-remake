@@ -2,6 +2,7 @@ import type {
   ArenaBounds,
   CabinetProfile,
   EnemyScriptedDefeatState,
+  EnemyStateTransitionState,
   PickupKind,
   Vector2
 } from "../core/types";
@@ -27,6 +28,8 @@ export interface SpawnDefinition {
   health: number;
   scoreValue: number;
   blocksProgression?: boolean;
+  stateTag?: string;
+  stateTransitions?: EnemyStateTransitionState[];
   spawnOffsetFrames?: number;
   behaviorId?: string;
   scriptedDefeats?: EnemyScriptedDefeatState[];
@@ -60,6 +63,16 @@ export type HiddenTriggerCondition =
       enemyId: string;
     }
   | {
+      type: "enemy-destroyed-in-state";
+      enemyId: string;
+      stateTag: string;
+    }
+  | {
+      type: "enemy-destroyed-after-frames";
+      enemyId: string;
+      minAgeFrames: number;
+    }
+  | {
       type: "enemy-destroyed-by";
       enemyId: string;
       sourceEnemyId: string;
@@ -76,9 +89,11 @@ export interface HiddenTriggerDefinition {
   id: string;
   trigger: HiddenTriggerCondition;
   reward?: HiddenRewardDefinition;
+  rewards?: HiddenRewardDefinition[];
   rewardOverrides?: Partial<Record<CabinetProfile, HiddenRewardDefinition>>;
   checkpointRespawnRewards?: HiddenRewardDefinition[];
   revealEnemies?: SpawnDefinition[];
+  expiresOnBossStart?: boolean;
 }
 
 export interface BossPhaseDefinition {

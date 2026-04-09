@@ -403,3 +403,119 @@ requirements:
         given: "a hidden trigger for the stage 3 crusher-tank route"
         when: "the authoring data is inspected"
         then: "the trigger can require the authored source enemy that caused the destruction"
+  - id: STG-301
+    description: "Stage 5 is authored as a locked macro route covering the ground-base advance, rail-tank gauntlet, bomber corridor, refinery crossfire, late armor surge, and the Black Bird finale."
+    priority: high
+    scenarios:
+      - name: "stage 5 definition exposes the authored macro route"
+        given: "the authored stage 5 definition"
+        when: "its wave list is inspected"
+        then: "the route includes the ground-base advance, rail-tank gauntlet, bomber corridor, refinery crossfire, late armor surge, and a pre-boss cache stretch"
+      - name: "stage 5 can progress from the authored route into Black Bird"
+        given: "a stage 5 simulation"
+        when: "the authored waves are cleared in order"
+        then: "the Black Bird encounter starts from data without stage-specific simulation branches"
+  - id: STG-302
+    description: "Stage 6 is authored as a launch-to-crystal route with a red-crystal escape special route and a named Graphite phase ladder."
+    priority: high
+    scenarios:
+      - name: "stage 6 definition exposes the authored macro route"
+        given: "the authored stage 6 definition"
+        when: "its wave list is inspected"
+        then: "the route includes the launch scramble, crystal corridor, asteroid ambush, defense array, red crystal escape, and reactor approach beats"
+      - name: "stage 6 special route stays data-driven"
+        given: "the authored stage 6 hidden trigger set"
+        when: "the red crystal route is inspected"
+        then: "the extend route is expressed through a timed hidden trigger rather than a simulation-side special case"
+  - id: STG-303
+    description: "Stage 7 is authored as a battleship-to-satellite route with an optional rocket-cache hidden reveal and the Huge Satellite finale."
+    priority: high
+    scenarios:
+      - name: "stage 7 definition exposes the authored macro route"
+        given: "the authored stage 7 definition"
+        when: "its wave list is inspected"
+        then: "the route includes the battleship deck, meteor scramble, nuclear rocket battery, artillery corridor, and launch apron beats"
+      - name: "optional hidden routes do not gate stage 7 progression"
+        given: "a stage 7 simulation"
+        when: "the rocket-cache hidden route is ignored"
+        then: "the mainline still advances into the Huge Satellite encounter"
+  - id: STG-304
+    description: "Stage 8 replaces the loop-validation scaffold with a final-stage macro route covering the alien surface, roaming crystal chase, facility crossfire, pre-boss Miclus route, and Mother Haven finale."
+    priority: high
+    scenarios:
+      - name: "stage 8 definition no longer uses the provisional scaffold"
+        given: "the authored stage 8 definition"
+        when: "its wave list is inspected"
+        then: "it exposes the alien surface, roaming crystal chase, facility crossfire, pre-boss Miclus line, and final approach beats"
+      - name: "stage 8 still advances into loop carryover after Mother Haven"
+        given: "a stage 8 simulation"
+        when: "the final boss is defeated"
+        then: "the loop carryover still returns the session to stage 1"
+  - id: CHK-301
+    description: "Stages 5 through 8 expose coarse late-route checkpoints that avoid mid-staggered-wave restores while preserving the authored late-stage route."
+    priority: medium
+    scenarios:
+      - name: "stage 5 and stage 6 checkpoints arm late-route recovery anchors"
+        given: "stage 5 and stage 6 simulations"
+        when: "scroll advances through their late-route thresholds"
+        then: "each stage arms an explicit checkpoint definition before the boss approach"
+      - name: "stage 7 and stage 8 checkpoint definitions remain safe coarse anchors"
+        given: "the authored stage 7 and stage 8 definitions"
+        when: "their checkpoint lists are inspected"
+        then: "each stage exposes a coarse checkpoint outside staggered-wave restore windows"
+  - id: HID-301
+    description: "Stages 5 through 8 express their stable special routes through data, including timed hidden conditions and multi-reward payloads."
+    priority: high
+    scenarios:
+      - name: "stage 6 extend route only rewards after the red crystal reaches its authored escape state"
+        given: "the stage 6 red crystal route"
+        when: "the crystal is destroyed after entering the authored escape state"
+        then: "an extend reward appears exactly once"
+      - name: "stage 8 pre-boss hidden route emits Miclus and medal rewards from one trigger"
+        given: "the stage 8 pre-boss hidden route"
+        when: "the authored trigger condition becomes true"
+        then: "one hidden trigger emits the Miclus reward and the medal line without simulation-side special casing"
+      - name: "late hidden routes expire when the boss encounter starts"
+        given: "an optional pre-boss hidden route that remains untriggered when the boss starts"
+        when: "the player fulfills the hidden condition during the boss encounter"
+        then: "the hidden reveal or reward does not fire"
+  - id: BOS-301
+    description: "Stages 5 through 8 culminate in authored boss encounters with named phase ladders and multipart structure where the route needs it."
+    priority: high
+    scenarios:
+      - name: "Black Bird advances through its three-form ladder"
+        given: "the stage 5 boss encounter"
+        when: "its health crosses the authored thresholds"
+        then: "the boss phase ladder follows opening, blue form, and red form"
+      - name: "Graphite and Huge Satellite expose authored multipart or named phase ladders"
+        given: "the stage 6 and stage 7 boss encounters"
+        when: "their authored data is inspected and exercised"
+        then: "each boss follows its named phase ladder without stage-specific runtime logic"
+      - name: "Mother Haven advances through the authored final-boss ladder before loop carryover"
+        given: "the stage 8 boss encounter"
+        when: "its health crosses the authored thresholds"
+        then: "the boss advances through shell, siege, and core phases before stage clear"
+  - id: LOP-301
+    description: "The authored final stage still performs loop carryover after Mother Haven, resetting the stage cursor to stage 1 while preserving session state."
+    priority: high
+    scenarios:
+      - name: "stage 8 clear increments the loop and restarts stage 1"
+        given: "a session on stage 8"
+        when: "Mother Haven is defeated"
+        then: "the loop index increments and the next stage becomes stage 1"
+  - id: AUTH-301
+    description: "Stage 5 through 8 authoring extends the existing model with only the minimal new metadata needed for timed hidden routes and multi-reward hidden payloads."
+    priority: high
+    scenarios:
+      - name: "hidden routes can require a defeated enemy to be in an authored state tag"
+        given: "a hidden trigger for the stage 6 red crystal route"
+        when: "the authoring data is inspected"
+        then: "the hidden trigger can express an enemy-destroyed-in-state condition and the enemy data exposes the authored state transition"
+      - name: "one hidden trigger can emit multiple pickups"
+        given: "a hidden trigger for the stage 8 pre-boss Miclus line"
+        when: "the authoring data is inspected"
+        then: "the trigger can emit a Miclus reward plus authored medal pickups from the data layer"
+      - name: "optional hidden routes can explicitly expire once the boss starts"
+        given: "a pre-boss hidden route on stage 7 or stage 8"
+        when: "the authoring data is inspected"
+        then: "the hidden trigger can declare that it expires on boss start without introducing simulation-side stage branches"

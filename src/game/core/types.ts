@@ -97,6 +97,11 @@ export interface EnemyScriptedDefeatState {
   afterFrames: number;
 }
 
+export interface EnemyStateTransitionState {
+  afterFrames: number;
+  stateTag: string;
+}
+
 export interface EnemyState {
   id: string;
   kind: string;
@@ -107,7 +112,9 @@ export interface EnemyState {
   spawnedByWaveId: string;
   spawnedAtFrame: number;
   blocksProgression: boolean;
+  stateTag?: string;
   behaviorId?: string;
+  stateTransitions?: EnemyStateTransitionState[];
   scriptedDefeats?: EnemyScriptedDefeatState[];
   animation: "idle";
 }
@@ -152,6 +159,9 @@ export interface PendingSpawnState {
 export interface EnemyDefeatRecord {
   enemyId: string;
   sourceEnemyId?: string;
+  atFrame: number;
+  enemyAgeFrames: number;
+  stateTag?: string;
 }
 
 export interface StageRuntimeState {
@@ -207,6 +217,7 @@ export type RuntimeEvent =
       type: "hidden-triggered";
       triggerId: string;
       pickupId: string;
+      pickupIds?: string[];
       atFrame: number;
     }
   | {

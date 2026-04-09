@@ -154,6 +154,33 @@
   - `src/game/stage/stageTypes.ts`
   - `tests/stages2to4Content.test.ts`
 
+### Phase 8: Stage 5-8 Content Authoring And Loop Finalization
+- **Status:** complete
+- Actions taken:
+  - Created the `codex/stages-5-8-content-loop` branch immediately after merging PR `#3`.
+  - Ran two read-only explorer subagents to lock Stage 5-8 macro-route facts, stable special routes, and the minimal authoring gaps relative to the existing stage seam.
+  - Expanded `SPEC.yaml` with Stage 5-8 requirements covering macro-route fidelity, coarse checkpoints, timed hidden conditions, multi-reward hidden payloads, boss phase ladders, and Stage 8 loop carryover.
+  - Added a dedicated `tests/stages5to8Content.test.ts` acceptance suite and captured a RED run showing the missing `stage-5`, `stage-6`, and `stage-7` definitions plus the outdated Stage 8 scaffold.
+  - Added the smallest generic authoring/runtime extension needed for this tranche: timed enemy-destroy hidden triggers and multi-reward hidden payloads.
+  - Authored new `stage-5`, `stage-6`, `stage-7`, and final `stage-8` definitions with macro beats, coarse checkpoints, stable hidden routes, named boss phase ladders, and Stage 8 loop carryover.
+  - Replaced the provisional Stage 8 loop-validation scaffold with a fully authored final-stage route including the pre-boss Miclus medal line and Mother Haven finale.
+  - Updated the legacy Stage 8 integration assertion so `LOP-001` now follows the formal Mother Haven phase ladder instead of the old single-phase scaffold boss.
+  - Completed a reviewer-driven follow-up RED->GREEN loop so Stage 6's red crystal now enters an authored `escape-window` state before the 1UP can trigger, and so Stage 7/8 optional hidden routes explicitly expire once the boss encounter starts.
+- Files created/modified:
+  - `SPEC.yaml`
+  - `.tdd-state.json`
+  - `task_plan.md`
+  - `progress.md`
+  - `triadev-handoff.json`
+  - `arcade-baseline-matrix.md`
+  - `src/game/core/Simulation.ts`
+  - `src/game/core/types.ts`
+  - `src/game/stage/StageRunner.ts`
+  - `src/game/stage/stageCatalog.ts`
+  - `src/game/stage/stageTypes.ts`
+  - `tests/simulationStageIntegration.test.ts`
+  - `tests/stages5to8Content.test.ts`
+
 ## Test Results
 | Test | Input | Expected | Actual | Status |
 |------|-------|----------|--------|--------|
@@ -190,6 +217,10 @@
 | PR #3 Feedback GREEN | `npm run test:run` after the Stage 4 hidden-reveal refactor | Full test suite stays green after the review fix | 46/46 tests passed | PASS |
 | PR #3 Feedback Coverage | `npm run coverage` after the Stage 4 hidden-reveal refactor | Coverage >= 80% | 97.16% total coverage | PASS |
 | PR #3 Feedback Build | `npm run build` after the Stage 4 hidden-reveal refactor | Strict type check and production build pass | Build passed | PASS |
+| Stage 5-8 Content RED | `npm run test:run -- tests/stages5to8Content.test.ts` after adding Stage 5-8 acceptance tests | New Stage 5-8 route, hidden, checkpoint, and loop expectations fail before implementation | Failed on missing `stage-5`, `stage-6`, `stage-7`, and a still-provisional `stage-8` checkpoint | PASS |
+| Stage 5-8 Content GREEN | `npm run test:run` after Stage 5-8 authoring implementation and reviewer follow-up fixes | Runtime, seam, Stage 1, Stage 2-4, and Stage 5-8 suites all pass | 54/54 tests passed | PASS |
+| Stage 5-8 Content Coverage | `npm run coverage` after Stage 5-8 authoring implementation and reviewer follow-up fixes | Coverage >= 80% | 97.86% total coverage | PASS |
+| Stage 5-8 Content Build | `npm run build` after Stage 5-8 authoring implementation | Strict type check and production build pass | Build passed | PASS |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
@@ -206,12 +237,14 @@
 | 2026-04-10 00:06 CST | Final Stage 1 reviewer found checkpoint-unsafe delayed spawns and missing twin-Walker render projection | 1 | Tightened late Stage 1 spawn offsets around the crater checkpoint and projected boss parts through the renderer. |
 | 2026-04-10 00:41 CST | Stage 2-4 reviewer flagged a non-playable Stage 3 1UP route and a non-multipart Thunder Fortress boss | 1 | Added generic scripted enemy-caused defeats, upgraded Thunder Fortress to multipart data, updated the tests to exercise both paths, and re-ran verification. |
 | 2026-04-10 01:10 CST | PR `#3` review flagged Stage 4's fairy-bush reveal as an ordered-wave progression gate | 1 | Moved the bush reveal into a non-blocking hidden trigger, marked optional hidden-route scenery as non-blocking, and added regressions for mainline progression without clearing the ring set. |
+| 2026-04-10 01:27 CST | Full-suite `LOP-001` still expected the old provisional Stage 8 boss scaffold after the new final-stage content landed | 1 | Updated the legacy Stage 8 integration test to follow Mother Haven's authored shell/siege/core ladder before loop carryover. |
+| 2026-04-10 01:35 CST | Reviewer found that Stage 7/8 hidden routes could still fire during boss fights and that Stage 6's red crystal route was only age-gated, not state-gated | 1 | Added a second Stage 5-8 RED cycle, introduced authored enemy state transitions and boss-start hidden expiry flags, and updated the hidden-route tests before rerunning verification. |
 
 ## 5-Question Reboot Check
 | Question | Answer |
 |----------|--------|
-| Where am I? | In Full Content Authoring, with the first Stage 1 golden-slice tranche completed on `codex/stage1-golden-slice`. |
-| Where am I going? | Next into the `codex/stages-2-4-content` tranche, then the rest of full content authoring before 2P/cabinet/UI work. |
+| Where am I? | At the end of Full Content Authoring, with Stage 1-8 and loop entry now authored through the generic stage seam. |
+| Where am I going? | Next into `implement-2p-and-cabinet`, followed by UI/assets integration and the final verification/release tranche. |
 | What's the goal? | Build a public static browser remake of arcade Raiden II with TriadDev Extended workflow. |
 | What have I learned? | Scope is large, fidelity depends on deterministic systems, and gameplay rules should remain data-driven, simulation-owned, and renderer-independent. |
-| What have I done? | Completed discovery, value gate, runtime foundation, combat core, GitHub bootstrap, the stage-authoring seam, PR feedback fixes, and the first macro-authored Stage 1 golden slice. |
+| What have I done? | Completed discovery, value gate, runtime foundation, combat core, GitHub bootstrap, the stage-authoring seam, PR feedback fixes, and full Stage 1-8 content authoring with loop carryover. |

@@ -2,6 +2,7 @@ import type {
   BossRuntimeState,
   CheckpointState,
   EnemyState,
+  EnemyDefeatRecord,
   PendingSpawnState,
   RuntimeEvent,
   RuntimePickupState,
@@ -33,6 +34,7 @@ function cloneEnemy(enemy: EnemyState): EnemyState {
   return {
     ...enemy,
     position: { ...enemy.position },
+    stateTransitions: enemy.stateTransitions?.map((transition) => ({ ...transition })),
     scriptedDefeats: enemy.scriptedDefeats?.map((defeat) => ({ ...defeat }))
   };
 }
@@ -108,6 +110,18 @@ function isHiddenTriggered(
       return condition.enemyIds.every((enemyId) =>
         stage.defeatedEnemyIds.includes(enemyId)
       );
+    case "enemy-destroyed-in-state":
+      return stage.defeatedEnemyRecords.some(
+        (record) =>
+          record.enemyId === condition.enemyId &&
+          record.stateTag === condition.stateTag
+      );
+    case "enemy-destroyed-after-frames":
+      return stage.defeatedEnemyRecords.some(
+        (record) =>
+          record.enemyId === condition.enemyId &&
+          record.enemyAgeFrames >= condition.minAgeFrames
+      );
     case "enemy-destroyed-by":
       return stage.defeatedEnemyRecords.some(
         (record) =>
@@ -122,12 +136,33 @@ function isHiddenTriggered(
 function resolveHiddenReward(
   trigger: HiddenTriggerDefinition,
   session: SessionConfig
-): HiddenTriggerDefinition["reward"] | null {
-  return trigger.rewardOverrides?.[session.cabinetProfile] ?? trigger.reward ?? null;
+): NonNullable<HiddenTriggerDefinition["rewards"]> {
+  const override = trigger.rewardOverrides?.[session.cabinetProfile];
+  if (override) {
+    return [override];
+  }
+
+  if (trigger.rewards?.length) {
+    return trigger.rewards;
+  }
+
+  return trigger.reward ? [trigger.reward] : [];
 }
 
 function hasBlockingEnemies(enemies: EnemyState[]): boolean {
   return enemies.some((enemy) => enemy.blocksProgression);
+}
+
+function resolveEnemyStateTag(enemy: EnemyState, frame: number): string | undefined {
+  let nextStateTag = enemy.stateTag;
+
+  for (const transition of enemy.stateTransitions ?? []) {
+    if (frame - enemy.spawnedAtFrame >= transition.afterFrames) {
+      nextStateTag = transition.stateTag;
+    }
+  }
+
+  return nextStateTag;
 }
 
 export class StageRunner {
@@ -312,13 +347,20 @@ export class StageRunner {
 
     stage.pendingSpawns = remainingPendingSpawns;
     this.resolveScriptedEnemyDefeats(enemies, stage, state.frame);
+    for (const enemy of enemies) {
+      enemy.stateTag = resolveEnemyStateTag(enemy, state.frame);
+    }
 
     for (const hidden of definition.hiddenTriggers) {
-      if (stage.triggeredHiddenIds.includes(hidden.id) || !isHiddenTriggered(hidden, stage)) {
+      if (
+        stage.triggeredHiddenIds.includes(hidden.id) ||
+        (boss?.active && hidden.expiresOnBossStart) ||
+        !isHiddenTriggered(hidden, stage)
+      ) {
         continue;
       }
 
-      const reward = resolveHiddenReward(hidden, state.session);
+      const rewards = resolveHiddenReward(hidden, state.session);
       stage.triggeredHiddenIds.push(hidden.id);
       if (hidden.revealEnemies?.length) {
         enemies.push(
@@ -327,19 +369,25 @@ export class StageRunner {
           )
         );
       }
-      if (reward) {
-        pickups.push({
-          id: reward.pickupId,
-          kind: reward.kind,
-          position: { ...reward.position },
-          collected: false,
-          scoreValue: reward.scoreValue,
-          sourceId: hidden.id
-        });
+      if (rewards.length > 0) {
+        const pickupIds: string[] = [];
+
+        for (const reward of rewards) {
+          pickups.push({
+            id: reward.pickupId,
+            kind: reward.kind,
+            position: { ...reward.position },
+            collected: false,
+            scoreValue: reward.scoreValue,
+            sourceId: hidden.id
+          });
+          pickupIds.push(reward.pickupId);
+        }
         events.push({
           type: "hidden-triggered",
           triggerId: hidden.id,
-          pickupId: reward.pickupId,
+          pickupId: pickupIds[0],
+          pickupIds,
           atFrame: state.frame
         });
       }
@@ -433,6 +481,8 @@ export class StageRunner {
       spawnedByWaveId: waveId,
       spawnedAtFrame: frame,
       blocksProgression: spawn.blocksProgression ?? true,
+      stateTag: spawn.stateTag,
+      stateTransitions: spawn.stateTransitions?.map((transition) => ({ ...transition })),
       behaviorId: spawn.behaviorId,
       scriptedDefeats: spawn.scriptedDefeats?.map((defeat) => ({ ...defeat })),
       animation: "idle"
@@ -536,13 +586,27 @@ export class StageRunner {
           continue;
         }
 
+        const target = enemies[targetIndex];
         enemies.splice(targetIndex, 1);
         stage.defeatedEnemyIds.push(scriptedDefeat.targetEnemyId);
-        stage.defeatedEnemyRecords.push({
-          enemyId: scriptedDefeat.targetEnemyId,
-          sourceEnemyId: sourceEnemy.id
-        });
+        stage.defeatedEnemyRecords.push(
+          this.createEnemyDefeatRecord(target, frame, sourceEnemy.id)
+        );
       }
     }
+  }
+
+  private createEnemyDefeatRecord(
+    enemy: EnemyState,
+    frame: number,
+    sourceEnemyId?: string
+  ): EnemyDefeatRecord {
+    return {
+      enemyId: enemy.id,
+      sourceEnemyId,
+      atFrame: frame,
+      enemyAgeFrames: frame - enemy.spawnedAtFrame,
+      stateTag: enemy.stateTag
+    };
   }
 }
