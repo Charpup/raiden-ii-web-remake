@@ -240,6 +240,33 @@
   - `tests/assetManifest.test.ts`
   - `tests/runtimeShell.dom.test.ts`
 
+### Phase 11: Release Verification And Host Handoff
+- **Status:** complete
+- Actions taken:
+  - Merged PR `#6`, then created the final feature branch `codex/release-verification`.
+  - Folded the final unresolved release blockers into this tranche: non-final stage progression now stops at stage boundaries, and final-clear ending overlays now preserve the cleared-stage presentation instead of projecting the next loop stage immediately.
+  - Expanded `SPEC.yaml` with `REL-401` through `AST-401` to lock campaign progression, browser shell reachability, ending/loop correctness, deployment readiness, host handoff completeness, stability, and public-asset compliance.
+  - Added `tests/releaseVerification.test.ts` to verify an authored Stage 1 -> Stage 8 run, final-loop carryover, and co-op/hard mainline progression.
+  - Added browser-shell regressions to `tests/runtimeShell.dom.test.ts` for final-clear HUD freezing and non-final stage-boundary fixed-step stopping.
+  - Added a production-base-path favicon so the browser shell no longer emits a default favicon 404 in real smoke runs.
+  - Wrote `HOST_DEPLOYMENT_HANDOFF.md` and `OPERATOR_SMOKE_CHECKLIST.md` so the host-side agent has explicit publish, rollback, and smoke instructions.
+  - Ran a real browser smoke pass against `http://127.0.0.1:4175/games/raiden-ii/`, confirming title -> mode-select -> cabinet-select -> gameplay for both 1P/easy and 2P/hard, with zero console errors and no network failures after the favicon fix.
+  - Closed the final release gaps in the browser shell by stopping host fixed-step advancement on stage boundaries and by freezing cleared-stage HUD/scene/audio projections during the ending overlay.
+- Files created/modified:
+  - `SPEC.yaml`
+  - `README.md`
+  - `task_plan.md`
+  - `triadev-handoff.json`
+  - `.tdd-state.json`
+  - `src/app/GameFlowController.ts`
+  - `src/app/runtime/BrowserRuntime.ts`
+  - `index.html`
+  - `public/favicon.svg`
+  - `tests/runtimeShell.dom.test.ts`
+  - `tests/releaseVerification.test.ts`
+  - `HOST_DEPLOYMENT_HANDOFF.md`
+  - `OPERATOR_SMOKE_CHECKLIST.md`
+
 ## Test Results
 | Test | Input | Expected | Actual | Status |
 |------|-------|----------|--------|--------|
@@ -287,6 +314,11 @@
 | UI/Assets GREEN | `npm run test:run` after implementing the browser runtime shell and DOM overlays | Full suite stays green with app-layer flow, HUD, assets, audio playback, and DOM shell coverage | 76/76 tests passed | PASS |
 | UI/Assets Coverage | `npm run coverage` after implementing the browser runtime shell and DOM overlays | Coverage >= 80% | 91.00% total coverage | PASS |
 | UI/Assets Build | `npm run build` after implementing the browser runtime shell and DOM overlays | Strict type check and production build pass | Build passed | PASS |
+| Release Verification Targeted | `npm run test:run -- tests/releaseVerification.test.ts tests/runtimeShell.dom.test.ts` | Final campaign-route and browser-shell release regressions pass | 9/9 tests passed | PASS |
+| Release Verification Full Suite | `npm run test:run` after final release fixes | Full suite remains green with stage-boundary and ending-freeze fixes | 83/83 tests passed | PASS |
+| Release Verification Coverage | `npm run coverage` after final release fixes | Coverage >= 80% | 91.29% total coverage | PASS |
+| Release Verification Build | `npm run build` after final release fixes | Strict type check and production build pass | Build passed | PASS |
+| Browser Smoke | Playwright CLI against `http://127.0.0.1:4175/games/raiden-ii/` | Base-path shell loads, no console/network errors, 1P/easy and 2P/hard reach gameplay | Passed after favicon fix | PASS |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
@@ -307,12 +339,14 @@
 | 2026-04-10 01:35 CST | Reviewer found that Stage 7/8 hidden routes could still fire during boss fights and that Stage 6's red crystal route was only age-gated, not state-gated | 1 | Added a second Stage 5-8 RED cycle, introduced authored enemy state transitions and boss-start hidden expiry flags, and updated the hidden-route tests before rerunning verification. |
 | 2026-04-10 02:33 CST | The new co-op RED suite initially burned too many frames and timed out while trying to reach `continue-pending` on the pre-implementation branch state | 1 | Tightened the test helper to cap attempts during RED, then switched the helper to a direct invulnerability-drain path once the new continue lifecycle existed. |
 | 2026-04-10 03:20 CST | The new browser-shell RED cycle failed immediately on missing `src/app` modules and absent `jsdom` support | 1 | Added the `src/app` browser shell modules, installed `jsdom`, and re-ran the targeted DOM and full-suite verification. |
+| 2026-04-10 11:25 CST | Reviewer found ending overlays showing next-stage HUD/state and non-final stage clears consuming extra fixed steps into the next stage | 1 | Froze cleared-stage projections during `ending-started`, stopped fixed-step processing on `stage-cleared` boundaries, and added release-level regressions. |
+| 2026-04-10 11:31 CST | Real browser smoke surfaced a `favicon.ico` 404 under the production base path | 1 | Added a base-path-safe SVG favicon and rebuilt before re-running browser smoke. |
 
 ## 5-Question Reboot Check
 | Question | Answer |
 |----------|--------|
-| Where am I? | At the end of `implement-ui-assets-flow`, with a playable browser shell, DOM overlays, Pixi gameplay viewport, and placeholder replacement asset/audio manifests wired on top of the deterministic runtime. |
-| Where am I going? | Next into `polish-and-verify-build`, the final verification/release tranche. |
+| Where am I? | At the end of `polish-and-verify-build`, with the full authored campaign, co-op/cabinet rules, browser shell, release verification suite, and host deployment handoff complete. |
+| Where am I going? | Into host-side deployment and release operations, not another feature tranche. |
 | What's the goal? | Build a public static browser remake of arcade Raiden II with TriadDev Extended workflow. |
-| What have I learned? | Scope is large, fidelity depends on deterministic systems, and gameplay rules should remain data-driven, simulation-owned, renderer-independent, and per-player in co-op. |
-| What have I done? | Completed discovery, value gate, runtime foundation, combat core, GitHub bootstrap, the stage-authoring seam, PR feedback fixes, full Stage 1-8 content authoring with loop carryover, the 2P/cabinet rules tranche, and the browser runtime shell/UI/assets tranche. |
+| What have I learned? | Scope is large, fidelity depends on deterministic systems, and gameplay rules should remain data-driven, simulation-owned, renderer/audio-independent, and per-player in co-op while browser flow stays projection-only. |
+| What have I done? | Completed discovery, value gate, runtime foundation, combat core, GitHub bootstrap, the stage-authoring seam, PR feedback fixes, full Stage 1-8 content authoring with loop carryover, the 2P/cabinet rules tranche, the browser runtime shell/UI/assets tranche, and the final release verification and host handoff tranche. |

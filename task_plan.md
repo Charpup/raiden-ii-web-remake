@@ -4,7 +4,7 @@
 Build a public, static-deployable, high-fidelity browser remake of the arcade version of Raiden II using Vite, TypeScript, PixiJS, a deterministic fixed-step simulation, and a TriadDev Extended workflow with TDD/SDD gates.
 
 ## Current Phase
-Phase 5
+Phase 6
 
 ## Phases
 
@@ -43,13 +43,15 @@ Phase 5
 - [x] Author Stage 1-8 content baselines and loop entry
 - [x] Implement cabinet presets and 2P lifecycle rules
 - [x] Integrate browser runtime shell, UI flow, and placeholder replacement asset/audio manifests
-- **Status:** in_progress
+- **Status:** complete
 
 ### Phase 6: Verification & Delivery
-- [ ] Run unit, integration, build, and performance checks
-- [ ] Validate static subpath deployment assumptions
-- [ ] Update progress and summarize remaining content work
-- **Status:** pending
+- [x] Run unit, integration, build, and performance checks
+- [x] Validate static subpath deployment assumptions
+- [x] Run a real-browser smoke pass against the production base path
+- [x] Write host deployment and operator smoke handoff documents
+- [x] Update progress and final delivery artifacts
+- **Status:** complete
 
 ## Key Questions
 1. How do we preserve arcade timing fidelity while staying within a pure static browser deployment?
@@ -80,18 +82,9 @@ Phase 5
 - Keep all arcade-specific behavior expressible through data/config where possible.
 - Do not bind gameplay rules to renderer objects.
 - Public release must use remade assets only.
-- Current implementation baseline includes a minimal stage catalog and stage runner, but full arcade-authentic content authoring is still pending.
-- `codex/stage1-golden-slice` has been merged after upgrading Stage 1 from a calibration slice to a macro-authored golden slice with staggered waves, checkpoint recovery drops, and a dual-part boss.
-- The Stage 1-8 full-content tranche is now complete through `codex/stages-5-8-content-loop`, focused on macro authoring plus the smallest schema extensions needed for Stage 6's timed red-crystal route and Stage 8's multi-reward Miclus line.
-- The next active implementation tranche is `codex/release-verification`, after `codex/ui-assets-flow` completes the browser runtime shell, DOM overlays, Pixi gameplay viewport, HUD projection, and placeholder replacement asset/audio manifest slice.
-- Remaining development roadmap is now locked to 3 implementation stages:
-  1. Full Content Authoring
-  2. 2P + Cabinet + Asset/UI Integration
-  3. Verification + Release
-- Recommended PR cadence after the current seam PR:
-  - `codex/stage1-golden-slice`
-  - `codex/stages-2-4-content`
-  - `codex/stages-5-8-content-loop`
-  - `codex/2p-and-cabinet`
-  - `codex/ui-assets-flow`
-  - `codex/release-verification`
+- Stage 1-8 authored content, loop carryover, co-op lifecycle, cabinet rules, and the browser shell are complete.
+- `codex/release-verification` completed the final release blockers, deployment validation, and host handoff package.
+- Deployment target stays fixed at `/games/raiden-ii/` under the host's static root.
+- The repository now includes project-specific deployment and smoke documents for the host agent:
+  - `HOST_DEPLOYMENT_HANDOFF.md`
+  - `OPERATOR_SMOKE_CHECKLIST.md`

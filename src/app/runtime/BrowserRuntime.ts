@@ -175,7 +175,13 @@ export class BrowserRuntime {
       const state = this.simulation.step(this.captureGameplayInput());
       this.syncOutputs(state);
 
-      if (this.flowController.getState().screen !== initialSimulationScreen) {
+      const hitStageBoundary = state.recentEvents.some(
+        (event) => event.type === "stage-cleared" || event.type === "ending-started"
+      );
+      if (
+        this.flowController.getState().screen !== initialSimulationScreen ||
+        hitStageBoundary
+      ) {
         break;
       }
     }
@@ -284,12 +290,20 @@ export class BrowserRuntime {
   }
 
   private syncOutputs(state: SimulationState): void {
-    this.latestScene = this.renderer.sync(state);
-    this.sceneAdapter?.sync(this.latestScene);
-    this.latestAudioFrame = this.audioDirector.sync(state);
-    this.audioPlayback.sync(this.latestAudioFrame);
-    this.latestHud = projectHud(state);
+    const enteringEnding = state.recentEvents.some(
+      (event) => event.type === "ending-started"
+    );
+
     this.flowController.consumeSimulation(state);
+
+    if (!enteringEnding || !this.latestScene || !this.latestHud || !this.latestAudioFrame) {
+      this.latestScene = this.renderer.sync(state);
+      this.sceneAdapter?.sync(this.latestScene);
+      this.latestAudioFrame = this.audioDirector.sync(state);
+      this.audioPlayback.sync(this.latestAudioFrame);
+      this.latestHud = projectHud(state);
+    }
+
     this.emitSnapshot();
   }
 
