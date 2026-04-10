@@ -8,8 +8,9 @@ function stepUntilBoss(
   maxFrames = 1_600
 ): SimulationState {
   let state = simulation.getState();
+  const startFrame = state.frame;
 
-  while (!state.boss?.active && state.frame < maxFrames) {
+  while (!state.boss?.active && state.frame < startFrame + maxFrames) {
     for (const enemy of state.enemies) {
       simulation.defeatEnemy(enemy.id);
     }
