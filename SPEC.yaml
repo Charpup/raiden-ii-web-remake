@@ -639,3 +639,67 @@ requirements:
         given: "the browser shell has entered gameplay"
         when: "host delta time is ticked through the runtime"
         then: "the clock emits simulation steps and the scene, HUD, and audio projections update from the new snapshot"
+  - id: REL-401
+    description: "The authored campaign can progress end-to-end from Stage 1 through Stage 8 and loop back to Stage 1 without manual stage reselection."
+    priority: high
+    scenarios:
+      - name: "full authored run advances through every stage in order"
+        given: "a fresh single-player session on Stage 1"
+        when: "each authored boss is defeated in sequence"
+        then: "the session advances Stage 1 through Stage 8 in order and restarts at Stage 1 on loop 2"
+      - name: "non-final stage clears never enter the ending overlay contract"
+        given: "a non-final stage boundary"
+        when: "the boss is defeated and the next stage is initialized"
+        then: "the runtime emits stage-cleared and next-stage state without emitting ending-started"
+  - id: REL-402
+    description: "The browser shell remains reachable through the full selection and gameplay flow under the production base path."
+    priority: high
+    scenarios:
+      - name: "browser shell reaches gameplay from title under /games/raiden-ii/"
+        given: "a production build served from the configured base path"
+        when: "the operator starts a run and selects mode and cabinet"
+        then: "title, selection overlays, and gameplay are all reachable without broken assets"
+  - id: REL-403
+    description: "Ending, continue, game-over, and loop transitions render stable overlays without leaking future-stage simulation state."
+    priority: high
+    scenarios:
+      - name: "final clear ending freezes the cleared-stage HUD and scene"
+        given: "a final-stage clear that immediately seeds the next loop stage in simulation"
+        when: "the browser shell enters ending"
+        then: "the ending overlay still renders the cleared stage presentation until the overlay sequence finishes"
+      - name: "stage boundaries stop extra fixed steps in the current host tick"
+        given: "a large host delta that spans a stage clear"
+        when: "the runtime processes fixed steps"
+        then: "it stops after the boundary frame instead of silently advancing additional frames into the next stage"
+  - id: DEP-401
+    description: "The production build remains valid when deployed as a static subpath application under /games/raiden-ii/."
+    priority: high
+    scenarios:
+      - name: "asset urls remain normalized under the deployment subpath"
+        given: "a production build and the configured Vite base path"
+        when: "the generated shell, shared, and stage asset urls are inspected"
+        then: "they resolve under /games/raiden-ii/ without broken or root-relative paths"
+  - id: DEP-402
+    description: "The repository ships a host-facing deployment handoff that matches the site environment and rollback model."
+    priority: high
+    scenarios:
+      - name: "deployment handoff covers build publish and rollback"
+        given: "the website host constraints from the environment handoff"
+        when: "the project deployment handoff is reviewed"
+        then: "it specifies build command, dist output, target subpath, smoke checks, and rollback expectations for the host agent"
+  - id: PERF-401
+    description: "The browser shell remains stable over a long play session and after visibility changes."
+    priority: medium
+    scenarios:
+      - name: "long play does not wedge input or overlays"
+        given: "a browser session left running through gameplay and overlay transitions"
+        when: "it is exercised for an extended interval"
+        then: "the shell resumes cleanly, without phantom input or stuck overlays"
+  - id: AST-401
+    description: "The public repository and release handoff stay compliant with the replacement-asset policy and exclude secrets."
+    priority: high
+    scenarios:
+      - name: "release artifacts contain only replacement assets and no secrets"
+        given: "the public repository and generated deployment instructions"
+        when: "they are reviewed before release"
+        then: "they contain no original game assets, credentials, or private host tokens"

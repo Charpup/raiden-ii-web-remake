@@ -2,6 +2,7 @@
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createRaidenApp } from "../src/app/createRaidenApp";
+import type { HudProjection } from "../src/app/hudProjection";
 import type {
   AudioFrame,
   PresentationalScene,
@@ -114,6 +115,49 @@ function createSimulationState(
     },
     recentEvents,
     ...overrides
+  };
+}
+
+function createHudProjection(stageId: string): HudProjection {
+  return {
+    stageId,
+    stageLabel: `Stage ${stageId.split("-")[1]}`,
+    loopIndex: 0,
+    loopLabel: "Loop 1",
+    cabinetProfile: "easy",
+    flow: "playing",
+    players: [
+      {
+        id: "player1",
+        joined: true,
+        score: 125000,
+        scoreLabel: "125000",
+        lives: 3,
+        bombs: 2,
+        mainWeaponLabel: "Laser Lv2",
+        subWeaponLabel: "Homing Lv1",
+        lifeState: "alive",
+        continueSecondsRemaining: null
+      }
+    ],
+    boss: {
+      id: `${stageId}-boss`,
+      phaseLabel: "opening",
+      healthRatio: 0.5,
+      healthLabel: "400 / 800"
+    }
+  };
+}
+
+function createScene(stageId: string): PresentationalScene {
+  return {
+    frame: 120,
+    stageId,
+    players: [{ id: "player1", x: 160, y: 472, animation: "idle" }],
+    enemies: [],
+    pickups: [],
+    boss: { id: `${stageId}-boss`, x: 160, y: 84, animation: "idle" },
+    bossParts: []
   };
 }
 
@@ -296,6 +340,155 @@ describe("Browser shell DOM runtime", () => {
 
     expect(stepCalls).toBe(1);
     expect(root.getAttribute("data-flow")).toBe("ending");
+
+    app.destroy();
+  });
+
+  it("RNT-001 keeps the cleared-stage HUD and scene visible during the ending overlay", async () => {
+    const root = document.querySelector<HTMLDivElement>("#app");
+    if (!root) {
+      throw new Error("Missing app root");
+    }
+
+    const app = await createRaidenApp(root, {
+      sceneAdapterFactory: async () => new FakeSceneAdapter(),
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter()
+    });
+
+    root.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+
+    const runtimeInternals = app.runtime as unknown as {
+      clock: { tick(deltaMs: number): { steps: number[] } };
+      simulation: { step(): SimulationState };
+      latestHud: HudProjection | null;
+      latestScene: PresentationalScene | null;
+      latestAudioFrame: AudioFrame | null;
+    };
+
+    runtimeInternals.latestHud = createHudProjection("stage-8");
+    runtimeInternals.latestScene = createScene("stage-8");
+    runtimeInternals.latestAudioFrame = {
+      bgmCue: "bgm-stage-8",
+      sfxCues: []
+    };
+    runtimeInternals.clock = {
+      tick(): { steps: number[] } {
+        return { steps: [1, 2] };
+      }
+    };
+    runtimeInternals.simulation = {
+      step(): SimulationState {
+        return createSimulationState(
+          {
+            session: {
+              mode: "single",
+              cabinetProfile: "easy",
+              stageId: "stage-1",
+              loopIndex: 1
+            },
+            stage: {
+              ...createSimulationState().stage,
+              stageId: "stage-1"
+            }
+          },
+          [
+            {
+              type: "stage-cleared",
+              stageId: "stage-8",
+              atFrame: 3600
+            },
+            {
+              type: "loop-advanced",
+              loopIndex: 1,
+              atFrame: 3600
+            },
+            {
+              type: "ending-started",
+              stageId: "stage-8",
+              nextStageId: "stage-1",
+              loopIndex: 1,
+              atFrame: 3600
+            }
+          ]
+        );
+      }
+    };
+
+    app.runtime.tickHostDelta(50);
+
+    expect(root.getAttribute("data-flow")).toBe("ending");
+    expect(root.querySelector("[data-role='hud-stage-label']")?.textContent).toBe("Stage 8");
+    expect(app.runtime.getSnapshot().hud?.stageId).toBe("stage-8");
+    expect(app.runtime.getSnapshot().scene?.stageId).toBe("stage-8");
+    expect(app.runtime.getSnapshot().audioFrame?.bgmCue).toBe("bgm-stage-8");
+
+    app.destroy();
+  });
+
+  it("RNT-001 stops fixed-step simulation at a non-final stage boundary before advancing extra frames into the next stage", async () => {
+    const root = document.querySelector<HTMLDivElement>("#app");
+    if (!root) {
+      throw new Error("Missing app root");
+    }
+
+    const app = await createRaidenApp(root, {
+      sceneAdapterFactory: async () => new FakeSceneAdapter(),
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter()
+    });
+
+    root.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+
+    const runtimeInternals = app.runtime as unknown as {
+      clock: { tick(deltaMs: number): { steps: number[] } };
+      simulation: { step(): SimulationState };
+    };
+
+    let stepCalls = 0;
+    runtimeInternals.clock = {
+      tick(): { steps: number[] } {
+        return { steps: [1, 2, 3] };
+      }
+    };
+    runtimeInternals.simulation = {
+      step(): SimulationState {
+        stepCalls += 1;
+        return createSimulationState(
+          {
+            session: {
+              mode: "single",
+              cabinetProfile: "easy",
+              stageId: "stage-2",
+              loopIndex: 0
+            },
+            stage: {
+              ...createSimulationState().stage,
+              stageId: "stage-2"
+            }
+          },
+          stepCalls === 1
+            ? [
+                {
+                  type: "stage-cleared",
+                  stageId: "stage-1",
+                  atFrame: 2400
+                }
+              ]
+            : []
+        );
+      }
+    };
+
+    app.runtime.tickHostDelta(50);
+
+    expect(stepCalls).toBe(1);
+    expect(root.getAttribute("data-flow")).toBe("gameplay");
+    expect(app.runtime.getSnapshot().hud?.stageId).toBe("stage-2");
 
     app.destroy();
   });

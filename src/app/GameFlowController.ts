@@ -74,15 +74,15 @@ export class GameFlowController {
   }
 
   consumeSimulation(state: SimulationState): void {
-    if (this.selection.stageId !== state.session.stageId) {
+    const endingStarted = state.recentEvents.find((event) => event.type === "ending-started");
+    const loopAdvanced = state.recentEvents.find((event) => event.type === "loop-advanced");
+
+    if (!endingStarted && this.selection.stageId !== state.session.stageId) {
       this.selection = {
         ...this.selection,
         stageId: state.session.stageId
       };
     }
-
-    const endingStarted = state.recentEvents.find((event) => event.type === "ending-started");
-    const loopAdvanced = state.recentEvents.find((event) => event.type === "loop-advanced");
 
     if (endingStarted) {
       this.screen = "ending";

@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "project": "raiden-ii-web-remake",
   "route": "extended",
-  "current_phase": "implementation",
+  "current_phase": "complete",
   "planning": {
     "status": "complete",
     "files": [
@@ -141,7 +141,7 @@
     "review_path": "value-review.md"
   },
   "implementation": {
-    "status": "in_progress",
+    "status": "complete",
     "completed": [
       "value-gate-full-release-scope",
       "scaffold-runtime-project",
@@ -152,9 +152,10 @@
       "implement-stage-authoring",
       "author-full-content",
       "implement-2p-and-cabinet",
-      "implement-ui-assets-flow"
+      "implement-ui-assets-flow",
+      "polish-and-verify-build"
     ],
-    "current": "polish-and-verify-build",
+    "current": null,
     "spec_path": "SPEC.yaml",
     "tdd_state_path": ".tdd-state.json"
   }

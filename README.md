@@ -3,10 +3,9 @@
 A public browser remake project targeting the arcade version of **Raiden II**.
 
 ## Current Status
-- Runtime foundation implemented and verified
-- Combat core implemented and verified
-- Simulation/content seam and stage runner contracts implemented and verified
-- Next tranche: expand the Stage 1 golden slice, author the remaining stage content, and finish 2P/cabinet/loop delivery details
+- Runtime, combat, authored Stage 1-8 content, loop carryover, co-op lifecycle, cabinet rules, browser shell, and final release verification are complete
+- The project is ready for static host deployment at `/games/raiden-ii/`
+- Deployment target is a static subpath release at `/games/raiden-ii/`
 
 ## Stack
 - Vite
@@ -36,6 +35,10 @@ npm run test:run
 npm run coverage
 npm run build
 ```
+
+## Deployment
+- Host deployment handoff: [HOST_DEPLOYMENT_HANDOFF.md](./HOST_DEPLOYMENT_HANDOFF.md)
+- Operator smoke checklist: [OPERATOR_SMOKE_CHECKLIST.md](./OPERATOR_SMOKE_CHECKLIST.md)
 
 ## Project Planning Artifacts
 - [task_plan.md](./task_plan.md)
