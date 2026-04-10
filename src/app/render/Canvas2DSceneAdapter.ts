@@ -8,6 +8,7 @@ import {
   type AssetManifest,
   type TextureAssetDefinition
 } from "../assets/assetManifest";
+import type { PrototypeAssetPackStore } from "../assets/PrototypeAssetPackStore";
 import { computeViewportFit } from "../runtime/viewportLayout";
 import type { SceneAdapter } from "./PixiSceneAdapter";
 
@@ -46,6 +47,8 @@ function createPlaceholderColor(assetId: string): string {
 export class Canvas2DSceneAdapter implements SceneAdapter {
   private readonly assetManifest: AssetManifest;
 
+  private readonly assetPackStore?: Pick<PrototypeAssetPackStore, "getImage">;
+
   private readonly imageCache = new Map<string, CachedImageAsset>();
 
   private readonly canvas = document.createElement("canvas");
@@ -60,8 +63,12 @@ export class Canvas2DSceneAdapter implements SceneAdapter {
 
   private viewportHeight = WORLD_HEIGHT;
 
-  constructor(assetManifest: AssetManifest = createAssetManifest()) {
+  constructor(
+    assetManifest: AssetManifest = createAssetManifest(),
+    assetPackStore?: Pick<PrototypeAssetPackStore, "getImage">
+  ) {
     this.assetManifest = assetManifest;
+    this.assetPackStore = assetPackStore;
   }
 
   async attach(host: HTMLElement): Promise<void> {
@@ -235,6 +242,16 @@ export class Canvas2DSceneAdapter implements SceneAdapter {
     const existing = this.imageCache.get(assetId);
     if (existing) {
       return existing;
+    }
+
+    const preloadedImage = this.assetPackStore?.getImage(assetId);
+    if (preloadedImage) {
+      const cached: CachedImageAsset = {
+        image: preloadedImage,
+        loaded: true
+      };
+      this.imageCache.set(assetId, cached);
+      return cached;
     }
 
     const candidates = this.assetManifest.resolveTextureCandidates(assetId);

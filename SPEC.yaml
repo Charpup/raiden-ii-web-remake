@@ -629,6 +629,30 @@ requirements:
         given: "the configured /games/raiden-ii/ base path"
         when: "an asset url is resolved from a relative asset path"
         then: "the resolved url is normalized under the subpath without double slashes"
+  - id: AST-201
+    description: "Stage 1 exposes a required private-pack contract for the core prototype textures and audio cues needed before gameplay starts."
+    priority: high
+    scenarios:
+      - name: "stage 1 bundle declares required private texture and audio inventory"
+        given: "the stage 1 asset bundle"
+        when: "its private-pack contract is inspected"
+        then: "the required private texture ids and audio cue ids match the Stage 1 core gameplay inventory"
+      - name: "required private ids remain queryable from the manifest"
+        given: "the browser asset manifest"
+        when: "required private assets are queried for stage 1"
+        then: "the manifest returns deterministic ids and relative private paths for validation and preload"
+  - id: AST-202
+    description: "A local-only private-pack validator reports exact missing Stage 1 prototype files and fails fast when the required pack is incomplete."
+    priority: high
+    scenarios:
+      - name: "validator prints missing stage 1 private files"
+        given: "an incomplete private prototype directory"
+        when: "the validator runs"
+        then: "it exits non-zero and reports each missing asset or cue id with its relative private path"
+      - name: "validator passes when the required loose-file tree exists"
+        given: "a complete stage 1 private prototype directory"
+        when: "the validator runs"
+        then: "it exits successfully without reporting missing files"
   - id: AUD-101
     description: "The browser audio playback adapter turns audio-director cues into unlockable browser playback state without owning game rules."
     priority: high
@@ -641,6 +665,18 @@ requirements:
         given: "an audio frame with bgm and sfx cues"
         when: "the browser audio playback adapter syncs"
         then: "it updates playback state without mutating simulation or the director"
+  - id: AUD-201
+    description: "Stage 1 required BGM and SFX use preloaded private audio buffers before gameplay starts instead of synth fallback."
+    priority: high
+    scenarios:
+      - name: "required stage 1 bgm uses the preloaded private buffer"
+        given: "a loaded stage 1 private asset pack"
+        when: "stage 1 gameplay starts and the stage bgm cue is synced"
+        then: "the audio playback adapter starts the preloaded private buffer instead of synthesizing fallback audio"
+      - name: "required stage 1 sfx use the preloaded private buffers"
+        given: "a loaded stage 1 private asset pack"
+        when: "required player or enemy destroy cues are synced during stage 1 gameplay"
+        then: "the audio playback adapter plays the preloaded private buffers instead of synth fallback"
   - id: RNT-001
     description: "The browser runtime wires the fixed-step clock, captured inputs, simulation, renderer, HUD, and audio playback into a playable shell."
     priority: high
@@ -653,6 +689,30 @@ requirements:
         given: "the browser shell has entered gameplay"
         when: "host delta time is ticked through the runtime"
         then: "the clock emits simulation steps and the scene, HUD, and audio projections update from the new snapshot"
+  - id: RNT-201
+    description: "Stage 1 gameplay startup passes through an explicit asset-loading gate and only enters gameplay after the required private pack is ready."
+    priority: high
+    scenarios:
+      - name: "title to gameplay enters asset-loading before stage 1 starts"
+        given: "the browser shell at title state with a valid stage 1 private pack"
+        when: "the player selects 1P Solo and Easy Cabinet"
+        then: "the shell enters asset-loading and then gameplay once the required pack finishes loading"
+      - name: "runtime snapshot surfaces asset-load state during startup"
+        given: "the browser shell is preloading the stage 1 private pack"
+        when: "a runtime snapshot is requested"
+        then: "the snapshot includes the current asset-load state and related observability details"
+  - id: RNT-202
+    description: "Stage 1 startup hard-fails into an asset-error shell state when the required private pack is missing or incomplete."
+    priority: high
+    scenarios:
+      - name: "missing private pack does not start gameplay"
+        given: "the browser shell at title state with missing stage 1 private assets"
+        when: "the player selects 1P Solo and Easy Cabinet"
+        then: "the shell enters asset-error, lists the missing items, and does not create gameplay simulation state"
+      - name: "asset error offers a recovery path back to title"
+        given: "the browser shell is in asset-error"
+        when: "the player returns to title"
+        then: "the shell leaves asset-error without retaining failed gameplay startup state"
   - id: REL-401
     description: "The authored campaign can progress end-to-end from Stage 1 through Stage 8 and loop back to Stage 1 without manual stage reselection."
     priority: high
@@ -741,6 +801,22 @@ requirements:
         given: "the prototype asset manifest"
         when: "the texture asset list is validated against the public directory"
         then: "every declared fallback texture path exists on disk"
+  - id: REN-201
+    description: "Stage 1 required visuals render from preloaded private prototype images once gameplay starts instead of falling back to placeholder geometry or tracked fallback art."
+    priority: high
+    scenarios:
+      - name: "canvas renderer consumes loaded private images for required stage 1 visuals"
+        given: "a loaded stage 1 private asset pack and a presentational scene using required stage 1 assets"
+        when: "the canvas scene adapter renders the scene"
+        then: "the required visuals are drawn from loaded private images rather than placeholder fallback logic"
+  - id: REG-201
+    description: "Pixi texture resolution honors private-pack-first candidate or store semantics so it does not diverge from the default Stage 1 renderer."
+    priority: medium
+    scenarios:
+      - name: "pixi texture resolution prefers loaded private sources"
+        given: "a loaded stage 1 private image and the pixi scene adapter"
+        when: "a required stage 1 texture is resolved"
+        then: "the adapter uses the private-loaded source instead of fallback-only url resolution"
   - id: PRT-003
     description: "Stage 1 regains a minimum viable living gameplay loop through enemy motion, player projectile travel, and texture-backed presentation."
     priority: high

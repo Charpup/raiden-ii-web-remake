@@ -1,5 +1,6 @@
 import type { AudioFrame } from "../../game/core/types";
 import type { AssetManifest } from "../assets/assetManifest";
+import type { PrototypeAssetPackStore } from "../assets/PrototypeAssetPackStore";
 
 export interface AudioPlaybackAdapter {
   unlock(): void | Promise<void>;
@@ -39,6 +40,8 @@ function stageMelody(cue: string): number[] {
 export class WebAudioPlaybackAdapter implements AudioPlaybackAdapter {
   private readonly assetManifest?: AssetManifest;
 
+  private readonly assetPackStore?: Pick<PrototypeAssetPackStore, "getAudioBuffer">;
+
   private context: AudioContext | null = null;
 
   private unlocked = false;
@@ -55,8 +58,12 @@ export class WebAudioPlaybackAdapter implements AudioPlaybackAdapter {
 
   private readonly loadingBuffers = new Map<string, Promise<AudioBuffer | null>>();
 
-  constructor(assetManifest?: AssetManifest) {
+  constructor(
+    assetManifest?: AssetManifest,
+    assetPackStore?: Pick<PrototypeAssetPackStore, "getAudioBuffer">
+  ) {
     this.assetManifest = assetManifest;
+    this.assetPackStore = assetPackStore;
   }
 
   unlock(): void {
@@ -189,6 +196,12 @@ export class WebAudioPlaybackAdapter implements AudioPlaybackAdapter {
   }
 
   private resolveCueBuffer(cue: string, mode: CueMode): AudioBuffer {
+    const preloaded = this.assetPackStore?.getAudioBuffer(cue);
+    if (preloaded) {
+      this.bufferCache.set(cue, preloaded);
+      return preloaded;
+    }
+
     const cached = this.bufferCache.get(cue);
     if (cached) {
       return cached;

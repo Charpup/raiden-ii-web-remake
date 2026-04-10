@@ -30,12 +30,12 @@ Turn the current rules/runtime foundation into a **desktop-first, privately play
 - **Status:** complete
 
 ### Sprint 2: Private Asset Pack Integration
-- [ ] Make the Stage 1 core bundle private-pack-first instead of fallback-first.
+- [x] Make the Stage 1 core bundle private-pack-first instead of fallback-first.
 - [ ] Wire real prototype assets for player, common enemies, bullets, pickups, explosions, background, boss, BGM, and essential SFX.
-- [ ] Add fail-fast validation so missing mandatory prototype assets surface explicit errors.
-- [ ] Keep the abstraction boundary intact so a future public-safe asset swap remains possible.
+- [x] Add fail-fast validation so missing mandatory prototype assets surface explicit errors.
+- [x] Keep the abstraction boundary intact so a future public-safe asset swap remains possible.
 - **Exit bar:** the slice no longer reads as placeholder blocks plus synthetic drone audio.
-- **Status:** pending
+- **Status:** in_progress
 
 ### Sprint 3: Stage 1 Boss-Clear Vertical Slice
 - [ ] Complete the full `1P Solo + Easy` Stage 1 flow from title to boss clear.
@@ -54,9 +54,9 @@ Turn the current rules/runtime foundation into a **desktop-first, privately play
 - **Status:** pending
 
 ## Immediate Next Steps
-1. Expand Sprint 2 into a detailed private-asset-pack implementation plan under `TriadDev Extended`.
-2. Switch the Stage 1 core bundle from fallback-first to private-pack-first while keeping the current runtime shell and combat readability gains intact.
-3. Add fail-fast validation for missing mandatory prototype assets before moving deeper into boss-clear-slice work.
+1. Populate `public/private-prototype/` with the required Stage 1 loose `PNG/OGG` files and run `npm run validate:private-pack`.
+2. Manually verify `title -> 1P Solo -> Easy Cabinet -> asset-loading -> gameplay` now enters Stage 1 with real art and audio instead of tracked fallback assets.
+3. Promote Sprint 2 to complete only after the private-pack manual acceptance passes, then open the Sprint 2 PR before planning Sprint 3.
 
 ## Scope Rules
 | Scope | Decision |

@@ -495,6 +495,45 @@
   - `src/app/render/Canvas2DSceneAdapter.ts`
   - `src/app/render/PixiSceneAdapter.ts`
 
+### Phase 16: Sprint 2 Private Asset Pack Integration
+- **Status:** in_progress
+- Actions taken:
+  - Expanded `SPEC.yaml` with Sprint 2 requirement families `AST-201`, `AST-202`, `RNT-201`, `RNT-202`, `REN-201`, `AUD-201`, and `REG-201`.
+  - Added RED-first tests for required Stage 1 private asset inventory, a local validator script, preload-gated browser flow, private-pack-first adapter behavior, and asset-error handling.
+  - Added a structured Stage 1 private-pack contract in `src/app/assets/privatePackContract.json` and upgraded `StageAssetBundle` / `AssetManifest` with required-private texture and audio queries.
+  - Introduced `DefaultPrototypeAssetPackStore` so Stage 1 gameplay startup now preloads required private textures and audio, reports exact missing items, and exposes asset-load state to the runtime snapshot.
+  - Reworked the browser shell flow from `cabinet-select -> gameplay` into `cabinet-select -> asset-loading -> gameplay | asset-error`, without moving gameplay authority out of simulation.
+  - Updated `BrowserRuntimeView` to render `asset-loading` and `asset-error` overlays, including missing-item messaging and a return path back to title.
+  - Switched `Canvas2DSceneAdapter`, `PixiSceneAdapter`, and `WebAudioPlaybackAdapter` to honor private-pack-first semantics so Stage 1 core visuals/audio consume preloaded private resources when available.
+  - Added the local-only validator entrypoint `npm run validate:private-pack` to check the required Stage 1 loose `PNG/OGG` tree under `public/private-prototype/`.
+  - Re-ran targeted RED/GREEN validation, full regression, coverage, and build after the preload gate landed.
+  - Confirmed the current workspace still lacks the actual private Stage 1 art/audio pack, so Sprint 2 remains `in_progress` pending manual asset population and browser acceptance.
+- Files created/modified:
+  - `SPEC.yaml`
+  - `.tdd-state.json`
+  - `task_plan.md`
+  - `progress.md`
+  - `package.json`
+  - `scripts/validate-private-pack.mjs`
+  - `src/app/assets/privatePackContract.json`
+  - `src/app/assets/assetManifest.ts`
+  - `src/app/assets/PrototypeAssetPackStore.ts`
+  - `src/app/audio/AudioPlaybackAdapter.ts`
+  - `src/app/createRaidenApp.ts`
+  - `src/app/GameFlowController.ts`
+  - `src/app/render/Canvas2DSceneAdapter.ts`
+  - `src/app/render/PixiSceneAdapter.ts`
+  - `src/app/runtime/BrowserRuntime.ts`
+  - `src/app/runtime/BrowserRuntimeView.ts`
+  - `src/app/runtime/GameFlowState.ts`
+  - `tests/assetManifest.test.ts`
+  - `tests/privatePackValidation.test.ts`
+  - `tests/privatePackAdapters.test.ts`
+  - `tests/prototypeAssetManifest.test.ts`
+  - `tests/prototypeAssetPackStore.test.ts`
+  - `tests/runtimeShell.dom.test.ts`
+  - `tests/uiFlowState.test.ts`
+
 ### Superseding Reboot Check
 | Question | Answer |
 |----------|--------|

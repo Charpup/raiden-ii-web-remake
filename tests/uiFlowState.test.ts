@@ -75,7 +75,7 @@ function createSimulationState(
 }
 
 describe("Browser shell flow controller", () => {
-  it("UIF-001 advances from title through mode-select and cabinet-select into gameplay", () => {
+  it("UIF-001 advances from title through mode-select, cabinet-select, and asset-loading into gameplay", () => {
     const controller = new GameFlowController();
 
     expect(controller.getState().screen).toBe("title");
@@ -87,7 +87,10 @@ describe("Browser shell flow controller", () => {
     expect(controller.getState().screen).toBe("cabinet-select");
 
     controller.selectCabinetProfile("hard");
-    controller.startGameplay();
+    controller.beginAssetLoading();
+    expect(controller.getState().screen).toBe("asset-loading");
+
+    controller.completeAssetLoading();
 
     expect(controller.getState().screen).toBe("gameplay");
     expect(controller.getSessionConfig()).toMatchObject({
@@ -102,7 +105,8 @@ describe("Browser shell flow controller", () => {
     controller.beginModeSelect();
     controller.selectMode("single");
     controller.selectCabinetProfile("easy");
-    controller.startGameplay();
+    controller.beginAssetLoading();
+    controller.completeAssetLoading();
 
     controller.consumeSimulation(
       createSimulationState({
@@ -142,7 +146,8 @@ describe("Browser shell flow controller", () => {
     controller.beginModeSelect();
     controller.selectMode("single");
     controller.selectCabinetProfile("hard");
-    controller.startGameplay();
+    controller.beginAssetLoading();
+    controller.completeAssetLoading();
 
     controller.consumeSimulation(
       createSimulationState(
@@ -207,7 +212,8 @@ describe("Browser shell flow controller", () => {
     controller.beginModeSelect();
     controller.selectMode("single");
     controller.selectCabinetProfile("easy");
-    controller.startGameplay();
+    controller.beginAssetLoading();
+    controller.completeAssetLoading();
 
     controller.consumeSimulation(
       createSimulationState(
@@ -244,5 +250,22 @@ describe("Browser shell flow controller", () => {
     const secondTick = consumeOverlayFrames(firstTick.remainderMs, 12);
     expect(secondTick.frames).toBe(1);
     expect(secondTick.remainderMs).toBeGreaterThan(0);
+  });
+
+  it("RNT-202 enters asset-error on preload failure and can recover back to title", () => {
+    const controller = new GameFlowController();
+
+    controller.beginModeSelect();
+    controller.selectMode("single");
+    controller.selectCabinetProfile("easy");
+    controller.beginAssetLoading();
+    controller.failAssetLoading();
+
+    expect(controller.getState().screen).toBe("asset-error");
+    expect(controller.getState().lastTransitionReason).toBe("asset-error");
+
+    controller.returnToTitle();
+
+    expect(controller.getState().screen).toBe("title");
   });
 });

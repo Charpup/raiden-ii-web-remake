@@ -1,3 +1,5 @@
+import privatePackContract from "./privatePackContract.json";
+
 export interface AssetBundle {
   id: "shell" | "shared";
   assetIds: string[];
@@ -17,11 +19,18 @@ export interface AudioCueDefinition {
   privateOverrideRelativePath?: string;
 }
 
+export interface RequiredPrivateAssetDefinition {
+  id: string;
+  path: string;
+}
+
 export interface StageAssetBundle {
   stageId: string;
   assetIds: string[];
   audioCueIds: string[];
   preloadGroups: string[];
+  requiredPrivateTextureIds: string[];
+  requiredPrivateAudioCueIds: string[];
 }
 
 export interface AssetManifest {
@@ -33,11 +42,29 @@ export interface AssetManifest {
   getAudioCue(cueId: string): AudioCueDefinition;
   listTextureAssets(): TextureAssetDefinition[];
   listAudioCues(): AudioCueDefinition[];
+  getRequiredPrivateTextureAssets(stageId: string): Array<
+    TextureAssetDefinition & { privateOverrideRelativePath: string }
+  >;
+  getRequiredPrivateAudioCues(stageId: string): Array<
+    AudioCueDefinition & { privateOverrideRelativePath: string }
+  >;
+  getPrivatePackContract(stageId: string): {
+    requiredPrivateTextures: RequiredPrivateAssetDefinition[];
+    requiredPrivateAudioCues: RequiredPrivateAssetDefinition[];
+  };
   resolveTextureCandidates(assetId: string): string[];
   resolveAudioCandidates(cueId: string): string[];
   resolveUrl(assetId: string): string;
   resolvePath(relativePath: string): string;
 }
+
+type PrivatePackContractRecord = Record<
+  string,
+  {
+    requiredPrivateTextures: RequiredPrivateAssetDefinition[];
+    requiredPrivateAudioCues: RequiredPrivateAssetDefinition[];
+  }
+>;
 
 const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shell.marquee": {
@@ -409,49 +436,69 @@ const stageBundles: Record<string, StageAssetBundle> = {
       "sfx-player-respawn",
       "sfx-enemy-destroyed"
     ],
-    preloadGroups: ["shell", "shared", "stage-1"]
+    preloadGroups: ["shell", "shared", "stage-1"],
+    requiredPrivateTextureIds: privatePackContract.stageBundles["stage-1"].requiredPrivateTextures.map(
+      (asset) => asset.id
+    ),
+    requiredPrivateAudioCueIds: privatePackContract.stageBundles["stage-1"].requiredPrivateAudioCues.map(
+      (cue) => cue.id
+    )
   },
   "stage-2": {
     stageId: "stage-2",
     assetIds: ["stage-2.backdrop", "shared.player-ship", "shared.enemy-scout"],
     audioCueIds: ["bgm-stage-2", "sfx-player1-fire", "sfx-player1-bomb"],
-    preloadGroups: ["shell", "shared", "stage-2"]
+    preloadGroups: ["shell", "shared", "stage-2"],
+    requiredPrivateTextureIds: [],
+    requiredPrivateAudioCueIds: []
   },
   "stage-3": {
     stageId: "stage-3",
     assetIds: ["stage-3.backdrop", "shared.player-ship", "shared.enemy-scout"],
     audioCueIds: ["bgm-stage-3", "sfx-player1-fire", "sfx-player1-bomb"],
-    preloadGroups: ["shell", "shared", "stage-3"]
+    preloadGroups: ["shell", "shared", "stage-3"],
+    requiredPrivateTextureIds: [],
+    requiredPrivateAudioCueIds: []
   },
   "stage-4": {
     stageId: "stage-4",
     assetIds: ["stage-4.backdrop", "shared.player-ship", "shared.enemy-scout"],
     audioCueIds: ["bgm-stage-4", "sfx-player1-fire", "sfx-player1-bomb"],
-    preloadGroups: ["shell", "shared", "stage-4"]
+    preloadGroups: ["shell", "shared", "stage-4"],
+    requiredPrivateTextureIds: [],
+    requiredPrivateAudioCueIds: []
   },
   "stage-5": {
     stageId: "stage-5",
     assetIds: ["stage-5.backdrop", "shared.player-ship", "shared.enemy-scout"],
     audioCueIds: ["bgm-stage-5", "sfx-player1-fire", "sfx-player1-bomb"],
-    preloadGroups: ["shell", "shared", "stage-5"]
+    preloadGroups: ["shell", "shared", "stage-5"],
+    requiredPrivateTextureIds: [],
+    requiredPrivateAudioCueIds: []
   },
   "stage-6": {
     stageId: "stage-6",
     assetIds: ["stage-6.backdrop", "shared.player-ship", "shared.enemy-scout"],
     audioCueIds: ["bgm-stage-6", "sfx-player1-fire", "sfx-player1-bomb"],
-    preloadGroups: ["shell", "shared", "stage-6"]
+    preloadGroups: ["shell", "shared", "stage-6"],
+    requiredPrivateTextureIds: [],
+    requiredPrivateAudioCueIds: []
   },
   "stage-7": {
     stageId: "stage-7",
     assetIds: ["stage-7.backdrop", "shared.player-ship", "shared.enemy-scout"],
     audioCueIds: ["bgm-stage-7", "sfx-player1-fire", "sfx-player1-bomb"],
-    preloadGroups: ["shell", "shared", "stage-7"]
+    preloadGroups: ["shell", "shared", "stage-7"],
+    requiredPrivateTextureIds: [],
+    requiredPrivateAudioCueIds: []
   },
   "stage-8": {
     stageId: "stage-8",
     assetIds: ["stage-8.backdrop", "shared.player-ship", "shared.enemy-scout"],
     audioCueIds: ["bgm-stage-8", "sfx-player1-fire", "sfx-player1-bomb"],
-    preloadGroups: ["shell", "shared", "stage-8"]
+    preloadGroups: ["shell", "shared", "stage-8"],
+    requiredPrivateTextureIds: [],
+    requiredPrivateAudioCueIds: []
   }
 };
 
@@ -463,6 +510,19 @@ function normalizeBasePath(basePath: string): string {
 
 function normalizeRelativePath(relativePath: string): string {
   return relativePath.replace(/^\/+/, "");
+}
+
+function getPrivatePackStageContract(stageId: string): {
+  requiredPrivateTextures: RequiredPrivateAssetDefinition[];
+  requiredPrivateAudioCues: RequiredPrivateAssetDefinition[];
+} {
+  const contract = (privatePackContract.stageBundles as PrivatePackContractRecord)[stageId];
+  return (
+    contract ?? {
+      requiredPrivateTextures: [],
+      requiredPrivateAudioCues: []
+    }
+  );
 }
 
 export function createAssetManifest(basePath = "/games/raiden-ii/"): AssetManifest {
@@ -525,7 +585,9 @@ export function createAssetManifest(basePath = "/games/raiden-ii/"): AssetManife
           stageId,
           assetIds: ["shared.player-ship", "shared.enemy-scout"],
           audioCueIds: [`bgm-${stageId}`],
-          preloadGroups: ["shell", "shared", stageId]
+          preloadGroups: ["shell", "shared", stageId],
+          requiredPrivateTextureIds: [],
+          requiredPrivateAudioCueIds: []
         }
       );
     },
@@ -540,6 +602,36 @@ export function createAssetManifest(basePath = "/games/raiden-ii/"): AssetManife
     },
     listAudioCues(): AudioCueDefinition[] {
       return Object.values(audioCueRegistry);
+    },
+    getRequiredPrivateTextureAssets(stageId: string): Array<
+      TextureAssetDefinition & { privateOverrideRelativePath: string }
+    > {
+      return getPrivatePackStageContract(stageId).requiredPrivateTextures.map((entry) => {
+        const asset = resolveTextureAsset(entry.id);
+        if (!asset.privateOverrideRelativePath) {
+          throw new Error(`Missing private override path for required texture asset: ${entry.id}`);
+        }
+
+        return asset as TextureAssetDefinition & { privateOverrideRelativePath: string };
+      });
+    },
+    getRequiredPrivateAudioCues(stageId: string): Array<
+      AudioCueDefinition & { privateOverrideRelativePath: string }
+    > {
+      return getPrivatePackStageContract(stageId).requiredPrivateAudioCues.map((entry) => {
+        const cue = resolveAudioCue(entry.id);
+        if (!cue.privateOverrideRelativePath) {
+          throw new Error(`Missing private override path for required audio cue: ${entry.id}`);
+        }
+
+        return cue as AudioCueDefinition & { privateOverrideRelativePath: string };
+      });
+    },
+    getPrivatePackContract(stageId: string): {
+      requiredPrivateTextures: RequiredPrivateAssetDefinition[];
+      requiredPrivateAudioCues: RequiredPrivateAssetDefinition[];
+    } {
+      return getPrivatePackStageContract(stageId);
     },
     resolveTextureCandidates(assetId: string): string[] {
       const asset = resolveTextureAsset(assetId);

@@ -49,6 +49,24 @@ export class GameFlowController {
     };
   }
 
+  beginAssetLoading(stageId = this.selection.stageId): void {
+    this.selection = {
+      ...this.selection,
+      stageId
+    };
+    this.resetTransientOverlays();
+    this.setScreen("asset-loading", "asset-loading");
+  }
+
+  completeAssetLoading(stageId = this.selection.stageId): void {
+    this.startGameplay(stageId);
+  }
+
+  failAssetLoading(): void {
+    this.resetTransientOverlays();
+    this.setScreen("asset-error", "asset-error");
+  }
+
   setStageId(stageId: string): void {
     this.selection = {
       ...this.selection,
@@ -109,11 +127,7 @@ export class GameFlowController {
       return;
     }
 
-    if (
-      this.screen !== "title" &&
-      this.screen !== "mode-select" &&
-      this.screen !== "cabinet-select"
-    ) {
+    if (this.screen === "gameplay" || this.screen === "continue" || this.screen === "game-over") {
       this.setScreen(
         "gameplay",
         this.selection.stageId !== state.session.stageId ? "stage-progressed" : "gameplay-started"

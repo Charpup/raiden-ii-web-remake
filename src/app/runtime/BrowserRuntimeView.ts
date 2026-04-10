@@ -39,6 +39,10 @@ export class BrowserRuntimeView {
 
   private readonly continueStatus: HTMLParagraphElement;
 
+  private readonly assetLoadingStatus: HTMLParagraphElement;
+
+  private readonly assetErrorStatus: HTMLParagraphElement;
+
   private readonly playerPanels: Record<PlayerSlot, PlayerPanelElements>;
 
   private readonly overlays: Record<GameFlowScreen, HTMLElement>;
@@ -112,6 +116,17 @@ export class BrowserRuntimeView {
                     ${createButton("cabinet-hard", "Hard Cabinet")}
                   </div>
                 </section>
+                <section class="overlay-card overlay-card--compact" data-screen="asset-loading">
+                  <p class="overlay-eyebrow">Prototype Asset Pack</p>
+                  <h2>Loading Stage 1</h2>
+                  <p class="overlay-copy" data-role="asset-loading-status">Checking required private art and audio before sortie.</p>
+                </section>
+                <section class="overlay-card overlay-card--compact" data-screen="asset-error">
+                  <p class="overlay-eyebrow">Prototype Asset Pack Missing</p>
+                  <h2>Stage 1 cannot launch</h2>
+                  <p class="overlay-copy" data-role="asset-error-status">Missing private prototype assets.</p>
+                  ${createButton("return-title", "Back To Title")}
+                </section>
                 <section class="overlay-card overlay-card--compact" data-screen="continue">
                   <p class="overlay-eyebrow">Continue</p>
                   <h2>Re-arm the squadron</h2>
@@ -156,6 +171,8 @@ export class BrowserRuntimeView {
     this.bossBar = this.query<HTMLDivElement>(".boss-meter__fill");
     this.bossCaption = this.query<HTMLSpanElement>("[data-role='hud-boss-caption']");
     this.continueStatus = this.query<HTMLParagraphElement>("[data-role='continue-status']");
+    this.assetLoadingStatus = this.query<HTMLParagraphElement>("[data-role='asset-loading-status']");
+    this.assetErrorStatus = this.query<HTMLParagraphElement>("[data-role='asset-error-status']");
     this.playerPanels = {
       player1: this.createPlayerPanel("player1"),
       player2: this.createPlayerPanel("player2")
@@ -164,6 +181,8 @@ export class BrowserRuntimeView {
       title: this.query<HTMLElement>("[data-screen='title']"),
       "mode-select": this.query<HTMLElement>("[data-screen='mode-select']"),
       "cabinet-select": this.query<HTMLElement>("[data-screen='cabinet-select']"),
+      "asset-loading": this.query<HTMLElement>("[data-screen='asset-loading']"),
+      "asset-error": this.query<HTMLElement>("[data-screen='asset-error']"),
       gameplay: this.query<HTMLElement>("[data-screen='gameplay']"),
       continue: this.query<HTMLElement>("[data-screen='continue']"),
       "game-over": this.query<HTMLElement>("[data-screen='game-over']"),
@@ -188,6 +207,7 @@ export class BrowserRuntimeView {
     this.root.dataset.flow = snapshot.flow.screen;
     this.updateOverlayVisibility(snapshot.flow.screen);
     this.updateHud(snapshot.hud);
+    this.updateAssetLoad(snapshot);
   }
 
   getViewportHost(): HTMLDivElement {
@@ -289,7 +309,30 @@ export class BrowserRuntimeView {
   }
 
   private bindClick(action: string, callback: () => void): void {
-    this.query<HTMLButtonElement>(`[data-action='${action}']`).addEventListener("click", callback);
+    for (const button of this.root.querySelectorAll<HTMLButtonElement>(`[data-action='${action}']`)) {
+      button.addEventListener("click", callback);
+    }
+  }
+
+  private updateAssetLoad(snapshot: BrowserRuntimeSnapshot): void {
+    if (snapshot.assetLoad.state === "loading") {
+      this.assetLoadingStatus.textContent = `Checking required Stage 1 textures and audio for ${snapshot.assetLoad.stageId ?? "stage-1"}.`;
+      return;
+    }
+
+    if (snapshot.assetLoad.state === "error") {
+      const missingList = snapshot.assetLoad.missingAssets
+        .map((asset) => `${asset.id} -> ${asset.path}`)
+        .join(" | ");
+      this.assetErrorStatus.textContent =
+        missingList.length > 0
+          ? `Missing required prototype assets: ${missingList}`
+          : "Missing private prototype assets.";
+      return;
+    }
+
+    this.assetLoadingStatus.textContent = "Checking required private art and audio before sortie.";
+    this.assetErrorStatus.textContent = "Missing private prototype assets.";
   }
 
   private query<TElement extends Element>(selector: string): TElement {

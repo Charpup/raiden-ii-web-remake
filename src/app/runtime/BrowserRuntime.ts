@@ -13,6 +13,11 @@ import { createDefaultInputMapper, type RawFrameInput } from "../../game/input/I
 import { Renderer } from "../../game/render/Renderer";
 import { GameFlowController } from "../GameFlowController";
 import { createAssetManifest, type AssetManifest } from "../assets/assetManifest";
+import {
+  DefaultPrototypeAssetPackStore,
+  type PrototypeAssetPackLoadState,
+  type PrototypeAssetPackStore
+} from "../assets/PrototypeAssetPackStore";
 import { WebAudioPlaybackAdapter, type AudioPlaybackAdapter } from "../audio/AudioPlaybackAdapter";
 import { projectHud, type HudProjection } from "../hudProjection";
 import { Canvas2DSceneAdapter } from "../render/Canvas2DSceneAdapter";
@@ -34,6 +39,7 @@ export interface BrowserRuntimeSnapshot {
   scene: PresentationalScene | null;
   audioFrame: AudioFrame | null;
   assetManifest: AssetManifest;
+  assetLoad: PrototypeAssetPackLoadState;
   simulationFrame: number | null;
   sceneCounts: BrowserRuntimeSceneCounts;
   recentEventTypes: RuntimeEvent["type"][];
@@ -44,6 +50,7 @@ export interface BrowserRuntimeOptions {
   sceneAdapterFactory?: () => SceneAdapter | Promise<SceneAdapter>;
   audioPlaybackFactory?: () => AudioPlaybackAdapter;
   assetManifest?: AssetManifest;
+  assetPackStore?: PrototypeAssetPackStore;
   onSnapshot?: (snapshot: BrowserRuntimeSnapshot) => void;
   onAttachPhase?: (phase: BrowserRuntimeAttachPhase) => void;
 }
@@ -55,8 +62,11 @@ export type BrowserRuntimeAttachPhase =
   | "attaching-scene-adapter"
   | "scene-adapter-attached";
 
-async function createDefaultSceneAdapter(assetManifest: AssetManifest): Promise<SceneAdapter> {
-  return new Canvas2DSceneAdapter(assetManifest);
+async function createDefaultSceneAdapter(
+  assetManifest: AssetManifest,
+  assetPackStore: PrototypeAssetPackStore
+): Promise<SceneAdapter> {
+  return new Canvas2DSceneAdapter(assetManifest, assetPackStore);
 }
 
 export class BrowserRuntime {
@@ -69,6 +79,8 @@ export class BrowserRuntime {
   private readonly audioDirector = new AudioDirector();
 
   private readonly assetManifest: AssetManifest;
+
+  private readonly assetPackStore: PrototypeAssetPackStore;
 
   private readonly audioPlayback: AudioPlaybackAdapter;
 
@@ -102,12 +114,18 @@ export class BrowserRuntime {
 
   private overlayAccumulatorMs = 0;
 
+  private gameplayLaunchToken = 0;
+
   constructor(options: BrowserRuntimeOptions = {}) {
     this.assetManifest = options.assetManifest ?? createAssetManifest();
+    this.assetPackStore =
+      options.assetPackStore ?? new DefaultPrototypeAssetPackStore(this.assetManifest);
     this.audioPlayback =
-      options.audioPlaybackFactory?.() ?? new WebAudioPlaybackAdapter(this.assetManifest);
+      options.audioPlaybackFactory?.() ??
+      new WebAudioPlaybackAdapter(this.assetManifest, this.assetPackStore);
     this.sceneAdapterFactory =
-      options.sceneAdapterFactory ?? (() => createDefaultSceneAdapter(this.assetManifest));
+      options.sceneAdapterFactory ??
+      (() => createDefaultSceneAdapter(this.assetManifest, this.assetPackStore));
     this.onSnapshot = options.onSnapshot;
     this.onAttachPhase = options.onAttachPhase;
   }
@@ -132,6 +150,7 @@ export class BrowserRuntime {
       scene: this.latestScene,
       audioFrame: this.latestAudioFrame,
       assetManifest: this.assetManifest,
+      assetLoad: this.assetPackStore.getLoadState(),
       simulationFrame: this.latestSimulationFrame,
       sceneCounts: this.getSceneCounts(),
       recentEventTypes: [...this.latestRecentEventTypes],
@@ -156,8 +175,34 @@ export class BrowserRuntime {
     this.emitSnapshot();
   }
 
-  startGameplay(): void {
-    this.flowController.startGameplay();
+  async startGameplay(): Promise<void> {
+    const gameplayLaunchToken = ++this.gameplayLaunchToken;
+    const stageId = this.flowController.getSessionConfig().stageId;
+    this.simulation = null;
+    this.latestHud = null;
+    this.latestScene = null;
+    this.latestAudioFrame = {
+      bgmCue: null,
+      sfxCues: []
+    };
+    this.latestSimulationFrame = null;
+    this.latestRecentEventTypes = [];
+    this.audioPlayback.sync(this.latestAudioFrame);
+    this.flowController.beginAssetLoading(stageId);
+    this.emitSnapshot();
+
+    const loadResult = await this.assetPackStore.ensureStageBundle(stageId);
+    if (gameplayLaunchToken !== this.gameplayLaunchToken) {
+      return;
+    }
+
+    if (!loadResult.ok) {
+      this.flowController.failAssetLoading();
+      this.emitSnapshot();
+      return;
+    }
+
+    this.flowController.completeAssetLoading(stageId);
     this.clock = new GameClock();
     this.overlayAccumulatorMs = 0;
     this.clearPressedKeys();
@@ -274,6 +319,7 @@ export class BrowserRuntime {
   }
 
   returnToTitle(): void {
+    this.gameplayLaunchToken += 1;
     this.simulation = null;
     this.latestHud = null;
     this.latestScene = null;
@@ -287,6 +333,7 @@ export class BrowserRuntime {
     this.clock = new GameClock();
     this.overlayAccumulatorMs = 0;
     this.clearPressedKeys();
+    this.assetPackStore.reset();
     this.flowController.returnToTitle();
     this.emitSnapshot();
   }
