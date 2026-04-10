@@ -1,4 +1,5 @@
 import type { AudioFrame } from "../../game/core/types";
+import type { AssetManifest } from "../assets/assetManifest";
 
 export interface AudioPlaybackAdapter {
   unlock(): void | Promise<void>;
@@ -12,6 +13,8 @@ interface BrowserAudioWindow extends Window {
   webkitAudioContext?: typeof AudioContext;
 }
 
+type CueMode = "bgm" | "sfx";
+
 function getAudioContextConstructor(): typeof AudioContext | undefined {
   if (typeof window === "undefined") {
     return undefined;
@@ -21,12 +24,21 @@ function getAudioContextConstructor(): typeof AudioContext | undefined {
   return browserWindow.AudioContext ?? browserWindow.webkitAudioContext;
 }
 
-function cueToFrequency(cue: string, base: number): number {
-  const hash = [...cue].reduce((total, char) => total + char.charCodeAt(0), 0);
-  return base + (hash % 240);
+function cueToHash(cue: string): number {
+  return [...cue].reduce((total, char) => total + char.charCodeAt(0), 0);
+}
+
+function stageMelody(cue: string): number[] {
+  const stageNumber = Number.parseInt(cue.replace(/\D+/g, ""), 10) || 1;
+  const roots = [196, 220, 247, 262, 294, 330, 370, 392];
+  const root = roots[(stageNumber - 1) % roots.length];
+
+  return [root, root * 1.122, root * 1.334, root * 1.5, root * 1.334, root * 1.122];
 }
 
 export class WebAudioPlaybackAdapter implements AudioPlaybackAdapter {
+  private readonly assetManifest?: AssetManifest;
+
   private context: AudioContext | null = null;
 
   private unlocked = false;
@@ -35,17 +47,30 @@ export class WebAudioPlaybackAdapter implements AudioPlaybackAdapter {
 
   private currentBgmCue: string | null = null;
 
-  private activeOscillators: OscillatorNode[] = [];
+  private activeBgmSource: AudioBufferSourceNode | null = null;
+
+  private activeBgmGain: GainNode | null = null;
+
+  private readonly bufferCache = new Map<string, AudioBuffer>();
+
+  private readonly loadingBuffers = new Map<string, Promise<AudioBuffer | null>>();
+
+  constructor(assetManifest?: AssetManifest) {
+    this.assetManifest = assetManifest;
+  }
 
   unlock(): void {
     this.unlocked = true;
-    this.ensureContext();
-    if (!this.suspended) {
-      void this.context?.resume();
+    const context = this.ensureContext();
+    if (!context || this.suspended) {
+      return;
+    }
+
+    void context.resume().then(() => {
       if (this.currentBgmCue) {
         this.startBgm(this.currentBgmCue);
       }
-    }
+    });
   }
 
   sync(frame: AudioFrame): void {
@@ -79,10 +104,11 @@ export class WebAudioPlaybackAdapter implements AudioPlaybackAdapter {
     }
 
     if (this.unlocked) {
-      void this.context.resume();
-      if (this.currentBgmCue) {
-        this.startBgm(this.currentBgmCue);
-      }
+      void this.context.resume().then(() => {
+        if (this.currentBgmCue) {
+          this.startBgm(this.currentBgmCue);
+        }
+      });
     }
   }
 
@@ -92,6 +118,8 @@ export class WebAudioPlaybackAdapter implements AudioPlaybackAdapter {
       void this.context.close();
       this.context = null;
     }
+    this.bufferCache.clear();
+    this.loadingBuffers.clear();
   }
 
   private ensureContext(): AudioContext | null {
@@ -109,7 +137,7 @@ export class WebAudioPlaybackAdapter implements AudioPlaybackAdapter {
   }
 
   private startBgm(cue: string): void {
-    if (this.activeOscillators.length > 0) {
+    if (this.activeBgmSource) {
       return;
     }
 
@@ -118,32 +146,30 @@ export class WebAudioPlaybackAdapter implements AudioPlaybackAdapter {
       return;
     }
 
-    const masterGain = context.createGain();
-    masterGain.gain.value = 0.03;
-    masterGain.connect(context.destination);
-
-    const baseFrequency = cueToFrequency(cue, 90);
-    const voices: Array<[OscillatorType, number]> = [
-      ["triangle", baseFrequency],
-      ["sine", baseFrequency * 1.5]
-    ];
-
-    this.activeOscillators = voices.map(([type, frequency]) => {
-      const oscillator = context.createOscillator();
-      oscillator.type = type;
-      oscillator.frequency.value = frequency;
-      oscillator.connect(masterGain);
-      oscillator.start();
-      return oscillator;
-    });
+    const buffer = this.resolveCueBuffer(cue, "bgm");
+    const source = context.createBufferSource();
+    const gain = context.createGain();
+    gain.gain.value = 0.18;
+    source.buffer = buffer;
+    source.loop = true;
+    source.connect(gain);
+    gain.connect(context.destination);
+    source.start();
+    this.activeBgmSource = source;
+    this.activeBgmGain = gain;
   }
 
   private stopBgm(): void {
-    for (const oscillator of this.activeOscillators) {
-      oscillator.stop();
-      oscillator.disconnect();
+    if (this.activeBgmSource) {
+      this.activeBgmSource.stop();
+      this.activeBgmSource.disconnect();
+      this.activeBgmSource = null;
     }
-    this.activeOscillators = [];
+
+    if (this.activeBgmGain) {
+      this.activeBgmGain.disconnect();
+      this.activeBgmGain = null;
+    }
   }
 
   private playSfx(cue: string): void {
@@ -152,16 +178,131 @@ export class WebAudioPlaybackAdapter implements AudioPlaybackAdapter {
       return;
     }
 
-    const oscillator = context.createOscillator();
+    const buffer = this.resolveCueBuffer(cue, "sfx");
+    const source = context.createBufferSource();
     const gain = context.createGain();
-    const now = context.currentTime;
-    oscillator.type = "square";
-    oscillator.frequency.value = cueToFrequency(cue, 180);
-    gain.gain.setValueAtTime(0.045, now);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-    oscillator.connect(gain);
+    gain.gain.value = cue.includes("bomb") ? 0.26 : 0.2;
+    source.buffer = buffer;
+    source.connect(gain);
     gain.connect(context.destination);
-    oscillator.start(now);
-    oscillator.stop(now + 0.12);
+    source.start();
+  }
+
+  private resolveCueBuffer(cue: string, mode: CueMode): AudioBuffer {
+    const cached = this.bufferCache.get(cue);
+    if (cached) {
+      return cached;
+    }
+
+    const context = this.ensureContext();
+    if (!context) {
+      throw new Error("AudioContext is unavailable.");
+    }
+
+    const synthesized = mode === "bgm"
+      ? this.createFallbackBgmBuffer(context, cue)
+      : this.createFallbackSfxBuffer(context, cue);
+    this.bufferCache.set(cue, synthesized);
+    void this.tryLoadPrivateOverride(cue, mode);
+    return synthesized;
+  }
+
+  private async tryLoadPrivateOverride(cue: string, mode: CueMode): Promise<void> {
+    if (!this.assetManifest || this.loadingBuffers.has(cue)) {
+      return;
+    }
+
+    const candidates = this.assetManifest.resolveAudioCandidates(cue);
+    if (candidates.length === 0) {
+      return;
+    }
+
+    const task = this.loadAudioBufferFromCandidates(candidates).finally(() => {
+      this.loadingBuffers.delete(cue);
+    });
+    this.loadingBuffers.set(cue, task);
+    const loaded = await task;
+    if (!loaded) {
+      return;
+    }
+
+    this.bufferCache.set(cue, loaded);
+    if (mode === "bgm" && cue === this.currentBgmCue && this.unlocked && !this.suspended) {
+      this.stopBgm();
+      this.startBgm(cue);
+    }
+  }
+
+  private async loadAudioBufferFromCandidates(
+    candidates: string[]
+  ): Promise<AudioBuffer | null> {
+    const context = this.ensureContext();
+    if (!context || typeof fetch !== "function") {
+      return null;
+    }
+
+    for (const candidate of candidates) {
+      try {
+        const response = await fetch(candidate);
+        if (!response.ok) {
+          continue;
+        }
+
+        const arrayBuffer = await response.arrayBuffer();
+        const decoded = await context.decodeAudioData(arrayBuffer.slice(0));
+        return decoded;
+      } catch {
+        continue;
+      }
+    }
+
+    return null;
+  }
+
+  private createFallbackBgmBuffer(context: AudioContext, cue: string): AudioBuffer {
+    const durationSeconds = 3.6;
+    const sampleRate = context.sampleRate;
+    const frameCount = Math.floor(durationSeconds * sampleRate);
+    const buffer = context.createBuffer(1, frameCount, sampleRate);
+    const channel = buffer.getChannelData(0);
+    const notes = stageMelody(cue);
+    const stepFrames = Math.floor(frameCount / notes.length);
+    const bass = notes[0] / 2;
+
+    for (let index = 0; index < frameCount; index += 1) {
+      const time = index / sampleRate;
+      const noteIndex = Math.floor(index / stepFrames) % notes.length;
+      const local = (index % stepFrames) / stepFrames;
+      const envelope = Math.max(0, 1 - local * 0.88);
+      const melody =
+        Math.sin(2 * Math.PI * notes[noteIndex] * time) * 0.42 +
+        Math.sin(2 * Math.PI * notes[noteIndex] * 2 * time) * 0.12;
+      const bassline = Math.sin(2 * Math.PI * bass * time) * 0.18;
+      const pulse = Math.sin(2 * Math.PI * 8 * time) > 0 ? 0.03 : -0.03;
+      channel[index] = (melody * envelope + bassline + pulse) * 0.45;
+    }
+
+    return buffer;
+  }
+
+  private createFallbackSfxBuffer(context: AudioContext, cue: string): AudioBuffer {
+    const durationSeconds = cue.includes("bomb") ? 0.48 : 0.14;
+    const sampleRate = context.sampleRate;
+    const frameCount = Math.floor(durationSeconds * sampleRate);
+    const buffer = context.createBuffer(1, frameCount, sampleRate);
+    const channel = buffer.getChannelData(0);
+    const hash = cueToHash(cue);
+    const baseFrequency = cue.includes("bomb") ? 84 : 220 + (hash % 160);
+
+    for (let index = 0; index < frameCount; index += 1) {
+      const time = index / sampleRate;
+      const decay = Math.exp(-time * (cue.includes("bomb") ? 7 : 24));
+      const tone = Math.sin(2 * Math.PI * (baseFrequency + time * 140) * time);
+      const noise = (Math.sin(index * 12.9898 + hash) * 43758.5453) % 1;
+      const noiseCentered = (noise - Math.floor(noise)) * 2 - 1;
+      channel[index] = (tone * 0.72 + noiseCentered * 0.28) * decay * 0.5;
+    }
+
+    return buffer;
   }
 }

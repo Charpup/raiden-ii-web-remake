@@ -32,6 +32,7 @@ export interface SpawnDefinition {
   stateTransitions?: EnemyStateTransitionState[];
   spawnOffsetFrames?: number;
   behaviorId?: string;
+  behaviorVariantId?: string;
   scriptedDefeats?: EnemyScriptedDefeatState[];
 }
 

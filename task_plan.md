@@ -1,90 +1,81 @@
-# Task Plan: Raiden II Web Arcade Remake
+# Task Plan: Raiden II Stage 1 Playable Prototype Program
 
 ## Goal
-Build a public, static-deployable, high-fidelity browser remake of the arcade version of Raiden II using Vite, TypeScript, PixiJS, a deterministic fixed-step simulation, and a TriadDev Extended workflow with TDD/SDD gates.
+Turn the current rules/runtime foundation into a **desktop-first, privately playable Stage 1 vertical slice** that a player can start, understand, play, and clear to the Stage 1 boss ending.
 
-## Current Phase
-Phase 6
+## North Star
+- Ship a **1P Solo + Easy** browser prototype that feels alive, readable, and intentionally arcade-like.
+- Use a **private Stage 1 asset pack first** so the prototype stops reading like fallback blocks plus synthetic placeholder audio.
+- Expand scope only after one convincing Stage 1 boss-clear loop exists.
 
-## Phases
+## Current Baseline
+- Deterministic simulation, authored stage data, and browser shell already exist.
+- Stage 1 now has movement, player shots, enemy motion, enemy fire, damage, continue flow, texture-backed presentation, and cue-driven audio plumbing.
+- The repo is **not** being treated as public-release-ready; prior deployment/release artifacts are historical only.
 
-### Phase 1: Requirements & Discovery
-- [x] Read deployment handoff and extract hosting constraints
-- [x] Research arcade Raiden II gameplay scope and version boundaries
-- [x] Survey reusable open-source references and license risks
-- [x] Lock implementation route and stack decisions
+## Program Structure
+
+### Sprint 0: Baseline Already Built
+- [x] Reframe the project from public-release completion to a private prototype track.
+- [x] Establish a fixed desktop gameplay shell and structured asset manifest.
+- [x] Bring Stage 1 from dead placeholder blocks to a minimally alive runtime loop.
 - **Status:** complete
 
-### Phase 2: Planning & Structure
-- [x] Create TriadDev working files and orchestration handoff
-- [x] Extract execution batches and dependencies
-- [x] Write value-review.md for full-scope public release
-- [x] Author initial SPEC.yaml for runtime foundation batch
+### Sprint 1: Stage 1 Combat Readability
+- [x] Make the opening 30-60 seconds readable and survivable instead of merely dangerous.
+- [x] Tune spawn safety, early-wave pacing, enemy fire cadence, and contact pressure.
+- [x] Strengthen hit feedback, explosion readability, pickup visibility, and basic camera/presentation clarity.
+- [x] Add one browser-level acceptance path for `title -> 1P easy -> live Stage 1 gameplay` without dead shell behavior.
+- **Exit bar:** a human can enter Stage 1 and survive the opening without the slice feeling broken or unfair.
 - **Status:** complete
 
-### Phase 3: Runtime Foundation
-- [x] Initialize Vite + TypeScript + Vitest + PixiJS project scaffold
-- [x] Implement fixed-step clock and simulation shell
-- [x] Implement keyboard/gamepad input mapping for 1P/2P
-- [x] Implement renderer sync boundary without game-rule ownership
-- [x] Implement audio director timing shell
-- **Status:** complete
+### Sprint 2: Private Asset Pack Integration
+- [ ] Make the Stage 1 core bundle private-pack-first instead of fallback-first.
+- [ ] Wire real prototype assets for player, common enemies, bullets, pickups, explosions, background, boss, BGM, and essential SFX.
+- [ ] Add fail-fast validation so missing mandatory prototype assets surface explicit errors.
+- [ ] Keep the abstraction boundary intact so a future public-safe asset swap remains possible.
+- **Exit bar:** the slice no longer reads as placeholder blocks plus synthetic drone audio.
+- **Status:** pending
 
-### Phase 4: Combat Core
-- [x] Implement player movement and hitbox model
-- [x] Implement main weapon progression and downgrade rules
-- [x] Implement sub-weapon progression and bomb system
-- [x] Implement damage, respawn, invulnerability, and score rules
-- [x] Verify deterministic combat tests
-- **Status:** complete
+### Sprint 3: Stage 1 Boss-Clear Vertical Slice
+- [ ] Complete the full `1P Solo + Easy` Stage 1 flow from title to boss clear.
+- [ ] Tighten checkpoint, hidden route, boss entrance, boss phase readability, and clear flow.
+- [ ] Make the HUD and overlays support the mission coherently during real play instead of only in tests.
+- [ ] Validate a believable start-to-boss-clear browser playthrough.
+- **Exit bar:** Stage 1 can be played start-to-boss-clear in browser preview as a convincing prototype.
+- **Status:** pending
 
-### Phase 5: Stage Authoring & Content
-- [x] Implement stage, wave, boss phase, checkpoint, and hidden trigger data systems
-- [x] Author Stage 1-8 content baselines and loop entry
-- [x] Implement cabinet presets and 2P lifecycle rules
-- [x] Integrate browser runtime shell, UI flow, and placeholder replacement asset/audio manifests
-- **Status:** complete
+### Sprint 4: Prototype Demo Hardening
+- [ ] Add browser acceptance coverage for the real Stage 1 vertical slice.
+- [ ] Verify `1920x1080` and `1366x768` desktop shells remain above the fold with no page scroll.
+- [ ] Run internal playtest loops and tighten the shell against dead states, stuck overlays, and presentation regressions.
+- [ ] Keep 2P and hard cabinet alive at regression level without letting them expand milestone scope.
+- **Exit bar:** the team can hand the build to an internal tester and expect a usable Stage 1 demo, not a broken tech shell.
+- **Status:** pending
 
-### Phase 6: Verification & Delivery
-- [x] Run unit, integration, build, and performance checks
-- [x] Validate static subpath deployment assumptions
-- [x] Run a real-browser smoke pass against the production base path
-- [x] Write host deployment and operator smoke handoff documents
-- [x] Update progress and final delivery artifacts
-- **Status:** complete
+## Immediate Next Steps
+1. Expand Sprint 2 into a detailed private-asset-pack implementation plan under `TriadDev Extended`.
+2. Switch the Stage 1 core bundle from fallback-first to private-pack-first while keeping the current runtime shell and combat readability gains intact.
+3. Add fail-fast validation for missing mandatory prototype assets before moving deeper into boss-clear-slice work.
 
-## Key Questions
-1. How do we preserve arcade timing fidelity while staying within a pure static browser deployment?
-2. Which rules must live in deterministic simulation state versus data-driven content definitions?
-3. What is the minimum runtime slice that proves the architecture before the full content load lands?
+## Scope Rules
+| Scope | Decision |
+|-------|----------|
+| Primary milestone path | `1P Solo + Easy` |
+| Platform priority | Desktop browser first |
+| Asset strategy | Private Stage 1 prototype pack first |
+| In scope now | Stage 1 from title to boss clear |
+| Secondary compatibility scope | 2P and hard cabinet remain regression-preserved |
+| Out of scope now | Full campaign polish, public-safe packaging, host deployment readiness |
 
-## Decisions Made
+## Risks To Track
+1. Private asset-pack integration may become the real bottleneck if the manifest stays fallback-first too long.
+2. The current Stage 1 opening is now signed off in preview, but later Stage 1 beats still need the same level of browser-level validation before boss-clear claims are credible.
+3. Browser smoke is now a first-class acceptance signal and must keep pace with the deterministic suite as Sprint 2 and Sprint 3 widen the slice.
+
+## Decisions Locked
 | Decision | Rationale |
 |----------|-----------|
-| Use TriadDev Extended workflow | The project is large, multi-phase, and requires explicit spec/test gates. |
-| Target arcade Raiden II only | Keeps fidelity target stable and avoids DX/console scope creep. |
-| Use Vite + TypeScript + PixiJS | Matches the chosen plan and supports a static, modern browser build. |
-| Greenfield the runtime core | Existing repos are too partial, old, or license-risky to be the product base. |
-| Treat open-source repos as references only | Preserves control over deterministic rules and public release safety. |
-| Keep combat rules pure and configurable | Supports later tuning toward arcade fidelity without coupling rules to rendering. |
-| Bootstrap GitHub early and keep `main` stable | Preserves reviewable history and keeps each implementation tranche PR-ready. |
-| Use Stage 1 and Stage 8 as calibration slices | Proves stage, boss, checkpoint, hidden, cabinet, co-op, and loop seams before full content entry. |
-
-## Errors Encountered
-| Error | Attempt | Resolution |
-|-------|---------|------------|
-| Existing workspace is not a git repository | 1 | Initialized git, created the public GitHub repo, and switched future work to branch/PR flow. |
-| Several early subagents disconnected during research | 1 | Re-ran narrower tasks with longer 3-5 minute waits and recovered usable results. |
-| `npm run build` surfaced strict test typing issues | 1 | Split frame-input types and tightened null-safe combat expectations. |
-| A partial patch injected staged test content into `combatCore.test.ts` | 1 | Restored the file, moved the integration suite into its own test file, and re-ran RED before implementation. |
-
-## Notes
-- Keep all arcade-specific behavior expressible through data/config where possible.
-- Do not bind gameplay rules to renderer objects.
-- Public release must use remade assets only.
-- Stage 1-8 authored content, loop carryover, co-op lifecycle, cabinet rules, and the browser shell are complete.
-- `codex/release-verification` completed the final release blockers, deployment validation, and host handoff package.
-- Deployment target stays fixed at `/games/raiden-ii/` under the host's static root.
-- The repository now includes project-specific deployment and smoke documents for the host agent:
-  - `HOST_DEPLOYMENT_HANDOFF.md`
-  - `OPERATOR_SMOKE_CHECKLIST.md`
+| Stage 1 boss clear before anything larger | A believable vertical slice is more valuable than a broad but dead remake shell. |
+| Private asset pack first | The prototype must look and sound alive before more system scope is added. |
+| Simulation remains authoritative | Product quality should rise by improving presentation and tuning, not by moving rules into the renderer or browser shell. |

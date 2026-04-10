@@ -52,6 +52,7 @@ function createSimulationState(
     enemies: [],
     bullets: [],
     pickups: [],
+    effects: [],
     boss: null,
     stage: {
       stageId: "stage-1",

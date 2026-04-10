@@ -48,6 +48,43 @@ class FakeAudioPlaybackAdapter {
   destroy(): void {}
 }
 
+function activePilotKeysForFrame(frame: number): Set<string> {
+  const horizontalSway = Math.sin(frame / 40);
+  const keys = new Set<string>(["KeyZ"]);
+
+  if (horizontalSway < -0.35) {
+    keys.add("ArrowLeft");
+  } else if (horizontalSway > 0.35) {
+    keys.add("ArrowRight");
+  }
+
+  if (frame % 12 < 4) {
+    keys.add("ArrowUp");
+  }
+
+  return keys;
+}
+
+function syncHeldKeys(heldKeys: Set<string>, nextKeys: Set<string>): void {
+  for (const key of [...heldKeys]) {
+    if (nextKeys.has(key)) {
+      continue;
+    }
+
+    window.dispatchEvent(new KeyboardEvent("keyup", { code: key }));
+    heldKeys.delete(key);
+  }
+
+  for (const key of nextKeys) {
+    if (heldKeys.has(key)) {
+      continue;
+    }
+
+    window.dispatchEvent(new KeyboardEvent("keydown", { code: key }));
+    heldKeys.add(key);
+  }
+}
+
 function createSimulationState(
   overrides: Partial<SimulationState> = {},
   recentEvents: RuntimeEvent[] = []
@@ -97,6 +134,7 @@ function createSimulationState(
     enemies: [],
     bullets: [],
     pickups: [],
+    effects: [],
     boss: null,
     stage: {
       stageId: "stage-1",
@@ -153,10 +191,36 @@ function createScene(stageId: string): PresentationalScene {
   return {
     frame: 120,
     stageId,
-    players: [{ id: "player1", x: 160, y: 472, animation: "idle" }],
+    scrollY: 1200,
+    backgroundLayers: [
+      {
+        id: `${stageId}-bg`,
+        spriteId: stageId === "stage-1" ? "stage-1.backdrop-sky" : `${stageId}.backdrop`,
+        offsetY: -120,
+        parallax: 1
+      }
+    ],
+    players: [
+      {
+        id: "player1",
+        x: 160,
+        y: 472,
+        animation: "idle",
+        spriteId: "shared.player-ship"
+      }
+    ],
     enemies: [],
+    playerBullets: [],
+    enemyBullets: [],
     pickups: [],
-    boss: { id: `${stageId}-boss`, x: 160, y: 84, animation: "idle" },
+    effects: [],
+    boss: {
+      id: `${stageId}-boss`,
+      x: 160,
+      y: 84,
+      animation: "idle",
+      spriteId: "shared.boss-shell"
+    },
     bossParts: []
   };
 }
@@ -489,6 +553,88 @@ describe("Browser shell DOM runtime", () => {
     expect(stepCalls).toBe(1);
     expect(root.getAttribute("data-flow")).toBe("gameplay");
     expect(app.runtime.getSnapshot().hud?.stageId).toBe("stage-2");
+
+    app.destroy();
+  });
+
+  it("RNT-101 keeps the browser shell in live gameplay through an opening Stage 1 combat window", async () => {
+    const root = document.querySelector<HTMLDivElement>("#app");
+    if (!root) {
+      throw new Error("Missing app root");
+    }
+
+    const fakeScene = new FakeSceneAdapter();
+    const app = await createRaidenApp(root, {
+      sceneAdapterFactory: async () => fakeScene,
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter()
+    });
+
+    const heldKeys = new Set<string>();
+    root.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+
+    for (let frame = 0; frame < 1800; frame += 1) {
+      syncHeldKeys(heldKeys, activePilotKeysForFrame(frame));
+      app.runtime.tickHostDelta(1000 / 60);
+      if (root.getAttribute("data-flow") !== "gameplay") {
+        break;
+      }
+    }
+
+    syncHeldKeys(heldKeys, new Set<string>());
+
+    const snapshot = app.runtime.getSnapshot();
+    const tailScenes = fakeScene.syncedScenes.slice(-180);
+
+    expect(root.getAttribute("data-flow")).toBe("gameplay");
+    expect(snapshot.flow.screen).toBe("gameplay");
+    expect(fakeScene.syncedScenes.some((scene) => scene.players.length > 0)).toBe(true);
+    expect(fakeScene.syncedScenes.some((scene) => scene.enemies.length > 0)).toBe(true);
+    expect(fakeScene.syncedScenes.some((scene) => scene.enemyBullets.length > 0)).toBe(true);
+    expect(fakeScene.syncedScenes.some((scene) => scene.effects.length > 0)).toBe(true);
+    expect(tailScenes.length).toBeGreaterThan(0);
+    expect(
+      tailScenes.some(
+        (scene) =>
+          scene.players.length > 0 &&
+          (scene.enemies.length > 0 || scene.enemyBullets.length > 0 || scene.effects.length > 0)
+      )
+    ).toBe(true);
+
+    app.destroy();
+  });
+
+  it("RNT-101 exposes preview debug snapshot data for production signoff", async () => {
+    const root = document.querySelector<HTMLDivElement>("#app");
+    if (!root) {
+      throw new Error("Missing app root");
+    }
+
+    const fakeScene = new FakeSceneAdapter();
+    const app = await createRaidenApp(root, {
+      sceneAdapterFactory: async () => fakeScene,
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter()
+    });
+
+    root.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+
+    for (let frame = 0; frame < 240; frame += 1) {
+      syncHeldKeys(new Set<string>(), new Set<string>());
+      app.runtime.tickHostDelta(1000 / 60);
+    }
+
+    const snapshot = app.runtime.getSnapshot();
+
+    expect(snapshot.flow.screen).toBe("gameplay");
+    expect(snapshot.simulationFrame).not.toBeNull();
+    expect(snapshot.sceneCounts.players).toBeGreaterThan(0);
+    expect(snapshot.lastFlowTransitionReason).toBe("gameplay-started");
+    expect(Array.isArray(snapshot.recentEventTypes)).toBe(true);
 
     app.destroy();
   });

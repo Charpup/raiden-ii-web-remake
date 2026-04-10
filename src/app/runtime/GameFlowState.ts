@@ -10,6 +10,20 @@ export type GameFlowScreen =
   | "ending"
   | "loop-transition";
 
+export type FlowTransitionReason =
+  | "initial"
+  | "user-start"
+  | "mode-selected"
+  | "gameplay-started"
+  | "continue"
+  | "game-over"
+  | "ending"
+  | "loop-transition"
+  | "loop-transition-complete"
+  | "stage-progressed"
+  | "return-to-title"
+  | "ending-complete";
+
 export interface GameSelectionState {
   mode: SessionMode;
   cabinetProfile: CabinetProfile;
@@ -19,6 +33,7 @@ export interface GameSelectionState {
 export interface GameFlowSnapshot extends GameSelectionState {
   screen: GameFlowScreen;
   audioUnlocked: boolean;
+  lastTransitionReason: FlowTransitionReason;
 }
 
 export const ENDING_OVERLAY_FRAMES = 240;

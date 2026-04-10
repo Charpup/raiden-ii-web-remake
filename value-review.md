@@ -1,5 +1,7 @@
 # value-review.md
 
+> Historical note: this value gate was written for the earlier **public-release** roadmap. It remains useful as archived context, but it is no longer the active decision object. The current roadmap is a **private Stage 1 playable prototype** focused on one convincing boss-clear vertical slice.
+
 ## 1) Decision Summary
 - **Proposal:** Build and publicly deploy a mechanics-faithful arcade Raiden II browser remake with remade assets, using a static frontend stack and TriadDev Extended delivery.
 - **Date:** 2026-04-09

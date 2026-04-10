@@ -1,5 +1,7 @@
 # Raiden II Web Remake Host Deployment Handoff
 
+> Historical note: this handoff belongs to the earlier public-release track. The repo is currently on a **private playable prototype** roadmap, so this document should be treated as archived until a new host-ready public-safe release cycle is opened.
+
 This document is the project-specific deployment handoff for publishing the game to `galatealearningfor.fun`.
 
 ## Build Inputs

@@ -32,6 +32,7 @@ export const defaultCombatRules: CombatRules = {
   maxSubWeaponLevel: 4,
   bombInvulnerabilityFrames: 90,
   respawnInvulnerabilityFrames: 120,
+  initialSpawnInvulnerabilityFrames: 180,
   extendThresholds: [200_000, 600_000, 1_200_000],
   medalValues: [100, 200, 500, 1_000, 2_000],
   respawnMainWeaponLevel(previousLevel) {

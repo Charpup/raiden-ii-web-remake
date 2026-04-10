@@ -1,10 +1,10 @@
 {
-  "version": "1.0.0",
-  "project": "raiden-ii-web-remake",
+  "version": "1.1.0",
+  "project": "raiden-ii-stage1-playable-prototype",
   "route": "extended",
-  "current_phase": "complete",
+  "current_phase": "private-asset-pack",
   "planning": {
-    "status": "complete",
+    "status": "locked",
     "files": [
       "task_plan.md",
       "findings.md",
@@ -12,150 +12,61 @@
     ],
     "tasks_extracted": [
       {
-        "id": "value-gate-full-release-scope",
-        "name": "Write value gate review for full-scope public release",
-        "complexity": 4,
+        "id": "combat-readability",
+        "name": "Make the Stage 1 opening readable, survivable, and clearly playable in the browser shell",
+        "complexity": 8,
         "dependencies": []
       },
       {
-        "id": "scaffold-runtime-project",
-        "name": "Scaffold Vite TypeScript Vitest PixiJS project",
-        "complexity": 5,
+        "id": "private-asset-pack",
+        "name": "Integrate the mandatory Stage 1 private prototype asset pack into the manifest, renderer, and audio pipeline",
+        "complexity": 9,
         "dependencies": [
-          "value-gate-full-release-scope"
+          "combat-readability"
         ]
       },
       {
-        "id": "spec-runtime-foundation",
-        "name": "Author runtime foundation SPEC and RED tests",
-        "complexity": 6,
-        "dependencies": [
-          "value-gate-full-release-scope"
-        ]
-      },
-      {
-        "id": "implement-runtime-foundation",
-        "name": "Implement runtime foundation batch",
-        "complexity": 7,
-        "dependencies": [
-          "scaffold-runtime-project",
-          "spec-runtime-foundation"
-        ]
-      },
-      {
-        "id": "spec-combat-core",
-        "name": "Author combat core SPEC and RED tests",
-        "complexity": 6,
-        "dependencies": [
-          "implement-runtime-foundation"
-        ]
-      },
-      {
-        "id": "implement-combat-core",
-        "name": "Implement combat core batch",
-        "complexity": 8,
-        "dependencies": [
-          "spec-combat-core"
-        ]
-      },
-      {
-        "id": "implement-stage-authoring",
-        "name": "Implement stage authoring data and runner",
-        "complexity": 8,
-        "dependencies": [
-          "implement-combat-core"
-        ]
-      },
-      {
-        "id": "author-full-content",
-        "name": "Author stage content boss phases hidden rules and loop entry",
+        "id": "boss-clear-slice",
+        "name": "Complete the single-player Stage 1 boss-clear vertical slice with readable boss, checkpoint, hidden, and clear flow",
         "complexity": 10,
         "dependencies": [
-          "implement-stage-authoring"
+          "private-asset-pack"
         ]
       },
       {
-        "id": "implement-2p-and-cabinet",
-        "name": "Implement 2P lifecycle and cabinet variants",
+        "id": "prototype-hardening",
+        "name": "Harden the Stage 1 prototype with browser acceptance coverage, desktop-fit validation, and internal demo readiness",
         "complexity": 7,
         "dependencies": [
-          "implement-stage-authoring"
-        ]
-      },
-      {
-        "id": "implement-ui-assets-flow",
-        "name": "Implement browser runtime shell, UI flow, and asset manifests",
-        "complexity": 8,
-        "dependencies": [
-          "author-full-content",
-          "implement-2p-and-cabinet"
-        ]
-      },
-      {
-        "id": "polish-and-verify-build",
-        "name": "Run performance checks build verification and deploy preparation",
-        "complexity": 6,
-        "dependencies": [
-          "implement-ui-assets-flow"
+          "boss-clear-slice"
         ]
       }
     ]
   },
   "scheduling": {
-    "status": "complete",
+    "status": "planned",
     "batches": [
       [
-        "value-gate-full-release-scope"
+        "combat-readability"
       ],
       [
-        "scaffold-runtime-project",
-        "spec-runtime-foundation"
+        "private-asset-pack"
       ],
       [
-        "implement-runtime-foundation"
+        "boss-clear-slice"
       ],
       [
-        "spec-combat-core"
-      ],
-      [
-        "implement-combat-core"
-      ],
-      [
-        "implement-stage-authoring"
-      ],
-      [
-        "author-full-content",
-        "implement-2p-and-cabinet"
-      ],
-      [
-        "implement-ui-assets-flow"
-      ],
-      [
-        "polish-and-verify-build"
+        "prototype-hardening"
       ]
     ]
   },
-  "value_gate": {
-    "status": "passed",
-    "verdict": "GO",
-    "review_path": "value-review.md"
-  },
   "implementation": {
-    "status": "complete",
+    "status": "in_progress",
     "completed": [
-      "value-gate-full-release-scope",
-      "scaffold-runtime-project",
-      "spec-runtime-foundation",
-      "implement-runtime-foundation",
-      "spec-combat-core",
-      "implement-combat-core",
-      "implement-stage-authoring",
-      "author-full-content",
-      "implement-2p-and-cabinet",
-      "implement-ui-assets-flow",
-      "polish-and-verify-build"
+      "combat-readability"
     ],
-    "current": null,
+    "current": "private-asset-pack",
+    "next": "boss-clear-slice",
     "spec_path": "SPEC.yaml",
     "tdd_state_path": ".tdd-state.json"
   }

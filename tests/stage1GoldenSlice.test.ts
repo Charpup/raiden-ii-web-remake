@@ -10,8 +10,9 @@ function stepUntil(
   maxFrames = 240
 ): SimulationState {
   let state = simulation.getState();
+  const startFrame = state.frame;
 
-  while (!predicate(state) && state.frame < maxFrames) {
+  while (!predicate(state) && state.frame < startFrame + maxFrames) {
     state = simulation.step({ players: {} });
   }
 
@@ -30,6 +31,14 @@ function stepUntilBoss(simulation: Simulation, maxFrames = 420): SimulationState
   }
 
   return state;
+}
+
+function clearPlayerInvulnerability(simulation: Simulation, playerId: "player1" | "player2" = "player1"): void {
+  const privateState = simulation as unknown as { state: SimulationState };
+  const player = privateState.state.players.find((entry) => entry.id === playerId);
+  if (player) {
+    player.invulnerableFrames = 0;
+  }
 }
 
 describe("Stage 1 golden slice", () => {
@@ -122,6 +131,7 @@ describe("Stage 1 golden slice", () => {
     );
     expect(stateAtCheckpoint.stage.pendingSpawns).toHaveLength(0);
 
+    clearPlayerInvulnerability(simulation);
     simulation.applyPlayerDamage("player1");
     const respawnedState = simulation.step({ players: {} });
     const respawnedPlayer = respawnedState.players.find((player) => player.id === "player1");
@@ -169,6 +179,7 @@ describe("Stage 1 golden slice", () => {
         nextState.enemies.some((enemy) => enemy.id === "stage-1-fairy-tree"),
       260
     );
+    clearPlayerInvulnerability(hardSimulation);
     hardSimulation.applyPlayerDamage("player1");
     hardState = hardSimulation.step({ players: {} });
 
@@ -196,14 +207,18 @@ describe("Stage 1 golden slice", () => {
         .pickups.filter((pickup) => pickup.id === "stage-1-hidden-fairy-reward")
     ).toHaveLength(0);
 
+    const hardCacheSimulation = new Simulation({ stageId: "stage-1", cabinetProfile: "hard" });
     hardState = stepUntil(
-      hardSimulation,
+      hardCacheSimulation,
       (nextState) =>
         nextState.enemies.some((enemy) => enemy.id === "stage-1-pre-boss-cache-core"),
       320
     );
-    hardSimulation.defeatEnemy("stage-1-pre-boss-cache-core");
-    hardState = hardSimulation.step({ players: {} });
+    expect(
+      hardState.enemies.some((enemy) => enemy.id === "stage-1-pre-boss-cache-core")
+    ).toBe(true);
+    hardCacheSimulation.defeatEnemy("stage-1-pre-boss-cache-core");
+    hardState = hardCacheSimulation.step({ players: {} });
 
     expect(
       hardState.pickups.filter((pickup) => (pickup.kind as string) === "miclus")
@@ -214,8 +229,11 @@ describe("Stage 1 golden slice", () => {
       easySimulation,
       (nextState) =>
         nextState.enemies.some((enemy) => enemy.id === "stage-1-pre-boss-cache-core"),
-      320
+      420
     );
+    expect(
+      easyState.enemies.some((enemy) => enemy.id === "stage-1-pre-boss-cache-core")
+    ).toBe(true);
     easySimulation.defeatEnemy("stage-1-pre-boss-cache-core");
     easyState = easySimulation.step({ players: {} });
 

@@ -486,6 +486,7 @@ export class StageRunner {
       stateTag: spawn.stateTag,
       stateTransitions: spawn.stateTransitions?.map((transition) => ({ ...transition })),
       behaviorId: spawn.behaviorId,
+      behaviorVariantId: spawn.behaviorVariantId,
       scriptedDefeats: spawn.scriptedDefeats?.map((defeat) => ({ ...defeat })),
       animation: "idle"
     };

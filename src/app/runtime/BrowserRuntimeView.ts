@@ -48,11 +48,11 @@ export class BrowserRuntimeView {
     root.innerHTML = `
       <main class="arcade-shell" data-flow="title">
         <header class="shell-marquee">
-          <div>
-            <p class="shell-kicker">Raiden II Web Remake</p>
-            <h1 class="shell-title">Sky Assault Console</h1>
+            <div>
+            <p class="shell-kicker">Raiden II Private Prototype</p>
+            <h1 class="shell-title">Stage 1 Vertical Slice</h1>
           </div>
-          <p class="shell-status">DOM overlays + Pixi gameplay shell</p>
+          <p class="shell-status">Desktop shell + Pixi viewport</p>
         </header>
         <section class="shell-main">
           <aside class="hud-stack" data-role="hud-layer">
@@ -91,9 +91,9 @@ export class BrowserRuntimeView {
               <div class="viewport-stage" data-role="gameplay-viewport"></div>
               <div class="overlay-layer" data-role="overlay-layer">
                 <section class="overlay-card" data-screen="title">
-                  <p class="overlay-eyebrow">Galatea Learning Presents</p>
-                  <h2>Insert Mission</h2>
-                  <p class="overlay-copy">A deterministic remake shell with browser-first overlays, replay-safe flow, and placeholder avionics.</p>
+                  <p class="overlay-eyebrow">Internal Prototype Build</p>
+                  <h2>Scramble Stage 1</h2>
+                  <p class="overlay-copy">Desktop-first arcade shell focused on a playable Stage 1 slice, with structured HUD, real viewport fitting, and prototype visuals.</p>
                   ${createButton("start", "Start Mission")}
                 </section>
                 <section class="overlay-card" data-screen="mode-select">
@@ -139,7 +139,7 @@ export class BrowserRuntimeView {
                 </section>
                 <section class="overlay-card overlay-card--ghost" data-screen="gameplay">
                   <div class="overlay-inline">
-                    <span>Gameplay is live. Use keyboard or gamepad while the HUD mirrors simulation state.</span>
+                    <span>Gameplay is live. Use keyboard or gamepad while the HUD mirrors the active prototype state.</span>
                     ${createButton("join-player2", "Rejoin 2P")}
                   </div>
                 </section>

@@ -1,7 +1,21 @@
 specification:
-  name: "Raiden II Web Remake Runtime and Stage Systems"
-  version: "0.3.0"
-  description: "Deterministic runtime, combat core, and data-driven stage orchestration for the web remake."
+  name: "Raiden II Private Prototype Runtime and Stage Systems"
+  version: "0.4.0"
+  description: "Deterministic runtime, authored stage systems, and a desktop-first browser shell for a private playable Stage 1 prototype."
+
+roadmap_context:
+  current_track: "stage1-private-playable-prototype"
+  current_milestone: "1P Solo + Easy Stage 1 boss-clear vertical slice"
+  active_high_level_sprints:
+    - "combat-readability"
+    - "private-asset-pack"
+    - "boss-clear-slice"
+    - "prototype-hardening"
+  archived_requirement_families:
+    - "REL-*"
+    - "DEP-*"
+    - "AST-401"
+  note: "The release/deployment requirement families remain in this spec as historical implementation evidence from the previous public-release track. They are not the active planning target for the next sprint cycle."
 
 tdd_config:
   test_framework: vitest
@@ -703,3 +717,71 @@ requirements:
         given: "the public repository and generated deployment instructions"
         when: "they are reviewed before release"
         then: "they contain no original game assets, credentials, or private host tokens"
+  - id: PRT-001
+    description: "The private prototype uses a fixed desktop gameplay shell that fits the vertical playfield within the visible browser viewport without forcing page scroll."
+    priority: high
+    scenarios:
+      - name: "1920x1080 desktop shell fits the Stage 1 playfield"
+        given: "a desktop gameplay host with a 1260x900 viewport slot"
+        when: "viewport fit is computed for the 320x568 playfield"
+        then: "the fitted gameplay rectangle stays fully inside the host bounds with non-negative offsets"
+      - name: "1366x768 desktop shell fits the Stage 1 playfield"
+        given: "a desktop gameplay host with a 930x620 viewport slot"
+        when: "viewport fit is computed for the 320x568 playfield"
+        then: "the fitted gameplay rectangle stays fully inside the host bounds without overflow"
+  - id: PRT-002
+    description: "The private prototype asset manifest exposes real tracked fallback textures plus private local override candidates for future extracted-asset experiments."
+    priority: high
+    scenarios:
+      - name: "texture candidates prefer private overrides before tracked fallbacks"
+        given: "the prototype asset manifest"
+        when: "texture candidates are resolved for a gameplay sprite"
+        then: "the private override path is listed before the tracked fallback asset path"
+      - name: "all declared tracked texture fallbacks exist in public assets"
+        given: "the prototype asset manifest"
+        when: "the texture asset list is validated against the public directory"
+        then: "every declared fallback texture path exists on disk"
+  - id: PRT-003
+    description: "Stage 1 regains a minimum viable living gameplay loop through enemy motion, player projectile travel, and texture-backed presentation."
+    priority: high
+    scenarios:
+      - name: "opening scoutcraft no longer remain static"
+        given: "a Stage 1 simulation after the opening wave spawns"
+        when: "the simulation advances several frames"
+        then: "the scoutcraft behavior updates the enemy position instead of leaving it fixed"
+      - name: "player fire creates a moving projectile"
+        given: "an active player in Stage 1"
+        when: "the pilot fires"
+        then: "a player bullet is created and advances upward on later frames"
+  - id: CRD-101
+    description: "A scripted active pilot can survive the first 30 seconds of Stage 1 on 1P Solo + Easy without falling into continue or game-over."
+    priority: high
+    scenarios:
+      - name: "active pilot survives the opening readability window"
+        given: "a Stage 1 simulation on the single-player easy cabinet profile"
+        when: "a scripted light-movement sustained-fire pilot path drives the first 1800 frames"
+        then: "the player remains out of continue and session-game-over for the full window"
+  - id: CRD-102
+    description: "The tuned Stage 1 opening route advances into the swamp-pressure beat without the readability baseline collapsing."
+    priority: high
+    scenarios:
+      - name: "active pilot reaches swamp pressure"
+        given: "the Stage 1 opening route and the active pilot baseline path"
+        when: "the first 1800 frames are simulated"
+        then: "the route emits the authored swamp-pressure wave and avoids continue/game-over in that window"
+  - id: CRD-103
+    description: "Opening combat projects readable feedback through visible hit, explosion, and pickup signals instead of only abstract rule changes."
+    priority: high
+    scenarios:
+      - name: "opening combat exposes readable projection signals"
+        given: "the Stage 1 opening route under the active pilot baseline"
+        when: "simulation frames are rendered through the read-only renderer projection"
+        then: "the opening window includes at least one visible hit effect, one explosion effect, and one pickup presentation"
+  - id: RNT-101
+    description: "The browser shell can enter Stage 1 gameplay and remain in a live gameplay state through an opening combat window under scripted input."
+    priority: high
+    scenarios:
+      - name: "title to live Stage 1 gameplay survives the opening window"
+        given: "the browser shell at title state"
+        when: "a scripted pilot drives the flow through start, 1P, easy, and an opening gameplay window"
+        then: "the shell stays on the gameplay screen with live player, enemy, bullet, and effect presentation instead of collapsing into a dead overlay state"
