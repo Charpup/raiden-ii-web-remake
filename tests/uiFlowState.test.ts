@@ -136,12 +136,34 @@ describe("Browser shell flow controller", () => {
     expect(controller.getState().screen).toBe("game-over");
   });
 
-  it("UIF-001 sequences ending and loop-transition overlays from simulation events", () => {
+  it("UIF-001 keeps non-final stage clears in gameplay and only enters ending on explicit ending-started events", () => {
     const controller = new GameFlowController();
     controller.beginModeSelect();
     controller.selectMode("single");
     controller.selectCabinetProfile("hard");
     controller.startGameplay();
+
+    controller.consumeSimulation(
+      createSimulationState(
+        {
+          session: {
+            mode: "single",
+            cabinetProfile: "hard",
+            stageId: "stage-2",
+            loopIndex: 0
+          }
+        },
+        [
+          {
+            type: "stage-cleared",
+            stageId: "stage-1",
+            atFrame: 1800
+          }
+        ]
+      )
+    );
+
+    expect(controller.getState().screen).toBe("gameplay");
 
     controller.consumeSimulation(
       createSimulationState(
@@ -155,8 +177,10 @@ describe("Browser shell flow controller", () => {
         },
         [
           {
-            type: "stage-cleared",
+            type: "ending-started",
             stageId: "stage-8",
+            nextStageId: "stage-1",
+            loopIndex: 2,
             atFrame: 2400
           },
           {
@@ -175,6 +199,41 @@ describe("Browser shell flow controller", () => {
 
     controller.advanceOverlayFrame(180);
     expect(controller.getState().screen).toBe("gameplay");
+  });
+
+  it("UIF-001 falls back to title when an ending overlay finishes without a queued loop transition", () => {
+    const controller = new GameFlowController();
+    controller.beginModeSelect();
+    controller.selectMode("single");
+    controller.selectCabinetProfile("easy");
+    controller.startGameplay();
+
+    controller.consumeSimulation(
+      createSimulationState(
+        {
+          session: {
+            mode: "single",
+            cabinetProfile: "easy",
+            stageId: "stage-8",
+            loopIndex: 0
+          }
+        },
+        [
+          {
+            type: "ending-started",
+            stageId: "stage-8",
+            nextStageId: "stage-8",
+            loopIndex: 0,
+            atFrame: 3200
+          }
+        ]
+      )
+    );
+
+    expect(controller.getState().screen).toBe("ending");
+
+    controller.advanceOverlayFrame(240);
+    expect(controller.getState().screen).toBe("title");
   });
 
   it("UIF-001 consumes overlay timing in fixed 60 Hz steps instead of rounding every host tick", () => {

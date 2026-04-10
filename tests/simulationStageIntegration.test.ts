@@ -187,7 +187,7 @@ describe("Simulation and stage integration", () => {
     ).toHaveLength(1);
   });
 
-  it("BOS-001 advances boss phases and clears the stage", () => {
+  it("BOS-001 advances boss phases and clears Stage 1 into Stage 2", () => {
     const simulation = new Simulation({ stageId: "stage-1" });
     let state = simulation.getState();
 
@@ -223,11 +223,42 @@ describe("Simulation and stage integration", () => {
     simulation.applyBossPartDamage("stage-1-walker-right", 500);
     state = simulation.step({ players: {} });
 
-    expect(state.stage.completed).toBe(true);
+    expect(state.session.stageId).toBe("stage-2");
+    expect(state.stage.stageId).toBe("stage-2");
+    expect(state.stage.completed).toBe(false);
+    expect(state.boss).toBeNull();
     expect(state.recentEvents).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ type: "stage-cleared", stageId: "stage-1" })
       ])
+    );
+  });
+
+  it("REL-401 advances the authored campaign route from Stage 1 to Stage 2 without entering ending", () => {
+    const simulation = new Simulation({ stageId: "stage-1" });
+    let state = simulation.getState();
+
+    while (!state.boss?.active && state.frame < 80) {
+      for (const enemy of state.enemies) {
+        simulation.defeatEnemy(enemy.id);
+      }
+
+      state = simulation.step({ players: {} });
+    }
+
+    simulation.applyBossDamage(2_000);
+    simulation.applyBossPartDamage("stage-1-walker-left", 2_000);
+    simulation.applyBossPartDamage("stage-1-walker-right", 2_000);
+    state = simulation.step({ players: {} });
+
+    expect(state.session.stageId).toBe("stage-2");
+    expect(state.recentEvents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: "stage-cleared", stageId: "stage-1" })
+      ])
+    );
+    expect(state.recentEvents).not.toEqual(
+      expect.arrayContaining([expect.objectContaining({ type: "ending-started" })])
     );
   });
 

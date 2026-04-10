@@ -170,9 +170,14 @@ export class BrowserRuntime {
       return;
     }
 
+    const initialSimulationScreen = screen;
     for (const _step of tick.steps) {
       const state = this.simulation.step(this.captureGameplayInput());
       this.syncOutputs(state);
+
+      if (this.flowController.getState().screen !== initialSimulationScreen) {
+        break;
+      }
     }
   }
 

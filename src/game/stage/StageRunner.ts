@@ -15,6 +15,7 @@ import type {
   BossDefinition,
   BossPhaseDefinition,
   HiddenTriggerDefinition,
+  StageClearTransitionDefinition,
   StageDefinition,
   WaveDefinition
 } from "./stageTypes";
@@ -26,8 +27,7 @@ export interface StageAdvanceResult {
   boss: BossRuntimeState | null;
   events: RuntimeEvent[];
   clearedThisFrame: boolean;
-  loopAdvanceEnabled: boolean;
-  loopTargetStageId: string | null;
+  clearTransition: StageClearTransitionDefinition | null;
 }
 
 function cloneEnemy(enemy: EnemyState): EnemyState {
@@ -459,8 +459,7 @@ export class StageRunner {
       boss,
       events,
       clearedThisFrame,
-      loopAdvanceEnabled: Boolean(definition.loopAdvance?.enabled),
-      loopTargetStageId: definition.loopAdvance?.nextStageId ?? null
+      clearTransition: clearedThisFrame ? definition.clearTransition : null
     };
   }
 

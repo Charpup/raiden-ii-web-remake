@@ -74,10 +74,17 @@ export class GameFlowController {
   }
 
   consumeSimulation(state: SimulationState): void {
-    const stageCleared = state.recentEvents.find((event) => event.type === "stage-cleared");
+    if (this.selection.stageId !== state.session.stageId) {
+      this.selection = {
+        ...this.selection,
+        stageId: state.session.stageId
+      };
+    }
+
+    const endingStarted = state.recentEvents.find((event) => event.type === "ending-started");
     const loopAdvanced = state.recentEvents.find((event) => event.type === "loop-advanced");
 
-    if (stageCleared) {
+    if (endingStarted) {
       this.screen = "ending";
       this.endingFramesRemaining = ENDING_OVERLAY_FRAMES;
       this.queuedLoopTransition = Boolean(loopAdvanced);
@@ -115,10 +122,15 @@ export class GameFlowController {
 
     if (this.screen === "ending" && this.endingFramesRemaining > 0) {
       this.endingFramesRemaining = Math.max(0, this.endingFramesRemaining - frames);
-      if (this.endingFramesRemaining === 0 && this.queuedLoopTransition) {
-        this.screen = "loop-transition";
-        this.loopTransitionFramesRemaining = LOOP_TRANSITION_OVERLAY_FRAMES;
-        this.queuedLoopTransition = false;
+      if (this.endingFramesRemaining === 0) {
+        if (this.queuedLoopTransition) {
+          this.screen = "loop-transition";
+          this.loopTransitionFramesRemaining = LOOP_TRANSITION_OVERLAY_FRAMES;
+          this.queuedLoopTransition = false;
+        } else {
+          this.screen = "title";
+          this.selection = createDefaultSelectionState();
+        }
       }
       return;
     }

@@ -224,7 +224,7 @@ describe("Stage 1 golden slice", () => {
     ).toHaveLength(0);
   });
 
-  it("BOS-101 uses the authored Walker phase ladder before stage clear", () => {
+  it("BOS-101 uses the authored Walker phase ladder before advancing into Stage 2", () => {
     const simulation = new Simulation({ stageId: "stage-1" });
     let state = stepUntilBoss(simulation);
     const openingBoss = state.boss as (typeof state.boss & {
@@ -267,7 +267,9 @@ describe("Stage 1 golden slice", () => {
     simulation.applyBossDamage(800);
     state = simulation.step({ players: {} });
 
-    expect(state.stage.completed).toBe(true);
+    expect(state.session.stageId).toBe("stage-2");
+    expect(state.stage.stageId).toBe("stage-2");
+    expect(state.stage.completed).toBe(false);
     expect(state.recentEvents).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ type: "stage-cleared", stageId: "stage-1" })
