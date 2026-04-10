@@ -1,5 +1,12 @@
 # Findings & Decisions
 
+> Historical note: the opening public-release framing below belongs to the earlier remake roadmap. The active project direction is now a **private, desktop-first Stage 1 playable prototype**. Keep the research, but do not treat the old hosting/release assumptions as the current milestone target.
+
+## Active Direction
+- Build one convincing `1P Solo + Easy` Stage 1 boss-clear vertical slice before expanding scope again.
+- Use a private Stage 1 asset pack first so the prototype gains real visual/audio life.
+- Keep deterministic simulation ownership intact while presentation, shell, and encounter readability improve around it.
+
 ## Requirements
 - Recreate the arcade version of Raiden II as a browser game for public website hosting.
 - Publish as a static subpath application under the existing site constraints from the handoff doc.

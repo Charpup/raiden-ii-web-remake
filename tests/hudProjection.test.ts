@@ -68,6 +68,7 @@ function createSimulationState(): SimulationState {
     enemies: [],
     bullets: [],
     pickups: [],
+    effects: [],
     boss: {
       bossId: "thunder-fortress",
       active: true,

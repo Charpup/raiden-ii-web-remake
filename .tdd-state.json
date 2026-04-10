@@ -1,106 +1,26 @@
 {
-  "spec_id": "REL-401",
-  "phase": "complete",
+  "spec_id": "CRD-101",
+  "phase": "green",
   "red_evidence": {
-    "timestamp": "2026-04-10T11:25:00+08:00",
-    "test_command": "npm run test:run -- tests/releaseVerification.test.ts tests/runtimeShell.dom.test.ts",
-    "tests_total": 2,
-    "tests_failed": 2,
-    "output_snapshot": "FAIL tests/runtimeShell.dom.test.ts > Browser runtime shell > REL-403 keeps the ending overlay pinned to the cleared-stage projection"
+    "timestamp": "2026-04-10T16:16:00+08:00",
+    "test_command": "npm run test:run -- tests/stage1PrototypePlayability.test.ts tests/runtimeShell.dom.test.ts",
+    "tests_total": 15,
+    "tests_failed": 3,
+    "output_snapshot": "FAIL stage1PrototypePlayability.test.ts > CRD-101 and CRD-102 opened continue during the first 1800 frames; FAIL runtimeShell.dom.test.ts > RNT-101 left gameplay during the opening browser window"
   },
   "green_evidence": {
-    "timestamp": "2026-04-10T11:36:00+08:00",
-    "tests_total": 83,
-    "tests_passed": 83
+    "timestamp": "2026-04-10T18:15:06+08:00",
+    "test_command": "npm run test:run",
+    "tests_total": 99,
+    "tests_passed": 99
   },
   "coverage": {
-    "percentage": 91.29,
+    "percentage": 82.49,
     "meets_threshold": true
   },
-  "cycle_history": [
-    {
-      "spec_id": "AUD-001",
-      "completed_at": "2026-04-09T20:09:15+08:00",
-      "coverage": 89.37,
-      "red_snapshot": "FAIL tests/runtimeFoundation.test.ts Error: Cannot find module '../src/game/audio/AudioDirector'"
-    },
-    {
-      "spec_id": "SCR-001",
-      "completed_at": "2026-04-09T20:26:15+08:00",
-      "coverage": 94.49,
-      "red_snapshot": "FAIL tests/combatCore.test.ts Error: Cannot find module '../src/game/combat/CombatSystems'"
-    },
-    {
-      "spec_id": "LOP-001",
-      "completed_at": "2026-04-09T22:54:13+08:00",
-      "coverage": 94.09,
-      "red_snapshot": "FAIL tests/simulationStageIntegration.test.ts > Simulation and stage integration > SIM-003 initializes session-owned runtime state"
-    },
-    {
-      "spec_id": "LOP-001",
-      "completed_at": "2026-04-09T22:58:21+08:00",
-      "coverage": 94.73,
-      "red_snapshot": "FAIL tests/runtimeFoundation.test.ts > Runtime foundation > REN-001 renderer projects the active boss when an encounter starts"
-    },
-    {
-      "spec_id": "STG-002",
-      "completed_at": "2026-04-09T23:27:02+08:00",
-      "coverage": 94.74,
-      "red_snapshot": "FAIL tests/simulationStageIntegration.test.ts > Simulation and stage integration > STG-002 single-player respawn restores checkpoint bookkeeping without stale hidden rewards"
-    },
-    {
-      "spec_id": "STG-101",
-      "completed_at": "2026-04-10T00:01:23+08:00",
-      "coverage": 95.86,
-      "red_snapshot": "FAIL tests/stage1GoldenSlice.test.ts > Stage 1 golden slice > AUTH-101 exposes the authored macro route and metadata for Stage 1"
-    },
-    {
-      "spec_id": "BOS-101",
-      "completed_at": "2026-04-10T00:02:34+08:00",
-      "coverage": 95.86,
-      "red_snapshot": "FAIL tests/stage1GoldenSlice.test.ts > Stage 1 golden slice > BOS-101 uses the authored Walker phase ladder before stage clear"
-    },
-    {
-      "spec_id": "AUTH-201",
-      "completed_at": "2026-04-10T00:43:41+08:00",
-      "coverage": 97.29,
-      "red_snapshot": "FAIL tests/stages2to4Content.test.ts > Stages 2-4 content authoring > AUTH-201 locks the Stage 2-4 macro beats and minimal new trigger metadata"
-    },
-    {
-      "spec_id": "STG-203",
-      "completed_at": "2026-04-10T01:11:22+08:00",
-      "coverage": 97.16,
-      "red_snapshot": "FAIL tests/stages2to4Content.test.ts > Stages 2-4 content authoring > STG-203 keeps the Stage 4 fairy route optional for mainline progression"
-    },
-    {
-      "spec_id": "AUTH-301",
-      "completed_at": "2026-04-10T01:28:06+08:00",
-      "coverage": 97.98,
-      "red_snapshot": "FAIL tests/stages5to8Content.test.ts > Stages 5-8 content authoring > AUTH-301 locks the Stage 5-8 macro beats and minimal new hidden-route metadata"
-    },
-    {
-      "spec_id": "HID-301",
-      "completed_at": "2026-04-10T01:36:45+08:00",
-      "coverage": 97.86,
-      "red_snapshot": "FAIL tests/stages5to8Content.test.ts > Stages 5-8 content authoring > HID-301 expires the Stage 7 rocket-cache route once the Huge Satellite encounter starts"
-    },
-    {
-      "spec_id": "COOP-202",
-      "completed_at": "2026-04-10T02:40:44+08:00",
-      "coverage": 96.77,
-      "red_snapshot": "FAIL tests/coopCabinetIntegration.test.ts > Co-op and cabinet rules integration > COOP-201 leaves the shared encounter intact when only one player enters continue-pending"
-    },
-    {
-      "spec_id": "RNT-001",
-      "completed_at": "2026-04-10T03:34:31+08:00",
-      "coverage": 91,
-      "red_snapshot": "FAIL tests/uiFlowState.test.ts Error: Cannot find module '../src/app/GameFlowController'"
-    },
-    {
-      "spec_id": "REL-401",
-      "completed_at": "2026-04-10T11:36:00+08:00",
-      "coverage": 91.29,
-      "red_snapshot": "FAIL tests/runtimeShell.dom.test.ts > Browser runtime shell > REL-403 keeps the ending overlay pinned to the cleared-stage projection"
-    }
+  "notes": [
+    "Sprint 1 Combat Readability now has explicit acceptance coverage for active-pilot survivability, swamp-pressure progression, readable hit/explosion/pickup feedback, and a long-window browser-runtime proof of life.",
+    "Reviewer-driven follow-up fixes restored baseline player fire cadence, added stage-start invulnerability as an explicit combat rule, and filled missing late-stage enemy behavior profiles so Sprint 1 tuning does not leak regressions into later stages.",
+    "Production-preview opening signoff now passes with a stable dedicated Playwright harness, a preview-only debug hook, and a default Canvas2D scene adapter that keeps the shell alive while the Pixi attach path remains deferred."
   ]
 }

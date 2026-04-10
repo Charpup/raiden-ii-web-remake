@@ -55,6 +55,7 @@ export interface CombatRules {
   maxSubWeaponLevel: number;
   bombInvulnerabilityFrames: number;
   respawnInvulnerabilityFrames: number;
+  initialSpawnInvulnerabilityFrames: number;
   extendThresholds: number[];
   medalValues: number[];
   respawnMainWeaponLevel(previousLevel: number): number;
@@ -69,6 +70,9 @@ export interface ArenaBounds {
 export interface BulletState {
   id: string;
   owner: "player" | "enemy";
+  sourcePlayerId?: PlayerSlot;
+  sourceEnemyId?: string;
+  damage?: number;
   position: Vector2;
   velocity: Vector2;
 }
@@ -135,6 +139,7 @@ export interface EnemyState {
   blocksProgression: boolean;
   stateTag?: string;
   behaviorId?: string;
+  behaviorVariantId?: string;
   stateTransitions?: EnemyStateTransitionState[];
   scriptedDefeats?: EnemyScriptedDefeatState[];
   animation: "idle";
@@ -170,6 +175,14 @@ export interface BossPartRuntimeState {
   health: number;
   maxHealth: number;
   active: boolean;
+}
+
+export interface EffectState {
+  id: string;
+  kind: "hit" | "explosion" | "respawn";
+  position: Vector2;
+  framesRemaining: number;
+  totalFrames: number;
 }
 
 export interface PendingSpawnState {
@@ -275,6 +288,16 @@ export type RuntimeEvent =
       atFrame: number;
     }
   | {
+      type: "enemy-destroyed";
+      enemyId: string;
+      atFrame: number;
+    }
+  | {
+      type: "player-hit";
+      playerId: PlayerSlot;
+      atFrame: number;
+    }
+  | {
       type: "continue-opened";
       playerId: PlayerSlot;
       countdownFrames: number;
@@ -321,6 +344,7 @@ export interface SimulationState {
   enemies: EnemyState[];
   bullets: BulletState[];
   pickups: RuntimePickupState[];
+  effects: EffectState[];
   boss: BossRuntimeState | null;
   stage: StageRuntimeState;
   recentEvents: RuntimeEvent[];
@@ -331,14 +355,31 @@ export interface PresentationalEntity {
   x: number;
   y: number;
   animation: string;
+  spriteId: string;
+  rotation?: number;
+  alpha?: number;
+  scale?: number;
+}
+
+export interface PresentationalBackgroundLayer {
+  id: string;
+  spriteId: string;
+  offsetY: number;
+  parallax: number;
+  opacity?: number;
 }
 
 export interface PresentationalScene {
   frame: number;
   stageId: string;
+  scrollY: number;
+  backgroundLayers: PresentationalBackgroundLayer[];
   players: PresentationalEntity[];
   enemies: PresentationalEntity[];
+  playerBullets: PresentationalEntity[];
+  enemyBullets: PresentationalEntity[];
   pickups: PresentationalEntity[];
+  effects: PresentationalEntity[];
   boss: PresentationalEntity | null;
   bossParts: PresentationalEntity[];
 }

@@ -6,6 +6,7 @@ import type {
   CapturedFrameInput,
   PlayerSlot,
   PresentationalScene,
+  RuntimeEvent,
   SimulationState
 } from "../../game/core/types";
 import { createDefaultInputMapper, type RawFrameInput } from "../../game/input/InputMapper";
@@ -14,8 +15,18 @@ import { GameFlowController } from "../GameFlowController";
 import { createAssetManifest, type AssetManifest } from "../assets/assetManifest";
 import { WebAudioPlaybackAdapter, type AudioPlaybackAdapter } from "../audio/AudioPlaybackAdapter";
 import { projectHud, type HudProjection } from "../hudProjection";
-import { consumeOverlayFrames, isSimulationDrivenScreen } from "./GameFlowState";
+import { Canvas2DSceneAdapter } from "../render/Canvas2DSceneAdapter";
 import type { SceneAdapter } from "../render/PixiSceneAdapter";
+import { consumeOverlayFrames, isSimulationDrivenScreen } from "./GameFlowState";
+
+export interface BrowserRuntimeSceneCounts {
+  players: number;
+  enemies: number;
+  playerBullets: number;
+  enemyBullets: number;
+  pickups: number;
+  effects: number;
+}
 
 export interface BrowserRuntimeSnapshot {
   flow: ReturnType<GameFlowController["getState"]>;
@@ -23,6 +34,10 @@ export interface BrowserRuntimeSnapshot {
   scene: PresentationalScene | null;
   audioFrame: AudioFrame | null;
   assetManifest: AssetManifest;
+  simulationFrame: number | null;
+  sceneCounts: BrowserRuntimeSceneCounts;
+  recentEventTypes: RuntimeEvent["type"][];
+  lastFlowTransitionReason: ReturnType<GameFlowController["getState"]>["lastTransitionReason"];
 }
 
 export interface BrowserRuntimeOptions {
@@ -30,11 +45,18 @@ export interface BrowserRuntimeOptions {
   audioPlaybackFactory?: () => AudioPlaybackAdapter;
   assetManifest?: AssetManifest;
   onSnapshot?: (snapshot: BrowserRuntimeSnapshot) => void;
+  onAttachPhase?: (phase: BrowserRuntimeAttachPhase) => void;
 }
 
-async function createDefaultSceneAdapter(): Promise<SceneAdapter> {
-  const module = await import("../render/PixiSceneAdapter");
-  return new module.PixiSceneAdapter();
+export type BrowserRuntimeAttachPhase =
+  | "idle"
+  | "loading-scene-adapter"
+  | "scene-adapter-created"
+  | "attaching-scene-adapter"
+  | "scene-adapter-attached";
+
+async function createDefaultSceneAdapter(assetManifest: AssetManifest): Promise<SceneAdapter> {
+  return new Canvas2DSceneAdapter(assetManifest);
 }
 
 export class BrowserRuntime {
@@ -52,6 +74,8 @@ export class BrowserRuntime {
 
   private readonly onSnapshot?: (snapshot: BrowserRuntimeSnapshot) => void;
 
+  private readonly onAttachPhase?: (phase: BrowserRuntimeAttachPhase) => void;
+
   private readonly sceneAdapterFactory: () => SceneAdapter | Promise<SceneAdapter>;
 
   private clock = new GameClock();
@@ -68,6 +92,10 @@ export class BrowserRuntime {
 
   private latestAudioFrame: AudioFrame | null = null;
 
+  private latestSimulationFrame: number | null = null;
+
+  private latestRecentEventTypes: RuntimeEvent["type"][] = [];
+
   private animationFrameId: number | null = null;
 
   private lastAnimationTimestamp: number | null = null;
@@ -76,25 +104,38 @@ export class BrowserRuntime {
 
   constructor(options: BrowserRuntimeOptions = {}) {
     this.assetManifest = options.assetManifest ?? createAssetManifest();
-    this.audioPlayback = options.audioPlaybackFactory?.() ?? new WebAudioPlaybackAdapter();
-    this.sceneAdapterFactory = options.sceneAdapterFactory ?? createDefaultSceneAdapter;
+    this.audioPlayback =
+      options.audioPlaybackFactory?.() ?? new WebAudioPlaybackAdapter(this.assetManifest);
+    this.sceneAdapterFactory =
+      options.sceneAdapterFactory ?? (() => createDefaultSceneAdapter(this.assetManifest));
     this.onSnapshot = options.onSnapshot;
+    this.onAttachPhase = options.onAttachPhase;
   }
 
   async attach(host: HTMLElement): Promise<void> {
+    this.onAttachPhase?.("loading-scene-adapter");
     const sceneAdapter = await this.sceneAdapterFactory();
+    this.onAttachPhase?.("scene-adapter-created");
+    this.onAttachPhase?.("attaching-scene-adapter");
     await sceneAdapter.attach(host);
+    this.onAttachPhase?.("scene-adapter-attached");
     this.sceneAdapter = sceneAdapter;
+    this.resizeViewport(host.clientWidth, host.clientHeight);
     this.emitSnapshot();
   }
 
   getSnapshot(): BrowserRuntimeSnapshot {
+    const flow = this.flowController.getState();
     return {
-      flow: this.flowController.getState(),
+      flow,
       hud: this.latestHud,
       scene: this.latestScene,
       audioFrame: this.latestAudioFrame,
-      assetManifest: this.assetManifest
+      assetManifest: this.assetManifest,
+      simulationFrame: this.latestSimulationFrame,
+      sceneCounts: this.getSceneCounts(),
+      recentEventTypes: [...this.latestRecentEventTypes],
+      lastFlowTransitionReason: flow.lastTransitionReason
     };
   }
 
@@ -240,6 +281,8 @@ export class BrowserRuntime {
       bgmCue: null,
       sfxCues: []
     };
+    this.latestSimulationFrame = null;
+    this.latestRecentEventTypes = [];
     this.audioPlayback.sync(this.latestAudioFrame);
     this.clock = new GameClock();
     this.overlayAccumulatorMs = 0;
@@ -253,6 +296,10 @@ export class BrowserRuntime {
     this.audioPlayback.destroy();
     this.sceneAdapter?.destroy();
     this.sceneAdapter = null;
+  }
+
+  resizeViewport(width: number, height: number): void {
+    this.sceneAdapter?.resize(width, height);
   }
 
   private captureGameplayInput(): CapturedFrameInput {
@@ -294,6 +341,8 @@ export class BrowserRuntime {
       (event) => event.type === "ending-started"
     );
 
+    this.latestSimulationFrame = state.frame;
+    this.latestRecentEventTypes = state.recentEvents.map((event) => event.type);
     this.flowController.consumeSimulation(state);
 
     if (!enteringEnding || !this.latestScene || !this.latestHud || !this.latestAudioFrame) {
@@ -313,5 +362,16 @@ export class BrowserRuntime {
 
   private clearPressedKeys(): void {
     this.pressedKeys.clear();
+  }
+
+  private getSceneCounts(): BrowserRuntimeSceneCounts {
+    return {
+      players: this.latestScene?.players.length ?? 0,
+      enemies: this.latestScene?.enemies.length ?? 0,
+      playerBullets: this.latestScene?.playerBullets.length ?? 0,
+      enemyBullets: this.latestScene?.enemyBullets.length ?? 0,
+      pickups: this.latestScene?.pickups.length ?? 0,
+      effects: this.latestScene?.effects.length ?? 0
+    };
   }
 }

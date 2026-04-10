@@ -319,6 +319,12 @@
 | Release Verification Coverage | `npm run coverage` after final release fixes | Coverage >= 80% | 91.29% total coverage | PASS |
 | Release Verification Build | `npm run build` after final release fixes | Strict type check and production build pass | Build passed | PASS |
 | Browser Smoke | Playwright CLI against `http://127.0.0.1:4175/games/raiden-ii/` | Base-path shell loads, no console/network errors, 1P/easy and 2P/hard reach gameplay | Passed after favicon fix | PASS |
+| Sprint 1 RED | `npm run test:run -- tests/stage1PrototypePlayability.test.ts tests/runtimeShell.dom.test.ts` before readability tuning | Active-pilot survivability and browser-shell proof-of-life should fail before Sprint 1 implementation | Failed on `CRD-101`, `CRD-102`, and `RNT-101` with the opening route collapsing into continue | PASS |
+| Sprint 1 Targeted GREEN | `npm run test:run -- tests/enemyBehaviorProfiles.test.ts tests/simulationStageIntegration.test.ts tests/runtimeShell.dom.test.ts tests/stage1PrototypePlayability.test.ts` | Sprint 1 contracts and reviewer regressions should pass together | 31/31 tests passed | PASS |
+| Sprint 1 Full Suite | `npm run test:run` after Sprint 1 tuning, reviewer fixes, and preview-signoff stabilization | Full regression suite remains green | 99/99 tests passed | PASS |
+| Sprint 1 Coverage | `npm run coverage` after Sprint 1 tuning, reviewer fixes, and preview-signoff stabilization | Coverage >= 80% | 82.49% total coverage | PASS |
+| Sprint 1 Build | `npm run build` after Sprint 1 tuning and reviewer fixes | Strict type check and production build pass | Build passed | PASS |
+| Sprint 1 Preview Smoke | `npm run signoff:sprint1-preview` against a dedicated strict-port preview server | Production preview should stay in a live opening gameplay window for 1800 scripted active-pilot frames | Signoff passed with `pass=true`, `finalDataFlow=gameplay`, and late-window live scene activity preserved through frame 1800 | PASS |
 
 ## Error Log
 | Timestamp | Error | Attempt | Resolution |
@@ -341,6 +347,8 @@
 | 2026-04-10 03:20 CST | The new browser-shell RED cycle failed immediately on missing `src/app` modules and absent `jsdom` support | 1 | Added the `src/app` browser shell modules, installed `jsdom`, and re-ran the targeted DOM and full-suite verification. |
 | 2026-04-10 11:25 CST | Reviewer found ending overlays showing next-stage HUD/state and non-final stage clears consuming extra fixed steps into the next stage | 1 | Froze cleared-stage projections during `ending-started`, stopped fixed-step processing on `stage-cleared` boundaries, and added release-level regressions. |
 | 2026-04-10 11:31 CST | Real browser smoke surfaced a `favicon.ico` 404 under the production base path | 1 | Added a base-path-safe SVG favicon and rebuilt before re-running browser smoke. |
+| 2026-04-10 16:15 CST | Sprint 1 reviewer found that new behavior-profile lookups left several authored late-stage enemies inert and that Stage 1 tuning leaked into global fire/start contracts | 1 | Added registry-completeness and live late-stage behavior tests, restored baseline player-fire cadence, applied explicit stage-start invulnerability on stage transitions, and revalidated the full suite. |
+| 2026-04-10 16:52 CST | Production-preview smoke still fell back to title instead of proving the same live opening window that passes in the deterministic browser-runtime harness | 2 | Converted the signoff harness to stop the live animation loop before gameplay start, drive the preview with deterministic debug-hook ticks, and re-ran the gate to a clean 1800-frame gameplay pass. |
 
 ## 5-Question Reboot Check
 | Question | Answer |
@@ -350,3 +358,148 @@
 | What's the goal? | Build a public static browser remake of arcade Raiden II with TriadDev Extended workflow. |
 | What have I learned? | Scope is large, fidelity depends on deterministic systems, and gameplay rules should remain data-driven, simulation-owned, renderer/audio-independent, and per-player in co-op while browser flow stays projection-only. |
 | What have I done? | Completed discovery, value gate, runtime foundation, combat core, GitHub bootstrap, the stage-authoring seam, PR feedback fixes, full Stage 1-8 content authoring with loop carryover, the 2P/cabinet rules tranche, the browser runtime shell/UI/assets tranche, and the final release verification and host handoff tranche. |
+
+## Session: 2026-04-10 Prototype Reset
+
+### Phase 12: Private Playable Prototype Reset
+- **Status:** in_progress
+- Actions taken:
+  - Reframed the project from a public-release-complete story to a private playable prototype focused on a desktop-first Stage 1 vertical slice.
+  - Added RED tests for desktop viewport fitting, prototype asset candidate resolution, fallback asset coverage, Stage 1 enemy motion, and player projectile spawning.
+  - Replaced the abstract asset manifest with a richer prototype asset contract that now exposes texture metadata, private override candidates, audio cue candidates, and tracked fallback inventory.
+  - Added tracked fallback SVG assets for shell UI, gameplay actors, pickups, bullets, boss parts, and stage backdrops so the runtime no longer points at missing public files.
+  - Upgraded the renderer to project sprite ids, background layers, scroll state, and bullets instead of only placeholder entity positions.
+  - Replaced the primitive-block Pixi scene adapter with a texture-backed adapter that preloads assets, fits the 320x568 playfield inside the host viewport, and renders parallax background layers plus sprite entities.
+  - Wired browser-shell resize handling so the gameplay viewport stays synchronized with the host element instead of remaining at a stale canvas size.
+  - Replaced the continuous oscillator placeholder audio with a cue-driven buffer playback adapter that supports private audio override candidates and synthesized fallback music/SFX.
+  - Added the first minimal Stage 1 “alive” loop by implementing authored enemy motion for the opening behavior ids plus player projectile spawning, travel, bullet collisions, and pickup auto-collection.
+  - Ran a production preview browser smoke against `http://127.0.0.1:4175/games/raiden-ii/` to confirm the title and selection overlays remain above the fold and the gameplay shell now enters a texture-backed viewport.
+  - Rewrote the core project narrative in `README.md`, `task_plan.md`, and archived the old host/public-release docs as historical output from the earlier roadmap.
+- Files created/modified:
+  - `.gitignore`
+  - `README.md`
+  - `task_plan.md`
+  - `src/style.css`
+  - `src/app/assets/assetManifest.ts`
+  - `src/app/audio/AudioPlaybackAdapter.ts`
+  - `src/app/createRaidenApp.ts`
+  - `src/app/render/PixiSceneAdapter.ts`
+  - `src/app/runtime/BrowserRuntime.ts`
+  - `src/app/runtime/BrowserRuntimeView.ts`
+  - `src/app/runtime/viewportLayout.ts`
+  - `src/game/core/Simulation.ts`
+  - `src/game/core/types.ts`
+  - `src/game/render/Renderer.ts`
+  - `public/assets/ui/*`
+  - `public/assets/gameplay/*`
+  - `public/assets/stages/stage-1/*`
+  - `public/assets/stages/shared/*`
+  - `tests/viewportLayout.test.ts`
+  - `tests/prototypeAssetManifest.test.ts`
+  - `tests/stage1PrototypePlayability.test.ts`
+  - `tests/runtimeFoundation.test.ts`
+  - `tests/runtimeShell.dom.test.ts`
+  - `HOST_DEPLOYMENT_HANDOFF.md`
+  - `OPERATOR_SMOKE_CHECKLIST.md`
+
+### Phase 13: Stage 1 Playable Prototype Roadmap Reset
+- **Status:** complete
+- Actions taken:
+  - Replaced the old “finish the remake / host deployment” forward narrative with a new Stage 1 boss-clear prototype roadmap.
+  - Locked the new north star to a **desktop-first, privately playable Stage 1 vertical slice** instead of a public-release-ready campaign build.
+  - Locked two planning defaults for the next program cycle:
+    - milestone bar = `1P Boss Clear`
+    - asset strategy = `Private Pack First`
+  - Rewrote the active roadmap into four high-level sprints:
+    - `combat-readability`
+    - `private-asset-pack`
+    - `boss-clear-slice`
+    - `prototype-hardening`
+  - Rebased `triadev-handoff.json` onto a new Core planning state so the next detailed sprint plan can start from `combat-readability` rather than from the older release-track tranche sequence.
+  - Updated `task_plan.md` to treat the existing code as Sprint 0 baseline and the next four sprints as the real product-building roadmap.
+  - Marked `findings.md`, `value-review.md`, and `SPEC.yaml` with explicit historical context so archived public-release/deployment assumptions do not get mistaken for the current milestone.
+- Files created/modified:
+  - `task_plan.md`
+  - `triadev-handoff.json`
+  - `README.md`
+  - `findings.md`
+  - `value-review.md`
+  - `SPEC.yaml`
+  - `progress.md`
+
+### Phase 14: Sprint 1 Combat Readability
+- **Status:** complete
+- Actions taken:
+  - Reopened implementation under `TriadDev Extended` and moved the active tranche to `combat-readability`.
+  - Expanded `SPEC.yaml` with `CRD-101`, `CRD-102`, `CRD-103`, and `RNT-101` so Sprint 1 has explicit survivability, route-progression, feedback-readability, and browser-runtime contracts.
+  - Added RED-first scripted active-pilot acceptance in `tests/stage1PrototypePlayability.test.ts` and a browser-shell opening-window proof in `tests/runtimeShell.dom.test.ts`.
+  - Replaced the inline first-spawn grace hack with an explicit `initialSpawnInvulnerabilityFrames` combat rule and propagated that rule to fresh stage entries.
+  - Localized Stage 1 opening readability tuning with `behaviorVariantId` instead of mutating shared behavior ids globally.
+  - Introduced behavior-profile registries for enemy movement and fire cadence, then backfilled missing late-stage behavior profiles and added a registry-completeness regression test so Stage 2-8 enemies are not left inert.
+  - Removed the accidental global player-fire throttling so Sprint 1 tuning no longer changes the baseline fire cadence contract for later stages.
+  - Strengthened hit, explosion, and pickup readability using the current fallback presentation assets, including scaled projection emphasis and a visible opening weapon reward off the first cache carrier.
+  - Tightened the browser-shell acceptance from a short historical-presence check to a 1800-frame live-window contract with late-window scene activity assertions.
+  - Re-ran targeted tests, the full suite, coverage, and build after integrating the reviewer fixes.
+  - Added a preview-only debug hook with bootstrap and flow-transition telemetry, then used it to prove the old preview failure was a browser-shell bootstrap problem rather than a gameplay collapse.
+  - Replaced the blocking default Pixi attach path with a stable `Canvas2DSceneAdapter` default so the real preview shell can enter live gameplay and expose deterministic scene state.
+  - Added a dedicated strict-port Playwright signoff harness in `scripts/sprint1-preview-signoff.mjs` that preserves screenshots, console failures, request failures, and debug snapshots.
+  - Ran the new production-preview signoff to a clean pass: `title -> 1P Solo -> Easy Cabinet -> 1800 frames of active-pilot opening gameplay` now remains in `gameplay` with live player/enemy/bullet/effect activity.
+- Files created/modified:
+  - `SPEC.yaml`
+  - `.tdd-state.json`
+  - `task_plan.md`
+  - `triadev-handoff.json`
+  - `progress.md`
+  - `package.json`
+  - `package-lock.json`
+  - `scripts/sprint1-preview-signoff.mjs`
+  - `src/main.ts`
+  - `src/app/createRaidenApp.ts`
+  - `src/app/runtime/GameFlowState.ts`
+  - `src/app/runtime/BrowserRuntime.ts`
+  - `src/app/render/Canvas2DSceneAdapter.ts`
+  - `src/game/core/types.ts`
+  - `src/game/core/Simulation.ts`
+  - `src/game/combat/CombatSystems.ts`
+  - `src/game/stage/stageTypes.ts`
+  - `src/game/stage/StageRunner.ts`
+  - `src/game/stage/stageCatalog.ts`
+  - `src/game/render/Renderer.ts`
+  - `src/app/render/PixiSceneAdapter.ts`
+  - `tests/stage1PrototypePlayability.test.ts`
+  - `tests/runtimeShell.dom.test.ts`
+  - `tests/simulationStageIntegration.test.ts`
+  - `tests/enemyBehaviorProfiles.test.ts`
+
+### Phase 15: Sprint 1 Preview Signoff Closure
+- **Status:** complete
+- Actions taken:
+  - Verified the old preview mismatch on a fresh strict-port preview server and narrowed the stall to `runtime.attach()` before live gameplay ever started.
+  - Added attach-phase telemetry and a preview debug surface so Playwright could observe `bootstrapPhase`, `runtimeAttachPhase`, `simulationFrame`, `sceneCounts`, `recentEventTypes`, and `lastFlowTransitionReason`.
+  - Removed the unstable dynamic import path for the default scene adapter and moved preview rendering onto a deterministic `Canvas2DSceneAdapter` implementation that uses the existing asset manifest and viewport-fit contract.
+  - Hardened the signoff harness so it owns its preview server, enforces `--strictPort`, and writes reproducible signoff evidence under `output/playwright/`.
+  - Switched the signoff harness from wall-clock waiting to deterministic preview stepping by stopping the live animation loop before gameplay start and driving `tickHostDelta()` through the preview debug hook for all 1800 active-pilot frames.
+  - Re-ran the full regression suite, coverage, and build after the preview signoff fix set landed, then promoted Sprint 1 from `in_progress` to `complete`.
+- Files created/modified:
+  - `task_plan.md`
+  - `progress.md`
+  - `triadev-handoff.json`
+  - `.tdd-state.json`
+  - `package.json`
+  - `package-lock.json`
+  - `scripts/sprint1-preview-signoff.mjs`
+  - `src/main.ts`
+  - `src/app/createRaidenApp.ts`
+  - `src/app/runtime/GameFlowState.ts`
+  - `src/app/runtime/BrowserRuntime.ts`
+  - `src/app/render/Canvas2DSceneAdapter.ts`
+  - `src/app/render/PixiSceneAdapter.ts`
+
+### Superseding Reboot Check
+| Question | Answer |
+|----------|--------|
+| Where am I? | At the start of a new product program: a Stage 1 playable prototype sprint sequence, not a release handoff. |
+| Where am I going? | Toward one convincing `1P Solo + Easy` Stage 1 boss-clear browser prototype. |
+| What's the goal? | Make Stage 1 readable, survivable, audiovisually alive, and genuinely playable before expanding scope again. |
+| What have I learned? | The codebase proves rules/runtime architecture, but real playability still depends on encounter tuning, browser acceptance, and private asset integration. |
+| What have I done? | Reframed the project around a four-sprint roadmap that treats the existing implementation as baseline and the next cycle as product-building work. |

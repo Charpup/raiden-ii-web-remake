@@ -29,6 +29,18 @@ export class AudioDirector {
         sfxCues.push(`sfx-${event.playerId}-bomb`);
       }
 
+      if (event.type === "player-hit") {
+        sfxCues.push("sfx-player-hit");
+      }
+
+      if (event.type === "player-respawned") {
+        sfxCues.push("sfx-player-respawn");
+      }
+
+      if (event.type === "enemy-destroyed") {
+        sfxCues.push("sfx-enemy-destroyed");
+      }
+
       if (event.type === "boss-phase-changed") {
         sfxCues.push(`sfx-${event.bossId}-${event.phaseId}`);
       }

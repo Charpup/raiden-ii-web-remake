@@ -1,5 +1,7 @@
 # Operator Smoke Checklist
 
+> Historical note: this checklist belongs to the earlier public-release track. The repo is currently being advanced as a **private playable prototype**, so this checklist is archived until public deployment becomes a live goal again.
+
 Run this after deploying the build to `https://galatealearningfor.fun/games/raiden-ii/`.
 
 ## Entry And Asset Checks

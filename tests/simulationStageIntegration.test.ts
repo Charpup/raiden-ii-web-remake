@@ -1,10 +1,22 @@
 import { describe, expect, it } from "vitest";
 
 import { Simulation } from "../src/game/core/Simulation";
+import { getCombatRulesForCabinet } from "../src/game/core/cabinetRules";
 
 function burnRespawnInvulnerability(simulation: Simulation, frames = 121): void {
   for (let index = 0; index < frames; index += 1) {
     simulation.step({ players: {} });
+  }
+}
+
+function clearPlayerInvulnerability(
+  simulation: Simulation,
+  playerId: "player1" | "player2" = "player1"
+): void {
+  const privateState = simulation as unknown as { state: { players: Array<{ id: string; invulnerableFrames: number }> } };
+  const player = privateState.state.players.find((entry) => entry.id === playerId);
+  if (player) {
+    player.invulnerableFrames = 0;
   }
 }
 
@@ -56,6 +68,47 @@ describe("Simulation and stage integration", () => {
     );
   });
 
+  it("SIM-004 preserves the baseline per-frame player fire cadence outside local Stage 1 readability tuning", () => {
+    const simulation = new Simulation({ stageId: "stage-2" });
+
+    const first = simulation.step({
+      players: {
+        player1: {
+          move: { x: 0, y: 0 },
+          fire: true,
+          bomb: false,
+          focus: false
+        }
+      }
+    });
+    const firstBulletCount = first.bullets.filter((bullet) => bullet.owner === "player").length;
+
+    const second = simulation.step({
+      players: {
+        player1: {
+          move: { x: 0, y: 0 },
+          fire: true,
+          bomb: false,
+          focus: false
+        }
+      }
+    });
+
+    expect(first.recentEvents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: "player-fired", playerId: "player1" })
+      ])
+    );
+    expect(second.recentEvents).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: "player-fired", playerId: "player1" })
+      ])
+    );
+    expect(second.bullets.filter((bullet) => bullet.owner === "player").length).toBeGreaterThan(
+      firstBulletCount
+    );
+  });
+
   it("STG-001 emits configured wave spawns from stage data", () => {
     const simulation = new Simulation({ stageId: "stage-1" });
     let state = simulation.getState();
@@ -87,6 +140,7 @@ describe("Simulation and stage integration", () => {
     }
 
     const armedWaveCursor = state.stage.waveCursor;
+    clearPlayerInvulnerability(simulation);
     simulation.applyPlayerDamage("player1");
     state = simulation.step({ players: {} });
 
@@ -120,6 +174,7 @@ describe("Simulation and stage integration", () => {
     state = simulation.step({ players: {} });
     expect(state.pickups).toHaveLength(1);
 
+    clearPlayerInvulnerability(simulation);
     simulation.applyPlayerDamage("player1");
     state = simulation.step({ players: {} });
 
@@ -227,6 +282,9 @@ describe("Simulation and stage integration", () => {
     expect(state.stage.stageId).toBe("stage-2");
     expect(state.stage.completed).toBe(false);
     expect(state.boss).toBeNull();
+    expect(state.players[0]?.invulnerableFrames).toBe(
+      getCombatRulesForCabinet("easy").initialSpawnInvulnerabilityFrames
+    );
     expect(state.recentEvents).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ type: "stage-cleared", stageId: "stage-1" })
@@ -281,6 +339,38 @@ describe("Simulation and stage integration", () => {
     );
   });
 
+  it("SIM-003 keeps late-stage authored behaviors live instead of leaving them inert", () => {
+    const simulation = new Simulation({ stageId: "stage-2" });
+    let state = simulation.getState();
+
+    while (
+      !state.enemies.some((enemy) => enemy.id === "stage-2-amphibious-heavy-1") &&
+      state.frame < 30
+    ) {
+      state = simulation.step({ players: {} });
+    }
+
+    const startingEnemy = state.enemies.find((enemy) => enemy.id === "stage-2-amphibious-heavy-1");
+    expect(startingEnemy).toBeTruthy();
+
+    const startPosition = { ...startingEnemy!.position };
+    let sawEnemyBullet = false;
+
+    for (let frame = 0; frame < 120; frame += 1) {
+      state = simulation.step({ players: {} });
+      if (state.bullets.some((bullet) => bullet.owner === "enemy")) {
+        sawEnemyBullet = true;
+      }
+    }
+
+    const advancedEnemy = state.enemies.find((enemy) => enemy.id === "stage-2-amphibious-heavy-1");
+    expect(advancedEnemy).toBeTruthy();
+    expect(
+      advancedEnemy!.position.x !== startPosition.x || advancedEnemy!.position.y !== startPosition.y
+    ).toBe(true);
+    expect(sawEnemyBullet).toBe(true);
+  });
+
   it("COOP-001 updates two players inside one simulation state", () => {
     const simulation = new Simulation({ mode: "co-op", stageId: "stage-1" });
     const initial = simulation.getState();
@@ -321,6 +411,7 @@ describe("Simulation and stage integration", () => {
     }
 
     const enemyIds = state.enemies.map((enemy) => enemy.id);
+    clearPlayerInvulnerability(simulation);
     simulation.applyPlayerDamage("player1");
     state = simulation.step({ players: {} });
 
@@ -331,10 +422,13 @@ describe("Simulation and stage integration", () => {
   it("SIM-004 destroyed players ignore movement fire and bomb input", () => {
     const simulation = new Simulation({ stageId: "stage-1" });
 
+    clearPlayerInvulnerability(simulation);
     simulation.applyPlayerDamage("player1");
     burnRespawnInvulnerability(simulation);
+    clearPlayerInvulnerability(simulation);
     simulation.applyPlayerDamage("player1");
     burnRespawnInvulnerability(simulation);
+    clearPlayerInvulnerability(simulation);
     simulation.applyPlayerDamage("player1");
 
     const destroyed = simulation.getState().players.find((entry) => entry.id === "player1");

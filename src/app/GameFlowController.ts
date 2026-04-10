@@ -7,6 +7,7 @@ import type {
 import {
   createDefaultSelectionState,
   ENDING_OVERLAY_FRAMES,
+  type FlowTransitionReason,
   LOOP_TRANSITION_OVERLAY_FRAMES,
   type GameFlowScreen,
   type GameFlowSnapshot,
@@ -20,6 +21,8 @@ export class GameFlowController {
 
   private audioUnlocked = false;
 
+  private lastTransitionReason: FlowTransitionReason = "initial";
+
   private endingFramesRemaining = 0;
 
   private loopTransitionFramesRemaining = 0;
@@ -27,7 +30,7 @@ export class GameFlowController {
   private queuedLoopTransition = false;
 
   beginModeSelect(): void {
-    this.screen = "mode-select";
+    this.setScreen("mode-select", "user-start");
     this.resetTransientOverlays();
   }
 
@@ -36,7 +39,7 @@ export class GameFlowController {
       ...this.selection,
       mode
     };
-    this.screen = "cabinet-select";
+    this.setScreen("cabinet-select", "mode-selected");
   }
 
   selectCabinetProfile(cabinetProfile: CabinetProfile): void {
@@ -59,11 +62,11 @@ export class GameFlowController {
       stageId
     };
     this.resetTransientOverlays();
-    this.screen = "gameplay";
+    this.setScreen("gameplay", "gameplay-started");
   }
 
   returnToTitle(): void {
-    this.screen = "title";
+    this.setScreen("title", "return-to-title");
     this.selection = createDefaultSelectionState();
     this.audioUnlocked = false;
     this.resetTransientOverlays();
@@ -85,7 +88,7 @@ export class GameFlowController {
     }
 
     if (endingStarted) {
-      this.screen = "ending";
+      this.setScreen("ending", "ending");
       this.endingFramesRemaining = ENDING_OVERLAY_FRAMES;
       this.queuedLoopTransition = Boolean(loopAdvanced);
       this.loopTransitionFramesRemaining = 0;
@@ -97,12 +100,12 @@ export class GameFlowController {
     }
 
     if (state.flow === "session-game-over") {
-      this.screen = "game-over";
+      this.setScreen("game-over", "game-over");
       return;
     }
 
     if (state.flow === "continue") {
-      this.screen = "continue";
+      this.setScreen("continue", "continue");
       return;
     }
 
@@ -111,7 +114,10 @@ export class GameFlowController {
       this.screen !== "mode-select" &&
       this.screen !== "cabinet-select"
     ) {
-      this.screen = "gameplay";
+      this.setScreen(
+        "gameplay",
+        this.selection.stageId !== state.session.stageId ? "stage-progressed" : "gameplay-started"
+      );
     }
   }
 
@@ -124,11 +130,11 @@ export class GameFlowController {
       this.endingFramesRemaining = Math.max(0, this.endingFramesRemaining - frames);
       if (this.endingFramesRemaining === 0) {
         if (this.queuedLoopTransition) {
-          this.screen = "loop-transition";
+          this.setScreen("loop-transition", "loop-transition");
           this.loopTransitionFramesRemaining = LOOP_TRANSITION_OVERLAY_FRAMES;
           this.queuedLoopTransition = false;
         } else {
-          this.screen = "title";
+          this.setScreen("title", "ending-complete");
           this.selection = createDefaultSelectionState();
         }
       }
@@ -141,7 +147,7 @@ export class GameFlowController {
         this.loopTransitionFramesRemaining - frames
       );
       if (this.loopTransitionFramesRemaining === 0) {
-        this.screen = "gameplay";
+        this.setScreen("gameplay", "loop-transition-complete");
       }
     }
   }
@@ -161,7 +167,8 @@ export class GameFlowController {
       mode: this.selection.mode,
       cabinetProfile: this.selection.cabinetProfile,
       stageId: this.selection.stageId,
-      audioUnlocked: this.audioUnlocked
+      audioUnlocked: this.audioUnlocked,
+      lastTransitionReason: this.lastTransitionReason
     };
   }
 
@@ -169,5 +176,10 @@ export class GameFlowController {
     this.endingFramesRemaining = 0;
     this.loopTransitionFramesRemaining = 0;
     this.queuedLoopTransition = false;
+  }
+
+  private setScreen(screen: GameFlowScreen, reason: FlowTransitionReason): void {
+    this.screen = screen;
+    this.lastTransitionReason = reason;
   }
 }

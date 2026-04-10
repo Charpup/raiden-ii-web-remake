@@ -92,6 +92,9 @@ describe("Runtime foundation", () => {
     expect(scene.players).toHaveLength(state.players.length);
     expect(scene.enemies).toHaveLength(state.enemies.length);
     expect(scene.stageId).toBe(state.stage.stageId);
+    expect(scene.scrollY).toBe(state.stage.scrollY);
+    expect(scene.backgroundLayers.length).toBeGreaterThan(0);
+    expect(scene.players[0]?.spriteId).toBe("shared.player-ship");
     expect(state).toEqual(frozen);
   });
 
@@ -111,9 +114,14 @@ describe("Runtime foundation", () => {
     const scene = renderer.sync(state);
 
     expect(scene.boss?.id).toBe("stage-1-death-walkers");
+    expect(scene.boss?.spriteId).toBe("shared.boss-walker-body");
     expect(scene.bossParts?.map((part) => part.id)).toEqual([
       "stage-1-walker-left",
       "stage-1-walker-right"
+    ]);
+    expect(scene.bossParts?.map((part) => part.spriteId)).toEqual([
+      "shared.boss-walker-part",
+      "shared.boss-walker-part"
     ]);
   });
 

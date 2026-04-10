@@ -38,7 +38,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             position: { x: 74, y: 92 },
             health: 8,
             scoreValue: 600,
-            behaviorId: "scoutcraft-swoop"
+            behaviorId: "scoutcraft-swoop",
+            behaviorVariantId: "stage1-opening-scout-readable"
           },
           {
             id: "stage-1-opening-scout-2",
@@ -47,7 +48,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             health: 8,
             scoreValue: 600,
             spawnOffsetFrames: 2,
-            behaviorId: "scoutcraft-swoop"
+            behaviorId: "scoutcraft-swoop",
+            behaviorVariantId: "stage1-opening-scout-readable"
           },
           {
             id: "stage-1-opening-scout-3",
@@ -56,7 +58,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             health: 8,
             scoreValue: 600,
             spawnOffsetFrames: 4,
-            behaviorId: "scoutcraft-swoop"
+            behaviorId: "scoutcraft-swoop",
+            behaviorVariantId: "stage1-opening-scout-readable"
           },
           {
             id: "stage-1-opening-scout-4",
@@ -65,7 +68,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             health: 8,
             scoreValue: 600,
             spawnOffsetFrames: 3,
-            behaviorId: "scoutcraft-swoop"
+            behaviorId: "scoutcraft-swoop",
+            behaviorVariantId: "stage1-opening-scout-readable"
           }
         ]
       },
@@ -79,7 +83,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             position: { x: 72, y: 122 },
             health: 16,
             scoreValue: 850,
-            behaviorId: "ground-lane-advance"
+            behaviorId: "ground-lane-advance",
+            behaviorVariantId: "stage1-ground-readable"
           },
           {
             id: "stage-1-farm-tank-right",
@@ -88,7 +93,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             health: 16,
             scoreValue: 850,
             spawnOffsetFrames: 2,
-            behaviorId: "ground-lane-advance"
+            behaviorId: "ground-lane-advance",
+            behaviorVariantId: "stage1-ground-readable"
           },
           {
             id: "stage-1-farm-turret-core",
@@ -97,7 +103,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             health: 24,
             scoreValue: 1_200,
             spawnOffsetFrames: 4,
-            behaviorId: "fixed-aimed-burst"
+            behaviorId: "fixed-aimed-burst",
+            behaviorVariantId: "stage1-fixed-burst-readable"
           }
         ]
       },
@@ -111,7 +118,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             position: { x: 160, y: 84 },
             health: 18,
             scoreValue: 1_500,
-            behaviorId: "carrier-drift"
+            behaviorId: "carrier-drift",
+            behaviorVariantId: "stage1-carrier-readable"
           },
           {
             id: "stage-1-cache-escort-left",
@@ -120,7 +128,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             health: 8,
             scoreValue: 600,
             spawnOffsetFrames: 2,
-            behaviorId: "escort-sweep"
+            behaviorId: "escort-sweep",
+            behaviorVariantId: "stage1-escort-readable"
           },
           {
             id: "stage-1-cache-escort-right",
@@ -129,7 +138,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             health: 8,
             scoreValue: 600,
             spawnOffsetFrames: 4,
-            behaviorId: "escort-sweep"
+            behaviorId: "escort-sweep",
+            behaviorVariantId: "stage1-escort-readable"
           }
         ]
       },
@@ -143,7 +153,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             position: { x: 72, y: 84 },
             health: 22,
             scoreValue: 1_400,
-            behaviorId: "warplane-strafe"
+            behaviorId: "warplane-strafe",
+            behaviorVariantId: "stage1-warplane-readable"
           },
           {
             id: "stage-1-alpha-right",
@@ -152,7 +163,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             health: 22,
             scoreValue: 1_400,
             spawnOffsetFrames: 3,
-            behaviorId: "warplane-strafe"
+            behaviorId: "warplane-strafe",
+            behaviorVariantId: "stage1-warplane-readable"
           },
           {
             id: "stage-1-pincer-scout",
@@ -161,7 +173,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             health: 8,
             scoreValue: 600,
             spawnOffsetFrames: 6,
-            behaviorId: "scoutcraft-swoop"
+            behaviorId: "scoutcraft-swoop",
+            behaviorVariantId: "stage1-opening-scout-readable"
           }
         ]
       },
@@ -175,7 +188,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             position: { x: 160, y: 100 },
             health: 40,
             scoreValue: 2_000,
-            behaviorId: "gunboat-midline"
+            behaviorId: "gunboat-midline",
+            behaviorVariantId: "stage1-gunboat-readable"
           },
           {
             id: "stage-1-swamp-scout-left",
@@ -184,7 +198,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             health: 8,
             scoreValue: 600,
             spawnOffsetFrames: 2,
-            behaviorId: "scoutcraft-swoop"
+            behaviorId: "scoutcraft-swoop",
+            behaviorVariantId: "stage1-opening-scout-readable"
           },
           {
             id: "stage-1-swamp-scout-right",
@@ -193,7 +208,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             health: 8,
             scoreValue: 600,
             spawnOffsetFrames: 4,
-            behaviorId: "scoutcraft-swoop"
+            behaviorId: "scoutcraft-swoop",
+            behaviorVariantId: "stage1-opening-scout-readable"
           },
           {
             id: "stage-1-swamp-turret",
@@ -202,7 +218,8 @@ export const stageCatalog: Record<string, StageDefinition> = {
             health: 26,
             scoreValue: 1_100,
             spawnOffsetFrames: 4,
-            behaviorId: "fixed-aimed-burst"
+            behaviorId: "fixed-aimed-burst",
+            behaviorVariantId: "stage1-fixed-burst-readable"
           }
         ]
       },
@@ -312,6 +329,19 @@ export const stageCatalog: Record<string, StageDefinition> = {
       }
     ],
     hiddenTriggers: [
+      {
+        id: "stage-1-opening-cache-weapon",
+        trigger: {
+          type: "enemy-destroyed",
+          enemyId: "stage-1-cache-carrier"
+        },
+        reward: {
+          pickupId: "stage-1-opening-cache-laser",
+          kind: "main-laser",
+          position: { x: 160, y: 244 },
+          scoreValue: 0
+        }
+      },
       {
         id: "stage-1-hidden-fairy",
         trigger: {
