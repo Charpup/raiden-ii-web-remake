@@ -298,24 +298,41 @@ export class Simulation {
       nextState.boss = stageAdvance.boss;
       events.push(...stageAdvance.events);
 
-      if (stageAdvance.clearedThisFrame && stageAdvance.loopAdvanceEnabled) {
-        nextState.session = {
-          ...nextState.session,
-          loopIndex: nextState.session.loopIndex + 1
-        };
-        events.push({
-          type: "loop-advanced",
-          loopIndex: nextState.session.loopIndex,
-          atFrame: nextState.frame
-        });
+      if (stageAdvance.clearedThisFrame && stageAdvance.clearTransition) {
+        const clearedStageId = nextState.stage.stageId;
+        const nextLoopIndex =
+          nextState.session.loopIndex + (stageAdvance.clearTransition.incrementLoop ? 1 : 0);
 
-        const nextStageId = stageAdvance.loopTargetStageId ?? nextState.session.stageId;
+        if (stageAdvance.clearTransition.incrementLoop) {
+          nextState.session = {
+            ...nextState.session,
+            loopIndex: nextLoopIndex
+          };
+          events.push({
+            type: "loop-advanced",
+            loopIndex: nextLoopIndex,
+            atFrame: nextState.frame
+          });
+        }
+
+        if (stageAdvance.clearTransition.enterEnding) {
+          events.push({
+            type: "ending-started",
+            stageId: clearedStageId,
+            nextStageId: stageAdvance.clearTransition.nextStageId,
+            loopIndex: nextLoopIndex,
+            atFrame: nextState.frame
+          });
+        }
+
+        const nextStageId = stageAdvance.clearTransition.nextStageId;
         const nextBounds = this.stageRunner.getArenaBounds(nextStageId);
         const nextPositions = getStageStartPositions(nextState.session, nextBounds.width);
 
         nextState.session = {
           ...nextState.session,
-          stageId: nextStageId
+          stageId: nextStageId,
+          loopIndex: nextLoopIndex
         };
         nextState.stage = this.stageRunner.createInitialStageState(nextStageId);
         nextState.enemies = [];

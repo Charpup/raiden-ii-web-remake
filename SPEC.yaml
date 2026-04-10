@@ -575,3 +575,67 @@ requirements:
         given: "the authored stage data for cabinet-gated content"
         when: "hard-only waves and reward overrides are inspected"
         then: "the authoring layer still carries those cabinet gates rather than moving them into simulation branches"
+  - id: UIF-001
+    description: "The browser shell exposes an app-layer flow controller for title, session selection, gameplay, continue, game-over, ending, and loop transition without creating a second gameplay authority."
+    priority: high
+    scenarios:
+      - name: "title advances through mode and cabinet selection into gameplay"
+        given: "a new browser-shell flow controller"
+        when: "the user starts from title, picks 1P or 2P, and confirms easy or hard"
+        then: "the shell enters gameplay with a derived session config while simulation remains the gameplay owner"
+      - name: "continue and session game over follow simulation flow"
+        given: "an active gameplay session in the browser shell"
+        when: "simulation reports continue or session-game-over flow"
+        then: "the shell overlays the corresponding continue or game-over state without inventing new gameplay rules"
+      - name: "stage clear can sequence ending and loop transition overlays"
+        given: "the browser shell receives authored stage-cleared and loop-advanced events"
+        when: "the final-stage clear resolves"
+        then: "the shell can enter ending and then loop-transition before returning to gameplay"
+  - id: HUD-001
+    description: "The browser shell derives a HUD projection from simulation state for 1P/2P score, stock, stage, boss, and continue overlays."
+    priority: high
+    scenarios:
+      - name: "hud projection mirrors per-player score and stock"
+        given: "a simulation snapshot with two players"
+        when: "the hud projection is derived"
+        then: "each player slot exposes score, lives, bombs, weapons, and life-state values without mutating simulation"
+      - name: "hud projection surfaces boss health and continue countdowns"
+        given: "a simulation snapshot with an active boss and a continue-pending player"
+        when: "the hud projection is derived"
+        then: "the boss health ratio and per-player continue countdowns are available to the DOM overlay"
+  - id: AST-001
+    description: "The browser shell owns a base-path-safe asset manifest that separates shell, shared gameplay, and per-stage bundle metadata."
+    priority: high
+    scenarios:
+      - name: "asset manifest resolves shell shared and stage bundles"
+        given: "the browser asset manifest"
+        when: "bundle metadata is queried for shell, shared, and stage-specific keys"
+        then: "the correct bundle memberships and asset ids are returned"
+      - name: "asset manifest resolves urls under the static subpath base"
+        given: "the configured /games/raiden-ii/ base path"
+        when: "an asset url is resolved from a relative asset path"
+        then: "the resolved url is normalized under the subpath without double slashes"
+  - id: AUD-101
+    description: "The browser audio playback adapter turns audio-director cues into unlockable browser playback state without owning game rules."
+    priority: high
+    scenarios:
+      - name: "audio playback unlocks on first user interaction"
+        given: "a new browser shell with audio locked"
+        when: "the first pointer or keyboard interaction occurs"
+        then: "the browser audio adapter unlocks and becomes eligible to play cues"
+      - name: "audio playback sync consumes cue frames from the read-only director"
+        given: "an audio frame with bgm and sfx cues"
+        when: "the browser audio playback adapter syncs"
+        then: "it updates playback state without mutating simulation or the director"
+  - id: RNT-001
+    description: "The browser runtime wires the fixed-step clock, captured inputs, simulation, renderer, HUD, and audio playback into a playable shell."
+    priority: high
+    scenarios:
+      - name: "browser shell mount creates gameplay and overlay surfaces"
+        given: "the app root element"
+        when: "the browser shell mounts"
+        then: "a gameplay viewport, HUD layer, and overlay layer exist"
+      - name: "browser runtime tick advances simulation and read-only projections"
+        given: "the browser shell has entered gameplay"
+        when: "host delta time is ticked through the runtime"
+        then: "the clock emits simulation steps and the scene, HUD, and audio projections update from the new snapshot"

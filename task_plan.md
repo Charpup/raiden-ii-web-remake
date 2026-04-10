@@ -42,7 +42,7 @@ Phase 5
 - [x] Implement stage, wave, boss phase, checkpoint, and hidden trigger data systems
 - [x] Author Stage 1-8 content baselines and loop entry
 - [x] Implement cabinet presets and 2P lifecycle rules
-- [ ] Integrate remade audiovisual assets and UI flow
+- [x] Integrate browser runtime shell, UI flow, and placeholder replacement asset/audio manifests
 - **Status:** in_progress
 
 ### Phase 6: Verification & Delivery
@@ -83,7 +83,7 @@ Phase 5
 - Current implementation baseline includes a minimal stage catalog and stage runner, but full arcade-authentic content authoring is still pending.
 - `codex/stage1-golden-slice` has been merged after upgrading Stage 1 from a calibration slice to a macro-authored golden slice with staggered waves, checkpoint recovery drops, and a dual-part boss.
 - The Stage 1-8 full-content tranche is now complete through `codex/stages-5-8-content-loop`, focused on macro authoring plus the smallest schema extensions needed for Stage 6's timed red-crystal route and Stage 8's multi-reward Miclus line.
-- The next active implementation tranche is `codex/ui-assets-flow`, after `codex/2p-and-cabinet` completes the rules-first co-op lifecycle and cabinet session-policy slice.
+- The next active implementation tranche is `codex/release-verification`, after `codex/ui-assets-flow` completes the browser runtime shell, DOM overlays, Pixi gameplay viewport, HUD projection, and placeholder replacement asset/audio manifest slice.
 - Remaining development roadmap is now locked to 3 implementation stages:
   1. Full Content Authoring
   2. 2P + Cabinet + Asset/UI Integration

@@ -300,6 +300,13 @@ export type RuntimeEvent =
       atFrame: number;
     }
   | {
+      type: "ending-started";
+      stageId: string;
+      nextStageId: string;
+      loopIndex: number;
+      atFrame: number;
+    }
+  | {
       type: "loop-advanced";
       loopIndex: number;
       atFrame: number;

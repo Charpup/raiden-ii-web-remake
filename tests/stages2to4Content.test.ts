@@ -131,7 +131,9 @@ describe("Stages 2-4 content authoring", () => {
 
     simulation.applyBossDamage(2_000);
     state = simulation.step({ players: {} });
-    expect(state.stage.completed).toBe(true);
+    expect(state.session.stageId).toBe("stage-3");
+    expect(state.stage.stageId).toBe("stage-3");
+    expect(state.stage.completed).toBe(false);
   });
 
   it("AUTH-201 keeps the Stage 2 late bonus car gated behind the hard cabinet profile", () => {

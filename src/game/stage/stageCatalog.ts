@@ -405,6 +405,9 @@ export const stageCatalog: Record<string, StageDefinition> = {
           patternId: "desperation-flak"
         }
       ]
+    },
+    clearTransition: {
+      nextStageId: "stage-2"
     }
   },
   "stage-2": {
@@ -617,6 +620,9 @@ export const stageCatalog: Record<string, StageDefinition> = {
           patternId: "desperation-rotary"
         }
       ]
+    },
+    clearTransition: {
+      nextStageId: "stage-3"
     }
   },
   "stage-3": {
@@ -874,6 +880,9 @@ export const stageCatalog: Record<string, StageDefinition> = {
           patternId: "exposed-core-spread"
         }
       ]
+    },
+    clearTransition: {
+      nextStageId: "stage-4"
     }
   },
   "stage-4": {
@@ -1214,6 +1223,9 @@ export const stageCatalog: Record<string, StageDefinition> = {
           patternId: "core-storm"
         }
       ]
+    },
+    clearTransition: {
+      nextStageId: "stage-5"
     }
   },
   "stage-5": {
@@ -1475,6 +1487,9 @@ export const stageCatalog: Record<string, StageDefinition> = {
           patternId: "red-form-desperation"
         }
       ]
+    },
+    clearTransition: {
+      nextStageId: "stage-6"
     }
   },
   "stage-6": {
@@ -1736,6 +1751,9 @@ export const stageCatalog: Record<string, StageDefinition> = {
           patternId: "core-rush"
         }
       ]
+    },
+    clearTransition: {
+      nextStageId: "stage-7"
     }
   },
   "stage-7": {
@@ -1994,6 +2012,9 @@ export const stageCatalog: Record<string, StageDefinition> = {
           patternId: "core-collapse"
         }
       ]
+    },
+    clearTransition: {
+      nextStageId: "stage-8"
     }
   },
   "stage-8": {
@@ -2238,9 +2259,10 @@ export const stageCatalog: Record<string, StageDefinition> = {
         }
       ]
     },
-    loopAdvance: {
-      enabled: true,
-      nextStageId: "stage-1"
+    clearTransition: {
+      nextStageId: "stage-1",
+      incrementLoop: true,
+      enterEnding: true
     }
   }
 };

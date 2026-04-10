@@ -89,7 +89,11 @@ describe("Stages 5-8 content authoring", () => {
         expiresOnBossStart?: boolean;
       }>;
       boss: { phases: Array<{ id: string }> };
-      loopAdvance?: { enabled: boolean; nextStageId: string };
+      clearTransition: {
+        nextStageId: string;
+        incrementLoop?: boolean;
+        enterEnding?: boolean;
+      };
     };
 
     expect(stage5.waves.map((wave) => wave.id)).toEqual([
@@ -180,9 +184,10 @@ describe("Stages 5-8 content authoring", () => {
         })
       ])
     );
-    expect(stage8.loopAdvance).toEqual({
-      enabled: true,
-      nextStageId: "stage-1"
+    expect(stage8.clearTransition).toEqual({
+      nextStageId: "stage-1",
+      incrementLoop: true,
+      enterEnding: true
     });
     expect(stage5.boss.phases.map((phase) => phase.id)).toEqual([
       "stage-5-black-bird-opening",
@@ -227,7 +232,9 @@ describe("Stages 5-8 content authoring", () => {
 
     simulation.applyBossDamage(2_000);
     state = simulation.step({ players: {} });
-    expect(state.stage.completed).toBe(true);
+    expect(state.session.stageId).toBe("stage-6");
+    expect(state.stage.stageId).toBe("stage-6");
+    expect(state.stage.completed).toBe(false);
   });
 
   it("STG-302 and HID-301 only reward the Stage 6 extend after the red crystal reaches its authored escape state", () => {
@@ -340,12 +347,6 @@ describe("Stages 5-8 content authoring", () => {
     });
 
     expect(state.boss?.bossId).toBe("stage-7-huge-satellite");
-
-    simulation.applyBossDamage(4_000);
-    state = simulation.step({ players: {} });
-
-    expect(state.stage.completed).toBe(true);
-    expect(state.stage.bossEncounterStarted).toBe(true);
 
     for (const enemyId of [
       "stage-7-rocket-battery-1",

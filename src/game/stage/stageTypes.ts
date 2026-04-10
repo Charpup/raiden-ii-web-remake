@@ -121,6 +121,12 @@ export interface BossDefinition {
   parts?: BossPartDefinition[];
 }
 
+export interface StageClearTransitionDefinition {
+  nextStageId: string;
+  incrementLoop?: boolean;
+  enterEnding?: boolean;
+}
+
 export interface DifficultyTuning {
   enemyHealthMultiplier: number;
   bossHealthMultiplier: number;
@@ -144,8 +150,5 @@ export interface StageDefinition {
   boss: BossDefinition | null;
   difficulty: Record<CabinetProfile, DifficultyTuning>;
   loopTuning: LoopTuning;
-  loopAdvance?: {
-    enabled: boolean;
-    nextStageId: string;
-  };
+  clearTransition: StageClearTransitionDefinition;
 }
