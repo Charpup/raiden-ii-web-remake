@@ -1,26 +1,27 @@
 {
-  "spec_id": "CRD-101",
+  "spec_id": "AST-201R",
   "phase": "green",
   "red_evidence": {
-    "timestamp": "2026-04-10T16:16:00+08:00",
-    "test_command": "npm run test:run -- tests/stage1PrototypePlayability.test.ts tests/runtimeShell.dom.test.ts",
-    "tests_total": 15,
-    "tests_failed": 3,
-    "output_snapshot": "FAIL stage1PrototypePlayability.test.ts > CRD-101 and CRD-102 opened continue during the first 1800 frames; FAIL runtimeShell.dom.test.ts > RNT-101 left gameplay during the opening browser window"
+    "timestamp": "2026-04-10T20:05:45+08:00",
+    "test_command": "npm run test:run -- tests/assetManifest.test.ts tests/replacementAssetManifest.test.ts tests/replacementAssetValidation.test.ts tests/replacementAssetAdapters.test.ts tests/uiFlowState.test.ts tests/runtimeShell.dom.test.ts",
+    "tests_total": 27,
+    "tests_failed": 14,
+    "output_snapshot": "FAIL AST-201R missing requiredReplacementTextureIds; FAIL UIF-001 beginAssetLoading is not a function; FAIL AST-202R validator script missing; FAIL REG-201R resolvePixiTextureSource is not a function; FAIL RNT-201R cabinet selection still jumps directly to gameplay"
   },
   "green_evidence": {
-    "timestamp": "2026-04-10T18:15:06+08:00",
+    "timestamp": "2026-04-10T20:11:47+08:00",
     "test_command": "npm run test:run",
-    "tests_total": 99,
-    "tests_passed": 99
+    "tests_total": 110,
+    "tests_passed": 110
   },
   "coverage": {
-    "percentage": 82.49,
+    "percentage": 81.2,
     "meets_threshold": true
   },
   "notes": [
-    "Sprint 1 Combat Readability now has explicit acceptance coverage for active-pilot survivability, swamp-pressure progression, readable hit/explosion/pickup feedback, and a long-window browser-runtime proof of life.",
-    "Reviewer-driven follow-up fixes restored baseline player fire cadence, added stage-start invulnerability as an explicit combat rule, and filled missing late-stage enemy behavior profiles so Sprint 1 tuning does not leak regressions into later stages.",
-    "Production-preview opening signoff now passes with a stable dedicated Playwright harness, a preview-only debug hook, and a default Canvas2D scene adapter that keeps the shell alive while the Pixi attach path remains deferred."
+    "Sprint 2 now enforces a Stage 1 replacement-asset contract through asset-loading and asset-error flow states before gameplay starts.",
+    "Canvas2D, Pixi, and browser audio now honor replacement-first semantics while preserving simulation as the only gameplay authority.",
+    "The local validation gate is active via npm run validate:replacement-assets, and the committed Stage 1 replacement PNG/OGG set is now present under public/assets/replacement/.",
+    "Manual Sprint 2 preview was accepted as pass with non-blocking quality issues: low art precision, missing control onboarding, short Stage 1 route, and a boss safe spot."
   ]
 }

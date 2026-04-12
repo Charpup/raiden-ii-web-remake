@@ -23,4 +23,48 @@ describe("Asset manifest", () => {
       "/games/raiden-ii/assets/audio/sfx/fire.wav"
     );
   });
+
+  it("AST-201R exposes the required replacement Stage 1 asset inventory through the stage bundle and manifest helpers", () => {
+    const manifest = createAssetManifest("/games/raiden-ii/");
+    const stage1Bundle = manifest.getStageBundle("stage-1");
+
+    expect(stage1Bundle.requiredReplacementTextureIds).toEqual([
+      "stage-1.backdrop-sky",
+      "stage-1.backdrop-terrain",
+      "shared.player-ship",
+      "shared.enemy-scout",
+      "shared.enemy-warplane",
+      "shared.enemy-ground",
+      "shared.enemy-turret",
+      "shared.enemy-carrier",
+      "shared.enemy-gunboat",
+      "shared.enemy-scenery",
+      "shared.pickup-medal",
+      "shared.pickup-fairy",
+      "shared.pickup-weapon",
+      "shared.pickup-bomb",
+      "shared.pickup-extend",
+      "shared.boss-walker-body",
+      "shared.boss-walker-part",
+      "shared.player-bullet",
+      "shared.enemy-bullet",
+      "shared.effect-hit",
+      "shared.effect-explosion",
+      "shared.effect-respawn"
+    ]);
+    expect(stage1Bundle.requiredReplacementAudioCueIds).toEqual([
+      "bgm-stage-1",
+      "sfx-player1-fire",
+      "sfx-player1-bomb",
+      "sfx-player-hit",
+      "sfx-player-respawn",
+      "sfx-enemy-destroyed"
+    ]);
+    expect(manifest.getRequiredReplacementTextureAssets("stage-1").map((asset) => asset.id)).toEqual(
+      stage1Bundle.requiredReplacementTextureIds
+    );
+    expect(manifest.getRequiredReplacementAudioCues("stage-1").map((cue) => cue.id)).toEqual(
+      stage1Bundle.requiredReplacementAudioCueIds
+    );
+  });
 });

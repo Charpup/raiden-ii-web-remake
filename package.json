@@ -8,6 +8,7 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "signoff:sprint1-preview": "node scripts/sprint1-preview-signoff.mjs",
+    "validate:replacement-assets": "node scripts/validate-replacement-assets.mjs",
     "test": "vitest",
     "test:run": "vitest run",
     "coverage": "vitest run --coverage"

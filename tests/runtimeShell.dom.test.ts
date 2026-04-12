@@ -48,6 +48,200 @@ class FakeAudioPlaybackAdapter {
   destroy(): void {}
 }
 
+type FakeAssetLoadState = {
+  state: "idle" | "loading" | "ready" | "error";
+  stageId: string | null;
+  missingCount: number;
+  missingAssets: Array<{ kind: "texture" | "audio"; id: string; path: string }>;
+  loadedTextureIds: string[];
+  loadedAudioCueIds: string[];
+};
+
+type FakeAssetLoadResult = {
+  ok: boolean;
+  missingAssets: FakeAssetLoadState["missingAssets"];
+};
+
+class FakeAssetPackStore {
+  private readonly mode: "success" | "error" | "reject";
+
+  private readonly missingAssets: Array<{ kind: "texture" | "audio"; id: string; path: string }>;
+
+  private loadState: FakeAssetLoadState = {
+    state: "idle",
+    stageId: null,
+    missingCount: 0,
+    missingAssets: [],
+    loadedTextureIds: [],
+    loadedAudioCueIds: []
+  };
+
+  constructor(
+    mode: "success" | "error" | "reject" = "success",
+    missingAssets: Array<{ kind: "texture" | "audio"; id: string; path: string }> = [
+      {
+        kind: "texture",
+        id: "shared.player-ship",
+        path: "assets/replacement/gameplay/player-ship.png"
+      }
+    ]
+  ) {
+    this.mode = mode;
+    this.missingAssets = missingAssets;
+  }
+
+  async ensureStageBundle(stageId: string): Promise<FakeAssetLoadResult> {
+    this.loadState = {
+      state: "loading",
+      stageId,
+      missingCount: 0,
+      missingAssets: [],
+      loadedTextureIds: [],
+      loadedAudioCueIds: []
+    };
+
+    await Promise.resolve();
+
+    if (this.mode === "error") {
+      this.loadState = {
+        state: "error",
+        stageId,
+        missingCount: this.missingAssets.length,
+        missingAssets: this.missingAssets,
+        loadedTextureIds: [],
+        loadedAudioCueIds: []
+      };
+      return { ok: false, missingAssets: this.missingAssets };
+    }
+
+    if (this.mode === "reject") {
+      this.loadState = {
+        state: "error",
+        stageId,
+        missingCount: this.missingAssets.length,
+        missingAssets: this.missingAssets,
+        loadedTextureIds: [],
+        loadedAudioCueIds: []
+      };
+      throw new Error("Replacement asset preload failed");
+    }
+
+    this.loadState = {
+      state: "ready",
+      stageId,
+      missingCount: 0,
+      missingAssets: [],
+      loadedTextureIds: [],
+      loadedAudioCueIds: []
+    };
+    return { ok: true, missingAssets: [] };
+  }
+
+  getImage(): HTMLImageElement | null {
+    return null;
+  }
+
+  getAudioBuffer(): AudioBuffer | null {
+    return null;
+  }
+
+  getMissingAssets(): FakeAssetLoadState["missingAssets"] {
+    return this.loadState.missingAssets;
+  }
+
+  getLoadState(): FakeAssetLoadState {
+    return this.loadState;
+  }
+
+  reset(): void {
+    this.loadState = {
+      state: "idle",
+      stageId: null,
+      missingCount: 0,
+      missingAssets: [],
+      loadedTextureIds: [],
+      loadedAudioCueIds: []
+    };
+  }
+}
+
+class DeferredAssetPackStore {
+  private loadState: FakeAssetLoadState = {
+    state: "idle",
+    stageId: null,
+    missingCount: 0,
+    missingAssets: [],
+    loadedTextureIds: [],
+    loadedAudioCueIds: []
+  };
+
+  private resolveLoad: ((result: FakeAssetLoadResult) => void) | null = null;
+
+  ensureStageBundle(stageId: string): Promise<FakeAssetLoadResult> {
+    this.loadState = {
+      state: "loading",
+      stageId,
+      missingCount: 0,
+      missingAssets: [],
+      loadedTextureIds: [],
+      loadedAudioCueIds: []
+    };
+
+    const loadPromise = new Promise<FakeAssetLoadResult>((resolve) => {
+      this.resolveLoad = resolve;
+    }).then((result) => {
+      this.loadState = {
+        state: result.ok ? "ready" : "error",
+        stageId,
+        missingCount: result.missingAssets.length,
+        missingAssets: result.missingAssets,
+        loadedTextureIds: result.ok ? ["shared.player-ship"] : [],
+        loadedAudioCueIds: result.ok ? ["bgm-stage-1"] : []
+      };
+      return result;
+    });
+
+    return loadPromise;
+  }
+
+  resolveSuccess(): void {
+    this.resolveLoad?.({ ok: true, missingAssets: [] });
+    this.resolveLoad = null;
+  }
+
+  getImage(): HTMLImageElement | null {
+    return null;
+  }
+
+  getAudioBuffer(): AudioBuffer | null {
+    return null;
+  }
+
+  getMissingAssets(): FakeAssetLoadState["missingAssets"] {
+    return this.loadState.missingAssets;
+  }
+
+  getLoadState(): FakeAssetLoadState {
+    return this.loadState;
+  }
+
+  reset(): void {
+    this.loadState = {
+      state: "idle",
+      stageId: null,
+      missingCount: 0,
+      missingAssets: [],
+      loadedTextureIds: [],
+      loadedAudioCueIds: []
+    };
+  }
+}
+
+async function flushAsyncWork(): Promise<void> {
+  await Promise.resolve();
+  await Promise.resolve();
+}
+
 function activePilotKeysForFrame(frame: number): Set<string> {
   const horizontalSway = Math.sin(frame / 40);
   const keys = new Set<string>(["KeyZ"]);
@@ -239,7 +433,8 @@ describe("Browser shell DOM runtime", () => {
 
     const app = await createRaidenApp(root, {
       sceneAdapterFactory: async () => new FakeSceneAdapter(),
-      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter()
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter(),
+      assetPackStore: new FakeAssetPackStore()
     });
 
     expect(root.querySelector("[data-role='gameplay-viewport']")).not.toBeNull();
@@ -259,7 +454,8 @@ describe("Browser shell DOM runtime", () => {
     const fakeAudio = new FakeAudioPlaybackAdapter();
     const app = await createRaidenApp(root, {
       sceneAdapterFactory: async () => fakeScene,
-      audioPlaybackFactory: () => fakeAudio
+      audioPlaybackFactory: () => fakeAudio,
+      assetPackStore: new FakeAssetPackStore()
     });
 
     root.dispatchEvent(new Event("pointerdown", { bubbles: true }));
@@ -267,6 +463,9 @@ describe("Browser shell DOM runtime", () => {
     (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='mode-co-op']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='cabinet-hard']") as HTMLButtonElement).click();
+    expect(root.getAttribute("data-flow")).toBe("asset-loading");
+
+    await flushAsyncWork();
 
     expect(root.getAttribute("data-flow")).toBe("gameplay");
 
@@ -281,6 +480,147 @@ describe("Browser shell DOM runtime", () => {
     app.destroy();
   });
 
+  it("RNT-201 enters asset-loading before starting gameplay and reports ready asset-load state when the Stage 1 pack is available", async () => {
+    const root = document.querySelector<HTMLDivElement>("#app");
+    if (!root) {
+      throw new Error("Missing app root");
+    }
+
+    const app = await createRaidenApp(root, {
+      sceneAdapterFactory: async () => new FakeSceneAdapter(),
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter(),
+      assetPackStore: new FakeAssetPackStore("success")
+    });
+
+    (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+
+    expect(root.getAttribute("data-flow")).toBe("asset-loading");
+    expect(app.runtime.getSnapshot().assetLoad.state).toBe("loading");
+
+    await flushAsyncWork();
+
+    expect(root.getAttribute("data-flow")).toBe("gameplay");
+    expect(app.runtime.getSnapshot().assetLoad.state).toBe("ready");
+    expect(app.runtime.getSnapshot().assetLoad.stageId).toBe("stage-1");
+
+    app.destroy();
+  });
+
+  it("RNT-202 shows asset-error with missing items and never enters gameplay when the Stage 1 pack is incomplete", async () => {
+    const root = document.querySelector<HTMLDivElement>("#app");
+    if (!root) {
+      throw new Error("Missing app root");
+    }
+
+    const missingAssets = [
+      {
+        kind: "texture" as const,
+        id: "shared.player-ship",
+        path: "assets/replacement/gameplay/player-ship.png"
+      },
+      {
+        kind: "audio" as const,
+        id: "bgm-stage-1",
+        path: "assets/replacement/audio/bgm-stage-1.ogg"
+      }
+    ];
+
+    const app = await createRaidenApp(root, {
+      sceneAdapterFactory: async () => new FakeSceneAdapter(),
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter(),
+      assetPackStore: new FakeAssetPackStore("error", missingAssets)
+    });
+
+    (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+
+    expect(root.getAttribute("data-flow")).toBe("asset-loading");
+
+    await flushAsyncWork();
+
+    const snapshot = app.runtime.getSnapshot();
+    expect(root.getAttribute("data-flow")).toBe("asset-error");
+    expect(snapshot.flow.screen).toBe("asset-error");
+    expect(snapshot.assetLoad.state).toBe("error");
+    expect(snapshot.assetLoad.missingAssets).toEqual(missingAssets);
+    expect(snapshot.scene).toBeNull();
+    expect(root.textContent).toContain("shared.player-ship");
+    expect(root.textContent).toContain("bgm-stage-1");
+
+    (root.querySelector("[data-action='return-title']") as HTMLButtonElement).click();
+    expect(root.getAttribute("data-flow")).toBe("title");
+
+    app.destroy();
+  });
+
+  it("RNT-202 falls back to asset-error when replacement asset preload rejects", async () => {
+    const root = document.querySelector<HTMLDivElement>("#app");
+    if (!root) {
+      throw new Error("Missing app root");
+    }
+
+    const fakeScene = new FakeSceneAdapter();
+    const app = await createRaidenApp(root, {
+      sceneAdapterFactory: async () => fakeScene,
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter(),
+      assetPackStore: new FakeAssetPackStore("reject")
+    });
+
+    (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+
+    expect(root.getAttribute("data-flow")).toBe("asset-loading");
+
+    await flushAsyncWork();
+
+    const snapshot = app.runtime.getSnapshot();
+    expect(root.getAttribute("data-flow")).toBe("asset-error");
+    expect(snapshot.flow.screen).toBe("asset-error");
+    expect(snapshot.scene).toBeNull();
+    expect(fakeScene.syncedScenes).toHaveLength(0);
+
+    app.destroy();
+  });
+
+  it("RNT-202 cancels pending asset preload launches when the runtime is destroyed", async () => {
+    const root = document.querySelector<HTMLDivElement>("#app");
+    if (!root) {
+      throw new Error("Missing app root");
+    }
+
+    const fakeScene = new FakeSceneAdapter();
+    const fakeAudio = new FakeAudioPlaybackAdapter();
+    const assetPackStore = new DeferredAssetPackStore();
+    const app = await createRaidenApp(root, {
+      sceneAdapterFactory: async () => fakeScene,
+      audioPlaybackFactory: () => fakeAudio,
+      assetPackStore
+    });
+
+    (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+
+    expect(root.getAttribute("data-flow")).toBe("asset-loading");
+    const audioSyncsBeforeResolve = fakeAudio.syncedFrames.length;
+
+    app.destroy();
+    assetPackStore.resolveSuccess();
+    await flushAsyncWork();
+
+    expect(root.getAttribute("data-flow")).toBe("asset-loading");
+    expect(app.runtime.getSnapshot().flow.screen).toBe("asset-loading");
+    expect(app.runtime.getSnapshot().scene).toBeNull();
+    expect(fakeScene.syncedScenes).toHaveLength(0);
+    expect(fakeAudio.syncedFrames).toHaveLength(audioSyncsBeforeResolve);
+
+    app.destroy();
+  });
+
   it("RNT-001 clears audio and HUD state when returning to title", async () => {
     const root = document.querySelector<HTMLDivElement>("#app");
     if (!root) {
@@ -291,13 +631,15 @@ describe("Browser shell DOM runtime", () => {
     const fakeAudio = new FakeAudioPlaybackAdapter();
     const app = await createRaidenApp(root, {
       sceneAdapterFactory: async () => fakeScene,
-      audioPlaybackFactory: () => fakeAudio
+      audioPlaybackFactory: () => fakeAudio,
+      assetPackStore: new FakeAssetPackStore()
     });
 
     root.dispatchEvent(new Event("pointerdown", { bubbles: true }));
     (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='mode-co-op']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='cabinet-hard']") as HTMLButtonElement).click();
+    await flushAsyncWork();
     app.runtime.tickHostDelta(50);
 
     expect(root.querySelector("[data-role='player2-stock']")?.textContent).toContain("Lives");
@@ -326,7 +668,8 @@ describe("Browser shell DOM runtime", () => {
     const fakeScene = new FakeSceneAdapter();
     const app = await createRaidenApp(root, {
       sceneAdapterFactory: async () => fakeScene,
-      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter()
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter(),
+      assetPackStore: new FakeAssetPackStore()
     });
 
     window.dispatchEvent(new KeyboardEvent("keydown", { code: "ArrowRight" }));
@@ -336,6 +679,7 @@ describe("Browser shell DOM runtime", () => {
     (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+    await flushAsyncWork();
 
     const startScene = fakeScene.syncedScenes.at(-1);
     const startX = startScene?.players[0]?.x;
@@ -356,13 +700,15 @@ describe("Browser shell DOM runtime", () => {
 
     const app = await createRaidenApp(root, {
       sceneAdapterFactory: async () => new FakeSceneAdapter(),
-      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter()
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter(),
+      assetPackStore: new FakeAssetPackStore()
     });
 
     root.dispatchEvent(new Event("pointerdown", { bubbles: true }));
     (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+    await flushAsyncWork();
 
     const runtimeInternals = app.runtime as unknown as {
       clock: { tick(deltaMs: number): { steps: number[] } };
@@ -416,13 +762,15 @@ describe("Browser shell DOM runtime", () => {
 
     const app = await createRaidenApp(root, {
       sceneAdapterFactory: async () => new FakeSceneAdapter(),
-      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter()
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter(),
+      assetPackStore: new FakeAssetPackStore()
     });
 
     root.dispatchEvent(new Event("pointerdown", { bubbles: true }));
     (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+    await flushAsyncWork();
 
     const runtimeInternals = app.runtime as unknown as {
       clock: { tick(deltaMs: number): { steps: number[] } };
@@ -500,13 +848,15 @@ describe("Browser shell DOM runtime", () => {
 
     const app = await createRaidenApp(root, {
       sceneAdapterFactory: async () => new FakeSceneAdapter(),
-      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter()
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter(),
+      assetPackStore: new FakeAssetPackStore()
     });
 
     root.dispatchEvent(new Event("pointerdown", { bubbles: true }));
     (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+    await flushAsyncWork();
 
     const runtimeInternals = app.runtime as unknown as {
       clock: { tick(deltaMs: number): { steps: number[] } };
@@ -566,7 +916,8 @@ describe("Browser shell DOM runtime", () => {
     const fakeScene = new FakeSceneAdapter();
     const app = await createRaidenApp(root, {
       sceneAdapterFactory: async () => fakeScene,
-      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter()
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter(),
+      assetPackStore: new FakeAssetPackStore()
     });
 
     const heldKeys = new Set<string>();
@@ -574,6 +925,7 @@ describe("Browser shell DOM runtime", () => {
     (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+    await flushAsyncWork();
 
     for (let frame = 0; frame < 1800; frame += 1) {
       syncHeldKeys(heldKeys, activePilotKeysForFrame(frame));
@@ -615,13 +967,15 @@ describe("Browser shell DOM runtime", () => {
     const fakeScene = new FakeSceneAdapter();
     const app = await createRaidenApp(root, {
       sceneAdapterFactory: async () => fakeScene,
-      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter()
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter(),
+      assetPackStore: new FakeAssetPackStore()
     });
 
     root.dispatchEvent(new Event("pointerdown", { bubbles: true }));
     (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
     (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+    await flushAsyncWork();
 
     for (let frame = 0; frame < 240; frame += 1) {
       syncHeldKeys(new Set<string>(), new Set<string>());

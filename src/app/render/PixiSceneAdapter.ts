@@ -14,6 +14,7 @@ import {
   createAssetManifest,
   type AssetManifest
 } from "../assets/assetManifest";
+import type { ReplacementAssetStore } from "../assets/ReplacementAssetStore";
 import { computeViewportFit } from "../runtime/viewportLayout";
 
 export interface SceneAdapter {
@@ -25,6 +26,18 @@ export interface SceneAdapter {
 
 const WORLD_WIDTH = 320;
 const WORLD_HEIGHT = 568;
+
+export function resolvePixiTextureSource(
+  assetId: string,
+  assetManifest: AssetManifest,
+  assetPackStore?: Pick<ReplacementAssetStore, "getImage">
+): string | HTMLImageElement {
+  return (
+    assetPackStore?.getImage(assetId) ??
+    assetManifest.resolveTextureCandidates(assetId)[0] ??
+    assetManifest.resolveUrl(assetId)
+  );
+}
 
 function destroyRemovedEntries<TDisplayObject extends { destroy(): void }>(
   registry: Map<string, TDisplayObject>,
@@ -45,6 +58,8 @@ export class PixiSceneAdapter implements SceneAdapter {
 
   private readonly assetManifest: AssetManifest;
 
+  private readonly assetPackStore?: Pick<ReplacementAssetStore, "getImage">;
+
   private readonly worldRoot = new Container();
 
   private readonly backgroundLayer = new Container();
@@ -59,8 +74,12 @@ export class PixiSceneAdapter implements SceneAdapter {
 
   private attached = false;
 
-  constructor(assetManifest: AssetManifest = createAssetManifest()) {
+  constructor(
+    assetManifest: AssetManifest = createAssetManifest(),
+    assetPackStore?: Pick<ReplacementAssetStore, "getImage">
+  ) {
     this.assetManifest = assetManifest;
+    this.assetPackStore = assetPackStore;
   }
 
   async attach(host: HTMLElement): Promise<void> {
@@ -192,7 +211,7 @@ export class PixiSceneAdapter implements SceneAdapter {
   private getTexture(assetId: string): Texture {
     let texture = this.textureCache.get(assetId);
     if (!texture) {
-      texture = Texture.from(this.assetManifest.resolveUrl(assetId));
+      texture = Texture.from(resolvePixiTextureSource(assetId, this.assetManifest, this.assetPackStore));
       this.textureCache.set(assetId, texture);
     }
     return texture;

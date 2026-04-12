@@ -5,7 +5,7 @@ Turn the current rules/runtime foundation into a **desktop-first, privately play
 
 ## North Star
 - Ship a **1P Solo + Easy** browser prototype that feels alive, readable, and intentionally arcade-like.
-- Use a **private Stage 1 asset pack first** so the prototype stops reading like fallback blocks plus synthetic placeholder audio.
+- Use a **repo-tracked Stage 1 replacement asset set first** so the prototype stops reading like fallback blocks plus synthetic placeholder audio.
 - Expand scope only after one convincing Stage 1 boss-clear loop exists.
 
 ## Current Baseline
@@ -29,13 +29,14 @@ Turn the current rules/runtime foundation into a **desktop-first, privately play
 - **Exit bar:** a human can enter Stage 1 and survive the opening without the slice feeling broken or unfair.
 - **Status:** complete
 
-### Sprint 2: Private Asset Pack Integration
-- [ ] Make the Stage 1 core bundle private-pack-first instead of fallback-first.
-- [ ] Wire real prototype assets for player, common enemies, bullets, pickups, explosions, background, boss, BGM, and essential SFX.
-- [ ] Add fail-fast validation so missing mandatory prototype assets surface explicit errors.
-- [ ] Keep the abstraction boundary intact so a future public-safe asset swap remains possible.
+### Sprint 2: Replacement Asset Integration
+- [x] Make the Stage 1 core bundle replacement-first instead of fallback-first.
+- [x] Wire repo-tracked replacement assets for player, common enemies, bullets, pickups, explosions, background, boss, BGM, and essential SFX.
+- [x] Add fail-fast validation so missing mandatory replacement assets surface explicit errors.
+- [x] Keep the abstraction boundary intact so a future public-safe asset swap remains possible.
 - **Exit bar:** the slice no longer reads as placeholder blocks plus synthetic drone audio.
-- **Status:** pending
+- **Status:** complete
+- **Acceptance note:** accepted as `pass with non-blocking quality issues`: art precision remains low, control onboarding is missing, the Stage 1 route is too short, and the current boss pattern has a safe spot.
 
 ### Sprint 3: Stage 1 Boss-Clear Vertical Slice
 - [ ] Complete the full `1P Solo + Easy` Stage 1 flow from title to boss clear.
@@ -54,28 +55,30 @@ Turn the current rules/runtime foundation into a **desktop-first, privately play
 - **Status:** pending
 
 ## Immediate Next Steps
-1. Expand Sprint 2 into a detailed private-asset-pack implementation plan under `TriadDev Extended`.
-2. Switch the Stage 1 core bundle from fallback-first to private-pack-first while keeping the current runtime shell and combat readability gains intact.
-3. Add fail-fast validation for missing mandatory prototype assets before moving deeper into boss-clear-slice work.
+1. Open the Sprint 2 PR from `codex/replacement-asset-pack` with the manual acceptance note and automated gate results.
+2. Review and refine `docs/GDD.md` before implementation work resumes.
+3. Use the GDD to split Sprint 3 into `controls-onboarding-pass`, `stage1-route-expansion-pass`, `boss-pattern-pass`, and `art-cohesion-pass`.
+4. Start Sprint 3 implementation only after the GDD direction is locked.
 
 ## Scope Rules
 | Scope | Decision |
 |-------|----------|
 | Primary milestone path | `1P Solo + Easy` |
 | Platform priority | Desktop browser first |
-| Asset strategy | Private Stage 1 prototype pack first |
+| Asset strategy | Repo-tracked Stage 1 replacement assets first |
 | In scope now | Stage 1 from title to boss clear |
 | Secondary compatibility scope | 2P and hard cabinet remain regression-preserved |
 | Out of scope now | Full campaign polish, public-safe packaging, host deployment readiness |
 
 ## Risks To Track
-1. Private asset-pack integration may become the real bottleneck if the manifest stays fallback-first too long.
-2. The current Stage 1 opening is now signed off in preview, but later Stage 1 beats still need the same level of browser-level validation before boss-clear claims are credible.
-3. Browser smoke is now a first-class acceptance signal and must keep pace with the deterministic suite as Sprint 2 and Sprint 3 widen the slice.
+1. Replacement-asset integration may become the real bottleneck if the manifest stays fallback-first too long or the committed Stage 1 art/audio set drifts out of sync with the manifest.
+2. Current replacement assets prove the pipeline but still need an art-cohesion pass before the slice feels polished.
+3. The current Stage 1 opening is now signed off in preview, but later Stage 1 beats still need browser-level validation before boss-clear claims are credible.
+4. Browser smoke is now a first-class acceptance signal and must keep pace with the deterministic suite as Sprint 3 widens the slice.
 
 ## Decisions Locked
 | Decision | Rationale |
 |----------|-----------|
 | Stage 1 boss clear before anything larger | A believable vertical slice is more valuable than a broad but dead remake shell. |
-| Private asset pack first | The prototype must look and sound alive before more system scope is added. |
+| Replacement asset pack first | The prototype must look and sound alive before more system scope is added. |
 | Simulation remains authoritative | Product quality should rise by improving presentation and tuning, not by moving rules into the renderer or browser shell. |

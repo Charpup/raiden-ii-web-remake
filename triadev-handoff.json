@@ -2,7 +2,7 @@
   "version": "1.1.0",
   "project": "raiden-ii-stage1-playable-prototype",
   "route": "extended",
-  "current_phase": "private-asset-pack",
+  "current_phase": "replacement-asset-pack",
   "planning": {
     "status": "locked",
     "files": [
@@ -18,8 +18,8 @@
         "dependencies": []
       },
       {
-        "id": "private-asset-pack",
-        "name": "Integrate the mandatory Stage 1 private prototype asset pack into the manifest, renderer, and audio pipeline",
+        "id": "replacement-asset-pack",
+        "name": "Integrate the mandatory Stage 1 repo-tracked replacement asset set into the manifest, renderer, and audio pipeline",
         "complexity": 9,
         "dependencies": [
           "combat-readability"
@@ -30,7 +30,7 @@
         "name": "Complete the single-player Stage 1 boss-clear vertical slice with readable boss, checkpoint, hidden, and clear flow",
         "complexity": 10,
         "dependencies": [
-          "private-asset-pack"
+          "replacement-asset-pack"
         ]
       },
       {
@@ -50,7 +50,7 @@
         "combat-readability"
       ],
       [
-        "private-asset-pack"
+        "replacement-asset-pack"
       ],
       [
         "boss-clear-slice"
@@ -63,10 +63,11 @@
   "implementation": {
     "status": "in_progress",
     "completed": [
-      "combat-readability"
+      "combat-readability",
+      "replacement-asset-pack"
     ],
-    "current": "private-asset-pack",
-    "next": "boss-clear-slice",
+    "current": "boss-clear-slice",
+    "next": "prototype-hardening",
     "spec_path": "SPEC.yaml",
     "tdd_state_path": ".tdd-state.json"
   }

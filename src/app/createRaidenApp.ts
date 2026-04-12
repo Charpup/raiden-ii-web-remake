@@ -73,7 +73,7 @@ export async function createRaidenApp(
     onSelectMode: (mode) => runtime.selectMode(mode),
     onSelectCabinet: (profile) => {
       runtime.selectCabinetProfile(profile);
-      runtime.startGameplay();
+      void runtime.startGameplay();
     },
     onAcceptContinue: (playerId) => runtime.acceptContinue(playerId),
     onJoinPlayer: (playerId) => runtime.joinPlayer(playerId),
