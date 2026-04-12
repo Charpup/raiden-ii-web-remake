@@ -1,27 +1,27 @@
 {
-  "spec_id": "ONB-301",
+  "spec_id": "ACO-301",
   "phase": "complete",
   "red_evidence": {
-    "timestamp": "2026-04-12T21:43:42+08:00",
-    "test_command": "npm run test:run -- tests/runtimeShell.dom.test.ts",
-    "tests_total": 15,
-    "tests_failed": 2,
-    "output_snapshot": "FAIL ONB-301 expected null not to be null; FAIL ONB-302 expected null not to be null for [data-role='controls-legend']"
+    "timestamp": "2026-04-12T23:50:42+08:00",
+    "test_command": "npm run test:run -- tests/assetManifest.test.ts tests/replacementAssetAdapters.test.ts",
+    "tests_total": 8,
+    "tests_failed": 3,
+    "output_snapshot": "FAIL ACO-301 missing texture anchor metadata; FAIL ACO-303 expected stage-1.backdrop-terrain height 568 but received 192; FAIL ACO-302 computeAnchoredDrawRect is not a function"
   },
   "green_evidence": {
-    "timestamp": "2026-04-12T21:45:05+08:00",
+    "timestamp": "2026-04-12T23:54:03+08:00",
     "test_command": "npm run test:run",
-    "tests_total": 114,
-    "tests_passed": 114
+    "tests_total": 117,
+    "tests_passed": 117
   },
   "coverage": {
-    "timestamp": "2026-04-12T21:45:59+08:00",
+    "timestamp": "2026-04-12T23:58:16+08:00",
     "test_command": "npm run coverage",
-    "percentage": 80.83,
+    "percentage": 80.79,
     "meets_threshold": true
   },
   "notes": [
-    "Sprint 3 controls-onboarding-pass completed with visible title/select/gameplay control education.",
-    "Gameplay input ownership remains in InputMapper and Simulation; the onboarding pass stayed presentation-only."
+    "Sprint 3 art-cohesion-pass completed with Stage 1 texture anchor metadata, shared Canvas/Pixi anchor semantics, and stitched terrain/bullet replacement PNGs.",
+    "The pass stayed presentation-only and did not change Simulation, StageRunner, stage route authoring, or Boss behavior."
   ]
 }

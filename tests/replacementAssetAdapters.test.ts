@@ -4,7 +4,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createAssetManifest } from "../src/app/assets/assetManifest";
 import { WebAudioPlaybackAdapter } from "../src/app/audio/AudioPlaybackAdapter";
-import { Canvas2DSceneAdapter } from "../src/app/render/Canvas2DSceneAdapter";
+import {
+  Canvas2DSceneAdapter,
+  computeAnchoredDrawRect
+} from "../src/app/render/Canvas2DSceneAdapter";
+import { resolvePixiSpritePresentation } from "../src/app/render/PixiSceneAdapter";
 
 describe("Replacement-first adapters", () => {
   beforeEach(() => {
@@ -49,5 +53,22 @@ describe("Replacement-first adapters", () => {
 
     expect(resolved).toBe(privateBuffer);
     expect(createFallbackBgmBuffer).not.toHaveBeenCalled();
+  });
+
+  it("ACO-302 shares texture anchor semantics between Canvas2D and Pixi adapters", () => {
+    const manifest = createAssetManifest("/games/raiden-ii/");
+    const ground = manifest.getTextureAsset("shared.enemy-ground");
+
+    expect(computeAnchoredDrawRect(ground, 1)).toEqual({
+      x: -15,
+      y: -13.64,
+      width: 30,
+      height: 22
+    });
+    expect(resolvePixiSpritePresentation(ground, 1.25)).toEqual({
+      anchor: { x: 0.5, y: 0.62 },
+      width: 37.5,
+      height: 27.5
+    });
   });
 });

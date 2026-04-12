@@ -71,7 +71,7 @@
     "spec_path": "SPEC.yaml",
     "tdd_state_path": ".tdd-state.json",
     "current_sprint_plan": {
-      "branch": "codex/controls-onboarding-pass",
+      "branch": "codex/art-cohesion-pass",
       "primary_acceptance_path": "title -> 1P Solo + Easy -> Stage 1 boss clear",
       "tasks": [
         {
@@ -81,7 +81,7 @@
         },
         {
           "id": "art-cohesion-pass",
-          "status": "planned",
+          "status": "complete",
           "depends_on": [
             "controls-onboarding-pass"
           ]

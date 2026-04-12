@@ -40,7 +40,7 @@ Turn the current rules/runtime foundation into a **desktop-first, privately play
 
 ### Sprint 3: Stage 1 Boss-Clear Vertical Slice
 - [x] `controls-onboarding-pass`: make title/select/gameplay explain `Arrow Keys`, `Z`, `X`, and `Right Shift` before the player has to guess.
-- [ ] `art-cohesion-pass`: normalize replacement sprite scale, anchors, bullet contrast, pickup visibility, and Stage 1 background stitching.
+- [x] `art-cohesion-pass`: normalize replacement sprite scale, anchors, bullet contrast, pickup visibility, and Stage 1 background stitching.
 - [ ] `stage1-route-expansion-pass`: expand Stage 1 into opening tutorial pressure, mid-route side pressure, recovery/cache, pre-boss escalation, and boss intro.
 - [ ] `boss-pattern-pass`: add deterministic aimed/lateral pattern variation so Death Walkers no longer have a permanent safe spot.
 - [ ] `boss-clear-flow-pass`: make boss intro, phase readability, boss defeat, and Stage 1 clear feedback feel intentional.
@@ -60,7 +60,7 @@ Turn the current rules/runtime foundation into a **desktop-first, privately play
 1. Treat PR `#9` as the merged Sprint 2 asset-integration baseline.
 2. Use `docs/GDD.md` and `docs/GDD.zh-CN.md` as the Sprint 3 design source of truth.
 3. Start Sprint 3 with `controls-onboarding-pass`, then proceed through `art-cohesion-pass`, `stage1-route-expansion-pass`, `boss-pattern-pass`, `boss-clear-flow-pass`, and `sprint3-browser-acceptance`.
-4. Keep the current Sprint 3 implementation pass on `codex/controls-onboarding-pass` and do not mix in Stage 2-8 polish, public release packaging, or 2P showcase tuning.
+4. Keep the current Sprint 3 implementation pass on `codex/art-cohesion-pass` and do not mix in Stage 2-8 polish, public release packaging, or 2P showcase tuning.
 5. Mark Sprint 3 complete only after `1P Solo + Easy` reaches Stage 1 boss clear in production preview with automated gates green and manual feedback recorded.
 
 ## Scope Rules

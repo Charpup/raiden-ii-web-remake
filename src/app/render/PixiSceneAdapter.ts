@@ -12,10 +12,12 @@ import type {
 } from "../../game/core/types";
 import {
   createAssetManifest,
-  type AssetManifest
+  type AssetManifest,
+  type TextureAssetDefinition
 } from "../assets/assetManifest";
 import type { ReplacementAssetStore } from "../assets/ReplacementAssetStore";
 import { computeViewportFit } from "../runtime/viewportLayout";
+import { resolveTextureAnchor, type TextureAnchor } from "./texturePresentation";
 
 export interface SceneAdapter {
   attach(host: HTMLElement): Promise<void>;
@@ -37,6 +39,24 @@ export function resolvePixiTextureSource(
     assetManifest.resolveTextureCandidates(assetId)[0] ??
     assetManifest.resolveUrl(assetId)
   );
+}
+
+export function resolvePixiTextureAnchor(
+  assetId: string,
+  assetManifest: AssetManifest
+): TextureAnchor {
+  return resolveTextureAnchor(assetManifest.getTextureAsset(assetId));
+}
+
+export function resolvePixiSpritePresentation(
+  asset: TextureAssetDefinition,
+  scale: number
+): { anchor: TextureAnchor; width: number; height: number } {
+  return {
+    anchor: resolveTextureAnchor(asset),
+    width: asset.width * scale,
+    height: asset.height * scale
+  };
 }
 
 function destroyRemovedEntries<TDisplayObject extends { destroy(): void }>(
@@ -187,24 +207,24 @@ export class PixiSceneAdapter implements SceneAdapter {
       const key = `${kind}:${entity.id}`;
       nextIds.add(key);
       let sprite = this.entityRegistry.get(key);
+      const asset = this.assetManifest.getTextureAsset(entity.spriteId);
+      const presentation = resolvePixiSpritePresentation(asset, entity.scale ?? 1);
       if (!sprite) {
         const texture = this.getTexture(entity.spriteId);
         sprite = new Sprite(texture);
-        sprite.anchor.set(0.5);
-        const asset = this.assetManifest.getTextureAsset(entity.spriteId);
-        sprite.width = asset.width;
-        sprite.height = asset.height;
+        sprite.anchor.set(presentation.anchor.x, presentation.anchor.y);
         this.entityLayer.addChild(sprite);
         this.entityRegistry.set(key, sprite);
       }
 
       sprite.texture = this.getTexture(entity.spriteId);
+      sprite.anchor.set(presentation.anchor.x, presentation.anchor.y);
       sprite.x = entity.x;
       sprite.y = entity.y;
       sprite.rotation = entity.rotation ?? 0;
       sprite.alpha = entity.alpha ?? 1;
-      const scale = entity.scale ?? 1;
-      sprite.scale.set(scale);
+      sprite.width = presentation.width;
+      sprite.height = presentation.height;
     }
   }
 
