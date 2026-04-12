@@ -71,12 +71,12 @@
     "spec_path": "SPEC.yaml",
     "tdd_state_path": ".tdd-state.json",
     "current_sprint_plan": {
-      "branch": "codex/stage1-boss-clear-slice",
+      "branch": "codex/controls-onboarding-pass",
       "primary_acceptance_path": "title -> 1P Solo + Easy -> Stage 1 boss clear",
       "tasks": [
         {
           "id": "controls-onboarding-pass",
-          "status": "planned",
+          "status": "complete",
           "depends_on": []
         },
         {

@@ -24,6 +24,18 @@ function createButton(action: string, label: string): string {
   return `<button class="arcade-button" data-action="${action}" type="button">${label}</button>`;
 }
 
+function createControlsEducation(): string {
+  return `
+    <div class="controls-legend" data-role="controls-legend" aria-label="1P controls">
+      <span class="controls-legend__label">1P Controls</span>
+      <span class="control-chip"><kbd>Arrow Keys</kbd><span>Move</span></span>
+      <span class="control-chip"><kbd>Z</kbd><span>Fire</span></span>
+      <span class="control-chip"><kbd>X</kbd><span>Bomb</span></span>
+      <span class="control-chip"><kbd>Right Shift</kbd><span>Focus</span></span>
+    </div>
+  `;
+}
+
 export class BrowserRuntimeView {
   private readonly root: HTMLDivElement;
 
@@ -98,11 +110,13 @@ export class BrowserRuntimeView {
                   <p class="overlay-eyebrow">Internal Prototype Build</p>
                   <h2>Scramble Stage 1</h2>
                   <p class="overlay-copy">Desktop-first arcade shell focused on a playable Stage 1 slice, with structured HUD, real viewport fitting, and prototype visuals.</p>
+                  ${createControlsEducation()}
                   ${createButton("start", "Start Mission")}
                 </section>
                 <section class="overlay-card" data-screen="mode-select">
                   <p class="overlay-eyebrow">Mode Select</p>
                   <h2>Crew Configuration</h2>
+                  ${createControlsEducation()}
                   <div class="overlay-actions">
                     ${createButton("mode-single", "1P Solo Sortie")}
                     ${createButton("mode-co-op", "2P Co-op Sortie")}
@@ -111,6 +125,7 @@ export class BrowserRuntimeView {
                 <section class="overlay-card" data-screen="cabinet-select">
                   <p class="overlay-eyebrow">Cabinet Select</p>
                   <h2>Choose Field Tuning</h2>
+                  ${createControlsEducation()}
                   <div class="overlay-actions">
                     ${createButton("cabinet-easy", "Easy Cabinet")}
                     ${createButton("cabinet-hard", "Hard Cabinet")}
@@ -157,6 +172,7 @@ export class BrowserRuntimeView {
                     <span>Gameplay is live. Use keyboard or gamepad while the HUD mirrors the active prototype state.</span>
                     ${createButton("join-player2", "Rejoin 2P")}
                   </div>
+                  ${createControlsEducation()}
                 </section>
               </div>
             </div>

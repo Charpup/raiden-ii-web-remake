@@ -259,6 +259,17 @@ function activePilotKeysForFrame(frame: number): Set<string> {
   return keys;
 }
 
+function expectControlsLegend(legend: Element | null): void {
+  expect(legend).not.toBeNull();
+  expect(legend?.textContent).toContain("Arrow Keys");
+  expect(legend?.textContent).toContain("Z");
+  expect(legend?.textContent).toContain("Fire");
+  expect(legend?.textContent).toContain("X");
+  expect(legend?.textContent).toContain("Bomb");
+  expect(legend?.textContent).toContain("Right Shift");
+  expect(legend?.textContent).toContain("Focus");
+}
+
 function syncHeldKeys(heldKeys: Set<string>, nextKeys: Set<string>): void {
   for (const key of [...heldKeys]) {
     if (nextKeys.has(key)) {
@@ -440,6 +451,63 @@ describe("Browser shell DOM runtime", () => {
     expect(root.querySelector("[data-role='gameplay-viewport']")).not.toBeNull();
     expect(root.querySelector("[data-role='hud-layer']")).not.toBeNull();
     expect(root.querySelector("[data-role='overlay-layer']")).not.toBeNull();
+
+    app.destroy();
+  });
+
+  it("ONB-301 shows the primary 1P controls before gameplay starts", async () => {
+    const root = document.querySelector<HTMLDivElement>("#app");
+    if (!root) {
+      throw new Error("Missing app root");
+    }
+
+    const app = await createRaidenApp(root, {
+      sceneAdapterFactory: async () => new FakeSceneAdapter(),
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter(),
+      assetPackStore: new FakeAssetPackStore()
+    });
+
+    expect(root.getAttribute("data-flow")).toBe("title");
+    expectControlsLegend(
+      root.querySelector("[data-screen='title'] [data-role='controls-legend']")
+    );
+
+    (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
+    expect(root.getAttribute("data-flow")).toBe("mode-select");
+    expectControlsLegend(
+      root.querySelector("[data-screen='mode-select'] [data-role='controls-legend']")
+    );
+
+    (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
+    expect(root.getAttribute("data-flow")).toBe("cabinet-select");
+    expectControlsLegend(
+      root.querySelector("[data-screen='cabinet-select'] [data-role='controls-legend']")
+    );
+
+    app.destroy();
+  });
+
+  it("ONB-302 keeps a compact controls reminder visible during gameplay", async () => {
+    const root = document.querySelector<HTMLDivElement>("#app");
+    if (!root) {
+      throw new Error("Missing app root");
+    }
+
+    const app = await createRaidenApp(root, {
+      sceneAdapterFactory: async () => new FakeSceneAdapter(),
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter(),
+      assetPackStore: new FakeAssetPackStore("success")
+    });
+
+    (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+    await flushAsyncWork();
+
+    expect(root.getAttribute("data-flow")).toBe("gameplay");
+    expectControlsLegend(
+      root.querySelector("[data-screen='gameplay'] [data-role='controls-legend']")
+    );
 
     app.destroy();
   });

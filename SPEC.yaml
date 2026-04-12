@@ -861,3 +861,31 @@ requirements:
         given: "the browser shell at title state"
         when: "a scripted pilot drives the flow through start, 1P, easy, and an opening gameplay window"
         then: "the shell stays on the gameplay screen with live player, enemy, bullet, and effect presentation instead of collapsing into a dead overlay state"
+  - id: ONB-301
+    description: "Title, mode-select, and cabinet-select overlays expose visible control education before the player enters gameplay."
+    priority: high
+    scenarios:
+      - name: "title screen teaches the core keyboard actions"
+        given: "the browser shell at title"
+        when: "the overlay is rendered"
+        then: "the title overlay visibly labels Arrow Keys, Z, X, and Right Shift"
+      - name: "selection screens keep control guidance visible"
+        given: "the browser shell at mode-select or cabinet-select"
+        when: "the overlay is rendered"
+        then: "the active selection screen still shows the same control education copy"
+  - id: ONB-302
+    description: "The gameplay overlay keeps a compact controls reminder visible without changing gameplay authority or input mapping."
+    priority: high
+    scenarios:
+      - name: "gameplay overlay shows a compact reminder"
+        given: "the browser shell has entered gameplay"
+        when: "the ghost overlay renders"
+        then: "the controls reminder remains visible alongside the join/rejoin affordance"
+  - id: ONB-303
+    description: "Control education remains presentation-only and does not alter simulation rules or input handling."
+    priority: high
+    scenarios:
+      - name: "control education leaves gameplay truth unchanged"
+        given: "the browser shell with onboarding text rendered"
+        when: "the simulation receives frame input"
+        then: "movement, fire, bomb, and focus still come from the existing input mapper and simulation ownership remains unchanged"

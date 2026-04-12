@@ -575,3 +575,20 @@
   - `progress.md`
 - Next action:
   - Start Sprint 3 implementation under `TriadDev Extended`, beginning with `controls-onboarding-pass`.
+
+### Phase 18: Sprint 3 Controls Onboarding
+- **Status:** complete
+- Actions taken:
+  - Added visible control education to the title, mode-select, cabinet-select, and gameplay overlays.
+  - Added `ONB-301` through `ONB-303` to `SPEC.yaml` so the onboarding pass has explicit presentation-only acceptance criteria.
+  - Added a DOM regression that walks title -> selection -> gameplay and checks the same control guidance is visible on each screen.
+  - Completed RED->GREEN evidence for the onboarding pass and kept gameplay authority in `InputMapper` / `Simulation`.
+  - Ran verification gates: `npm run test:run -- tests/runtimeShell.dom.test.ts`, `npm run test:run`, `npm run coverage`, `npm run build`, and `npm run validate:replacement-assets`.
+- Files modified:
+  - `SPEC.yaml`
+  - `src/app/runtime/BrowserRuntimeView.ts`
+  - `src/style.css`
+  - `tests/runtimeShell.dom.test.ts`
+  - `triadev-handoff.json`
+  - `task_plan.md`
+  - `.tdd-state.json`
