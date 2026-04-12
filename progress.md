@@ -550,3 +550,28 @@
 | What's the goal? | Make Stage 1 readable, survivable, audiovisually alive, and genuinely playable before expanding scope again. |
 | What have I learned? | The codebase proves rules/runtime architecture, but real playability still depends on encounter tuning, browser acceptance, and private asset integration. |
 | What have I done? | Reframed the project around a four-sprint roadmap that treats the existing implementation as baseline and the next cycle as product-building work. |
+
+## Session: 2026-04-12 Sprint 3 GDD Planning
+
+### Phase 17: Sprint 3 Boss-Clear Slice Planning
+- **Status:** planned
+- Actions taken:
+  - Closed Sprint 2 by merging PR `#9` after addressing the remaining asset-loading review feedback.
+  - Kept the Sprint 2 manual acceptance conclusion as `pass with non-blocking quality issues`: low art precision, missing controls tutorial, short Stage 1 route, and a Boss safe spot.
+  - Expanded `docs/GDD.md` and `docs/GDD.zh-CN.md` from a high-level outline into the Sprint 3 design baseline.
+  - Split Sprint 3 into an ordered implementation chain:
+    - `controls-onboarding-pass`
+    - `art-cohesion-pass`
+    - `stage1-route-expansion-pass`
+    - `boss-pattern-pass`
+    - `boss-clear-flow-pass`
+    - `sprint3-browser-acceptance`
+  - Updated `task_plan.md` and `triadev-handoff.json` so the active phase is `boss-clear-slice`, not the completed `replacement-asset-pack` tranche.
+- Files created/modified:
+  - `docs/GDD.md`
+  - `docs/GDD.zh-CN.md`
+  - `task_plan.md`
+  - `triadev-handoff.json`
+  - `progress.md`
+- Next action:
+  - Start Sprint 3 implementation under `TriadDev Extended`, beginning with `controls-onboarding-pass`.

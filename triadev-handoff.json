@@ -2,7 +2,7 @@
   "version": "1.1.0",
   "project": "raiden-ii-stage1-playable-prototype",
   "route": "extended",
-  "current_phase": "replacement-asset-pack",
+  "current_phase": "boss-clear-slice",
   "planning": {
     "status": "locked",
     "files": [
@@ -27,7 +27,7 @@
       },
       {
         "id": "boss-clear-slice",
-        "name": "Complete the single-player Stage 1 boss-clear vertical slice with readable boss, checkpoint, hidden, and clear flow",
+        "name": "Complete the single-player Stage 1 boss-clear vertical slice through controls onboarding, route expansion, boss patterning, clear flow, and browser acceptance",
         "complexity": 10,
         "dependencies": [
           "replacement-asset-pack"
@@ -69,6 +69,52 @@
     "current": "boss-clear-slice",
     "next": "prototype-hardening",
     "spec_path": "SPEC.yaml",
-    "tdd_state_path": ".tdd-state.json"
+    "tdd_state_path": ".tdd-state.json",
+    "current_sprint_plan": {
+      "branch": "codex/stage1-boss-clear-slice",
+      "primary_acceptance_path": "title -> 1P Solo + Easy -> Stage 1 boss clear",
+      "tasks": [
+        {
+          "id": "controls-onboarding-pass",
+          "status": "planned",
+          "depends_on": []
+        },
+        {
+          "id": "art-cohesion-pass",
+          "status": "planned",
+          "depends_on": [
+            "controls-onboarding-pass"
+          ]
+        },
+        {
+          "id": "stage1-route-expansion-pass",
+          "status": "planned",
+          "depends_on": [
+            "art-cohesion-pass"
+          ]
+        },
+        {
+          "id": "boss-pattern-pass",
+          "status": "planned",
+          "depends_on": [
+            "stage1-route-expansion-pass"
+          ]
+        },
+        {
+          "id": "boss-clear-flow-pass",
+          "status": "planned",
+          "depends_on": [
+            "boss-pattern-pass"
+          ]
+        },
+        {
+          "id": "sprint3-browser-acceptance",
+          "status": "planned",
+          "depends_on": [
+            "boss-clear-flow-pass"
+          ]
+        }
+      ]
+    }
   }
 }
