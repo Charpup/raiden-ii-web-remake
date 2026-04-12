@@ -279,6 +279,46 @@ button {
   color: var(--muted);
 }
 
+.controls-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 1rem 0;
+  padding: 0.7rem;
+  border: 1px solid rgba(255, 158, 71, 0.28);
+  background:
+    linear-gradient(135deg, rgba(255, 158, 71, 0.12), rgba(96, 210, 255, 0.08)),
+    rgba(2, 7, 12, 0.52);
+}
+
+.controls-legend__label {
+  margin-right: 0.25rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-orange);
+  font-size: 0.72rem;
+}
+
+.control-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.control-chip kbd {
+  min-width: 1.6rem;
+  padding: 0.18rem 0.38rem;
+  border: 1px solid rgba(96, 210, 255, 0.42);
+  background: rgba(3, 7, 13, 0.78);
+  color: var(--text);
+  font: inherit;
+  text-align: center;
+  box-shadow: inset 0 -2px 0 rgba(96, 210, 255, 0.16);
+}
+
 .overlay-actions,
 .overlay-inline {
   display: flex;

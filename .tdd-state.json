@@ -1,27 +1,27 @@
 {
-  "spec_id": "AST-201R",
-  "phase": "green",
+  "spec_id": "ONB-301",
+  "phase": "complete",
   "red_evidence": {
-    "timestamp": "2026-04-10T20:05:45+08:00",
-    "test_command": "npm run test:run -- tests/assetManifest.test.ts tests/replacementAssetManifest.test.ts tests/replacementAssetValidation.test.ts tests/replacementAssetAdapters.test.ts tests/uiFlowState.test.ts tests/runtimeShell.dom.test.ts",
-    "tests_total": 27,
-    "tests_failed": 14,
-    "output_snapshot": "FAIL AST-201R missing requiredReplacementTextureIds; FAIL UIF-001 beginAssetLoading is not a function; FAIL AST-202R validator script missing; FAIL REG-201R resolvePixiTextureSource is not a function; FAIL RNT-201R cabinet selection still jumps directly to gameplay"
+    "timestamp": "2026-04-12T21:43:42+08:00",
+    "test_command": "npm run test:run -- tests/runtimeShell.dom.test.ts",
+    "tests_total": 15,
+    "tests_failed": 2,
+    "output_snapshot": "FAIL ONB-301 expected null not to be null; FAIL ONB-302 expected null not to be null for [data-role='controls-legend']"
   },
   "green_evidence": {
-    "timestamp": "2026-04-10T20:11:47+08:00",
+    "timestamp": "2026-04-12T21:45:05+08:00",
     "test_command": "npm run test:run",
-    "tests_total": 110,
-    "tests_passed": 110
+    "tests_total": 114,
+    "tests_passed": 114
   },
   "coverage": {
-    "percentage": 81.2,
+    "timestamp": "2026-04-12T21:45:59+08:00",
+    "test_command": "npm run coverage",
+    "percentage": 80.83,
     "meets_threshold": true
   },
   "notes": [
-    "Sprint 2 now enforces a Stage 1 replacement-asset contract through asset-loading and asset-error flow states before gameplay starts.",
-    "Canvas2D, Pixi, and browser audio now honor replacement-first semantics while preserving simulation as the only gameplay authority.",
-    "The local validation gate is active via npm run validate:replacement-assets, and the committed Stage 1 replacement PNG/OGG set is now present under public/assets/replacement/.",
-    "Manual Sprint 2 preview was accepted as pass with non-blocking quality issues: low art precision, missing control onboarding, short Stage 1 route, and a boss safe spot."
+    "Sprint 3 controls-onboarding-pass completed with visible title/select/gameplay control education.",
+    "Gameplay input ownership remains in InputMapper and Simulation; the onboarding pass stayed presentation-only."
   ]
 }
