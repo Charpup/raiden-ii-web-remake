@@ -39,12 +39,14 @@ Turn the current rules/runtime foundation into a **desktop-first, privately play
 - **Acceptance note:** accepted as `pass with non-blocking quality issues`: art precision remains low, control onboarding is missing, the Stage 1 route is too short, and the current boss pattern has a safe spot.
 
 ### Sprint 3: Stage 1 Boss-Clear Vertical Slice
-- [ ] Complete the full `1P Solo + Easy` Stage 1 flow from title to boss clear.
-- [ ] Tighten checkpoint, hidden route, boss entrance, boss phase readability, and clear flow.
-- [ ] Make the HUD and overlays support the mission coherently during real play instead of only in tests.
-- [ ] Validate a believable start-to-boss-clear browser playthrough.
+- [ ] `controls-onboarding-pass`: make title/select/gameplay explain `Arrow Keys`, `Z`, `X`, and `Right Shift` before the player has to guess.
+- [ ] `art-cohesion-pass`: normalize replacement sprite scale, anchors, bullet contrast, pickup visibility, and Stage 1 background stitching.
+- [ ] `stage1-route-expansion-pass`: expand Stage 1 into opening tutorial pressure, mid-route side pressure, recovery/cache, pre-boss escalation, and boss intro.
+- [ ] `boss-pattern-pass`: add deterministic aimed/lateral pattern variation so Death Walkers no longer have a permanent safe spot.
+- [ ] `boss-clear-flow-pass`: make boss intro, phase readability, boss defeat, and Stage 1 clear feedback feel intentional.
+- [ ] `sprint3-browser-acceptance`: validate a believable `title -> 1P Solo + Easy -> Stage 1 boss clear` browser playthrough.
 - **Exit bar:** Stage 1 can be played start-to-boss-clear in browser preview as a convincing prototype.
-- **Status:** pending
+- **Status:** planned
 
 ### Sprint 4: Prototype Demo Hardening
 - [ ] Add browser acceptance coverage for the real Stage 1 vertical slice.
@@ -55,10 +57,11 @@ Turn the current rules/runtime foundation into a **desktop-first, privately play
 - **Status:** pending
 
 ## Immediate Next Steps
-1. Open the Sprint 2 PR from `codex/replacement-asset-pack` with the manual acceptance note and automated gate results.
-2. Review and refine `docs/GDD.md` before implementation work resumes.
-3. Use the GDD to split Sprint 3 into `controls-onboarding-pass`, `stage1-route-expansion-pass`, `boss-pattern-pass`, and `art-cohesion-pass`.
-4. Start Sprint 3 implementation only after the GDD direction is locked.
+1. Treat PR `#9` as the merged Sprint 2 asset-integration baseline.
+2. Use `docs/GDD.md` and `docs/GDD.zh-CN.md` as the Sprint 3 design source of truth.
+3. Start Sprint 3 with `controls-onboarding-pass`, then proceed through `art-cohesion-pass`, `stage1-route-expansion-pass`, `boss-pattern-pass`, `boss-clear-flow-pass`, and `sprint3-browser-acceptance`.
+4. Keep Sprint 3 implementation on `codex/stage1-boss-clear-slice` and do not mix in Stage 2-8 polish, public release packaging, or 2P showcase tuning.
+5. Mark Sprint 3 complete only after `1P Solo + Easy` reaches Stage 1 boss clear in production preview with automated gates green and manual feedback recorded.
 
 ## Scope Rules
 | Scope | Decision |
