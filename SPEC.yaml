@@ -889,3 +889,35 @@ requirements:
         given: "the browser shell with onboarding text rendered"
         when: "the simulation receives frame input"
         then: "movement, fire, bomb, and focus still come from the existing input mapper and simulation ownership remains unchanged"
+  - id: ACO-301
+    description: "Stage 1 replacement textures expose stable presentation draw sizes and anchors for the art-cohesion pass."
+    priority: high
+    scenarios:
+      - name: "core Stage 1 textures declare readable metadata"
+        given: "the Stage 1 replacement asset manifest"
+        when: "core player, enemy, pickup, bullet, effect, and boss textures are queried"
+        then: "each texture exposes a stable draw size and anchor suitable for shared Canvas/Pixi rendering"
+  - id: ACO-302
+    description: "Canvas2D and Pixi adapters share the same anchor semantics instead of hard-coding divergent center points."
+    priority: high
+    scenarios:
+      - name: "Canvas2D computes draw rectangles from texture anchors"
+        given: "a texture with a non-default anchor"
+        when: "the Canvas2D adapter computes a sprite draw rectangle"
+        then: "the rectangle offset reflects that anchor"
+      - name: "Pixi resolves the same texture anchor"
+        given: "the same texture manifest entry"
+        when: "the Pixi adapter resolves sprite anchor metadata"
+        then: "the Pixi anchor matches the manifest anchor used by Canvas2D"
+  - id: ACO-303
+    description: "Stage 1 required replacement PNGs meet the minimum visible dimensions for stitched background, bullets, and pickups."
+    priority: high
+    scenarios:
+      - name: "Stage 1 background terrain is stitched for the gameplay viewport"
+        given: "the Stage 1 terrain replacement PNG"
+        when: "its image dimensions are inspected"
+        then: "the texture is 320x568 and the manifest draw height matches the viewport"
+      - name: "bullets and pickups are large enough to read"
+        given: "the Stage 1 required replacement PNG files"
+        when: "bullet and pickup dimensions are inspected"
+        then: "player/enemy bullets and pickups meet the minimum visible sprite dimensions"

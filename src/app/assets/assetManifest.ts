@@ -11,6 +11,10 @@ export interface TextureAssetDefinition {
   replacementRelativePath?: string;
   width: number;
   height: number;
+  anchor?: {
+    x: number;
+    y: number;
+  };
   kind: "ui" | "entity" | "background";
 }
 
@@ -99,6 +103,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
     replacementRelativePath: "assets/replacement/gameplay/player-ship.png",
     width: 28,
     height: 34,
+    anchor: { x: 0.5, y: 0.58 },
     kind: "entity"
   },
   "shared.enemy-scout": {
@@ -121,16 +126,18 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
     id: "shared.enemy-ground",
     fallbackRelativePath: "assets/gameplay/enemy-ground.svg",
     replacementRelativePath: "assets/replacement/gameplay/enemy-ground.png",
-    width: 26,
+    width: 30,
     height: 22,
+    anchor: { x: 0.5, y: 0.62 },
     kind: "entity"
   },
   "shared.enemy-turret": {
     id: "shared.enemy-turret",
     fallbackRelativePath: "assets/gameplay/enemy-turret.svg",
     replacementRelativePath: "assets/replacement/gameplay/enemy-turret.png",
-    width: 26,
-    height: 26,
+    width: 28,
+    height: 28,
+    anchor: { x: 0.5, y: 0.62 },
     kind: "entity"
   },
   "shared.enemy-carrier": {
@@ -155,6 +162,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
     replacementRelativePath: "assets/replacement/gameplay/enemy-scenery.png",
     width: 28,
     height: 32,
+    anchor: { x: 0.5, y: 0.68 },
     kind: "entity"
   },
   "shared.pickup-medal": {
@@ -177,8 +185,9 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
     id: "shared.pickup-weapon",
     fallbackRelativePath: "assets/gameplay/pickup-weapon.svg",
     replacementRelativePath: "assets/replacement/gameplay/pickup-weapon.png",
-    width: 18,
-    height: 18,
+    width: 22,
+    height: 22,
+    anchor: { x: 0.5, y: 0.5 },
     kind: "entity"
   },
   "shared.pickup-bomb": {
@@ -217,16 +226,18 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
     id: "shared.boss-walker-body",
     fallbackRelativePath: "assets/gameplay/boss-walker-body.svg",
     replacementRelativePath: "assets/replacement/gameplay/boss-walker-body.png",
-    width: 96,
-    height: 56,
+    width: 100,
+    height: 58,
+    anchor: { x: 0.5, y: 0.56 },
     kind: "entity"
   },
   "shared.boss-walker-part": {
     id: "shared.boss-walker-part",
     fallbackRelativePath: "assets/gameplay/boss-walker-part.svg",
     replacementRelativePath: "assets/replacement/gameplay/boss-walker-part.png",
-    width: 38,
-    height: 28,
+    width: 42,
+    height: 30,
+    anchor: { x: 0.5, y: 0.56 },
     kind: "entity"
   },
   "shared.player-bullet": {
@@ -234,7 +245,8 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
     fallbackRelativePath: "assets/gameplay/player-bullet.svg",
     replacementRelativePath: "assets/replacement/gameplay/player-bullet.png",
     width: 10,
-    height: 18,
+    height: 20,
+    anchor: { x: 0.5, y: 0.5 },
     kind: "entity"
   },
   "shared.enemy-bullet": {
@@ -242,7 +254,8 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
     fallbackRelativePath: "assets/gameplay/enemy-bullet.svg",
     replacementRelativePath: "assets/replacement/gameplay/enemy-bullet.png",
     width: 10,
-    height: 18,
+    height: 20,
+    anchor: { x: 0.5, y: 0.5 },
     kind: "entity"
   },
   "shared.effect-hit": {
@@ -282,7 +295,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
     fallbackRelativePath: "assets/stages/stage-1/backdrop-terrain.svg",
     replacementRelativePath: "assets/replacement/stages/stage-1/backdrop-terrain.png",
     width: 320,
-    height: 192,
+    height: 568,
     kind: "background"
   },
   "stage-2.backdrop": {

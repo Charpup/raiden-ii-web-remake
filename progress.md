@@ -592,3 +592,26 @@
   - `triadev-handoff.json`
   - `task_plan.md`
   - `.tdd-state.json`
+
+### Phase 19: Sprint 3 Art Cohesion
+- **Status:** complete
+- Actions taken:
+  - Merged PR `#11` after confirming it was ready for review, clean, CI green, and had no review threads.
+  - Created `codex/art-cohesion-pass` from latest `main`.
+  - Added `ACO-301` through `ACO-303` to `SPEC.yaml` for texture metadata, shared Canvas/Pixi anchor semantics, and Stage 1 PNG readability checks.
+  - Added RED-first manifest and adapter tests, then implemented texture anchors, shared anchored draw rectangles, and Pixi anchor resolution.
+  - Addressed reviewer feedback by extracting a Pixi sprite presentation seam that locks anchor and draw-size semantics together.
+  - Replaced the Stage 1 terrain replacement PNG with a stitched 320x568 version and regenerated player/enemy bullet PNGs at readable dimensions.
+  - Kept the pass presentation-only: no changes to `Simulation`, `StageRunner`, stage route authoring, input mapping, or Boss behavior.
+- Files modified:
+  - `SPEC.yaml`
+  - `.tdd-state.json`
+  - `task_plan.md`
+  - `triadev-handoff.json`
+  - `src/app/assets/assetManifest.ts`
+  - `src/app/render/Canvas2DSceneAdapter.ts`
+  - `src/app/render/PixiSceneAdapter.ts`
+  - `src/app/render/texturePresentation.ts`
+  - `tests/assetManifest.test.ts`
+  - `tests/replacementAssetAdapters.test.ts`
+  - `public/assets/replacement/`

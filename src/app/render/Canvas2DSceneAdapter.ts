@@ -11,6 +11,9 @@ import {
 import type { ReplacementAssetStore } from "../assets/ReplacementAssetStore";
 import { computeViewportFit } from "../runtime/viewportLayout";
 import type { SceneAdapter } from "./PixiSceneAdapter";
+import { computeAnchoredDrawRect } from "./texturePresentation";
+
+export { computeAnchoredDrawRect } from "./texturePresentation";
 
 const WORLD_WIDTH = 320;
 const WORLD_HEIGHT = 568;
@@ -196,18 +199,22 @@ export class Canvas2DSceneAdapter implements SceneAdapter {
     for (const entity of entities) {
       const asset = this.assetManifest.getTextureAsset(entity.spriteId);
       const cached = this.getOrStartImageLoad(entity.spriteId);
-      const scale = entity.scale ?? 1;
-      const width = asset.width * scale;
-      const height = asset.height * scale;
+      const drawRect = computeAnchoredDrawRect(asset, entity.scale ?? 1);
       context.save();
       context.translate(entity.x, entity.y);
       context.rotate(entity.rotation ?? 0);
       context.globalAlpha = entity.alpha ?? 1;
 
       if (cached.loaded) {
-        context.drawImage(cached.image, -width / 2, -height / 2, width, height);
+        context.drawImage(
+          cached.image,
+          drawRect.x,
+          drawRect.y,
+          drawRect.width,
+          drawRect.height
+        );
       } else {
-        this.drawPlaceholderEntity(context, asset, width, height);
+        this.drawPlaceholderEntity(context, asset, drawRect);
       }
 
       context.restore();
@@ -217,23 +224,30 @@ export class Canvas2DSceneAdapter implements SceneAdapter {
   private drawPlaceholderEntity(
     context: CanvasRenderingContext2D,
     asset: TextureAssetDefinition,
-    width: number,
-    height: number
+    drawRect: { x: number; y: number; width: number; height: number }
   ): void {
     const color = createPlaceholderColor(asset.id);
     context.fillStyle = color;
     context.strokeStyle = "rgba(255,255,255,0.35)";
     context.lineWidth = 1.5;
+    const centerX = drawRect.x + drawRect.width / 2;
+    const centerY = drawRect.y + drawRect.height / 2;
 
     if (asset.id.includes("bullet")) {
       context.beginPath();
-      context.ellipse(0, 0, width / 2, height / 2, 0, 0, Math.PI * 2);
+      context.ellipse(centerX, centerY, drawRect.width / 2, drawRect.height / 2, 0, 0, Math.PI * 2);
       context.fill();
       return;
     }
 
     context.beginPath();
-    context.roundRect(-width / 2, -height / 2, width, height, Math.min(width, height) * 0.24);
+    context.roundRect(
+      drawRect.x,
+      drawRect.y,
+      drawRect.width,
+      drawRect.height,
+      Math.min(drawRect.width, drawRect.height) * 0.24
+    );
     context.fill();
     context.stroke();
   }
