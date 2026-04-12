@@ -1,0 +1,262 @@
+{
+  "stageBundles": {
+    "stage-1": {
+      "requiredReplacementTextures": [
+        {
+          "id": "stage-1.backdrop-sky",
+          "path": "assets/replacement/stages/stage-1/backdrop-sky.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "stage-1.backdrop-terrain",
+          "path": "assets/replacement/stages/stage-1/backdrop-terrain.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.player-ship",
+          "path": "assets/replacement/gameplay/player-ship.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.enemy-scout",
+          "path": "assets/replacement/gameplay/enemy-scout.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.enemy-warplane",
+          "path": "assets/replacement/gameplay/enemy-warplane.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.enemy-ground",
+          "path": "assets/replacement/gameplay/enemy-ground.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.enemy-turret",
+          "path": "assets/replacement/gameplay/enemy-turret.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.enemy-carrier",
+          "path": "assets/replacement/gameplay/enemy-carrier.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.enemy-gunboat",
+          "path": "assets/replacement/gameplay/enemy-gunboat.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.enemy-scenery",
+          "path": "assets/replacement/gameplay/enemy-scenery.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.pickup-medal",
+          "path": "assets/replacement/gameplay/pickup-medal.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.pickup-fairy",
+          "path": "assets/replacement/gameplay/pickup-fairy.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.pickup-weapon",
+          "path": "assets/replacement/gameplay/pickup-weapon.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.pickup-bomb",
+          "path": "assets/replacement/gameplay/pickup-bomb.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.pickup-extend",
+          "path": "assets/replacement/gameplay/pickup-extend.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.boss-walker-body",
+          "path": "assets/replacement/gameplay/boss-walker-body.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.boss-walker-part",
+          "path": "assets/replacement/gameplay/boss-walker-part.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.player-bullet",
+          "path": "assets/replacement/gameplay/player-bullet.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.enemy-bullet",
+          "path": "assets/replacement/gameplay/enemy-bullet.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.effect-hit",
+          "path": "assets/replacement/gameplay/effect-hit.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.effect-explosion",
+          "path": "assets/replacement/gameplay/effect-explosion.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        },
+        {
+          "id": "shared.effect-respawn",
+          "path": "assets/replacement/gameplay/effect-respawn.png",
+          "sourceUrl": "https://opengameart.org/content/vertical-shmup-set-2-m484-games",
+          "sourceTitle": "Vertical Shmup Set 2 (M484 Games)",
+          "author": "Master484",
+          "license": "CC0",
+          "modified": true
+        }
+      ],
+      "requiredReplacementAudioCues": [
+        {
+          "id": "bgm-stage-1",
+          "path": "assets/replacement/audio/bgm-stage-1.ogg",
+          "sourceUrl": "https://opengameart.org/content/psycho-punch-loop-fps-shoot-em-up",
+          "sourceTitle": "Psycho Punch / Loop / FPS / Shoot 'em up",
+          "author": "KiluaBoy",
+          "license": "CC0",
+          "modified": false
+        },
+        {
+          "id": "sfx-player1-fire",
+          "path": "assets/replacement/audio/sfx-player1-fire.ogg",
+          "sourceUrl": "https://kenney.nl/assets/sci-fi-sounds",
+          "sourceTitle": "Sci-Fi Sounds",
+          "author": "Kenney",
+          "license": "CC0",
+          "modified": false
+        },
+        {
+          "id": "sfx-player1-bomb",
+          "path": "assets/replacement/audio/sfx-player1-bomb.ogg",
+          "sourceUrl": "https://kenney.nl/assets/sci-fi-sounds",
+          "sourceTitle": "Sci-Fi Sounds",
+          "author": "Kenney",
+          "license": "CC0",
+          "modified": false
+        },
+        {
+          "id": "sfx-player-hit",
+          "path": "assets/replacement/audio/sfx-player-hit.ogg",
+          "sourceUrl": "https://kenney.nl/assets/sci-fi-sounds",
+          "sourceTitle": "Sci-Fi Sounds",
+          "author": "Kenney",
+          "license": "CC0",
+          "modified": false
+        },
+        {
+          "id": "sfx-player-respawn",
+          "path": "assets/replacement/audio/sfx-player-respawn.ogg",
+          "sourceUrl": "https://kenney.nl/assets/sci-fi-sounds",
+          "sourceTitle": "Sci-Fi Sounds",
+          "author": "Kenney",
+          "license": "CC0",
+          "modified": false
+        },
+        {
+          "id": "sfx-enemy-destroyed",
+          "path": "assets/replacement/audio/sfx-enemy-destroyed.ogg",
+          "sourceUrl": "https://kenney.nl/assets/sci-fi-sounds",
+          "sourceTitle": "Sci-Fi Sounds",
+          "author": "Kenney",
+          "license": "CC0",
+          "modified": false
+        }
+      ]
+    }
+  }
+}

@@ -2,32 +2,33 @@ import type { AssetManifest } from "./assetManifest";
 
 export type AssetLoadState = "idle" | "loading" | "ready" | "error";
 
-export interface MissingPrivateAsset {
+export interface MissingReplacementAsset {
   kind: "texture" | "audio";
   id: string;
   path: string;
 }
 
-export interface PrototypeAssetPackLoadState {
+export interface ReplacementAssetLoadState {
   state: AssetLoadState;
   stageId: string | null;
-  missingAssets: MissingPrivateAsset[];
+  missingCount: number;
+  missingAssets: MissingReplacementAsset[];
   loadedTextureIds: string[];
   loadedAudioCueIds: string[];
 }
 
-export interface PrototypeAssetPackStore {
+export interface ReplacementAssetStore {
   ensureStageBundle(
     stageId: string
-  ): Promise<{ ok: boolean; missingAssets: MissingPrivateAsset[] }>;
+  ): Promise<{ ok: boolean; missingAssets: MissingReplacementAsset[] }>;
   getImage(assetId: string): HTMLImageElement | null;
   getAudioBuffer(cueId: string): AudioBuffer | null;
-  getMissingAssets(): MissingPrivateAsset[];
-  getLoadState(): PrototypeAssetPackLoadState;
+  getMissingAssets(): MissingReplacementAsset[];
+  getLoadState(): ReplacementAssetLoadState;
   reset(): void;
 }
 
-interface PrototypeAssetPackStoreOptions {
+interface ReplacementAssetStoreOptions {
   imageLoader?: (url: string) => Promise<HTMLImageElement>;
   audioLoader?: (url: string) => Promise<AudioBuffer | null>;
 }
@@ -86,7 +87,7 @@ async function defaultAudioLoader(url: string): Promise<AudioBuffer | null> {
   }
 }
 
-export class DefaultPrototypeAssetPackStore implements PrototypeAssetPackStore {
+export class DefaultReplacementAssetStore implements ReplacementAssetStore {
   private readonly manifest: AssetManifest;
 
   private readonly imageLoader: (url: string) => Promise<HTMLImageElement>;
@@ -97,15 +98,16 @@ export class DefaultPrototypeAssetPackStore implements PrototypeAssetPackStore {
 
   private readonly audioBuffers = new Map<string, AudioBuffer>();
 
-  private loadState: PrototypeAssetPackLoadState = {
+  private loadState: ReplacementAssetLoadState = {
     state: "idle",
     stageId: null,
+    missingCount: 0,
     missingAssets: [],
     loadedTextureIds: [],
     loadedAudioCueIds: []
   };
 
-  constructor(manifest: AssetManifest, options: PrototypeAssetPackStoreOptions = {}) {
+  constructor(manifest: AssetManifest, options: ReplacementAssetStoreOptions = {}) {
     this.manifest = manifest;
     this.imageLoader = options.imageLoader ?? defaultImageLoader;
     this.audioLoader = options.audioLoader ?? defaultAudioLoader;
@@ -113,40 +115,41 @@ export class DefaultPrototypeAssetPackStore implements PrototypeAssetPackStore {
 
   async ensureStageBundle(
     stageId: string
-  ): Promise<{ ok: boolean; missingAssets: MissingPrivateAsset[] }> {
+  ): Promise<{ ok: boolean; missingAssets: MissingReplacementAsset[] }> {
     this.loadState = {
       state: "loading",
       stageId,
+      missingCount: 0,
       missingAssets: [],
       loadedTextureIds: [],
       loadedAudioCueIds: []
     };
 
-    const missingAssets: MissingPrivateAsset[] = [];
+    const missingAssets: MissingReplacementAsset[] = [];
     const loadedTextureIds: string[] = [];
     const loadedAudioCueIds: string[] = [];
 
-    for (const asset of this.manifest.getRequiredPrivateTextureAssets(stageId)) {
+    for (const asset of this.manifest.getRequiredReplacementTextureAssets(stageId)) {
       try {
-        const image = await this.imageLoader(this.manifest.resolvePath(asset.privateOverrideRelativePath));
+        const image = await this.imageLoader(this.manifest.resolvePath(asset.replacementRelativePath));
         this.images.set(asset.id, image);
         loadedTextureIds.push(asset.id);
       } catch {
         missingAssets.push({
           kind: "texture",
           id: asset.id,
-          path: asset.privateOverrideRelativePath
+          path: asset.replacementRelativePath
         });
       }
     }
 
-    for (const cue of this.manifest.getRequiredPrivateAudioCues(stageId)) {
-      const buffer = await this.audioLoader(this.manifest.resolvePath(cue.privateOverrideRelativePath));
+    for (const cue of this.manifest.getRequiredReplacementAudioCues(stageId)) {
+      const buffer = await this.audioLoader(this.manifest.resolvePath(cue.replacementRelativePath));
       if (!buffer) {
         missingAssets.push({
           kind: "audio",
           id: cue.id,
-          path: cue.privateOverrideRelativePath
+          path: cue.replacementRelativePath
         });
         continue;
       }
@@ -158,6 +161,7 @@ export class DefaultPrototypeAssetPackStore implements PrototypeAssetPackStore {
     this.loadState = {
       state: missingAssets.length > 0 ? "error" : "ready",
       stageId,
+      missingCount: missingAssets.length,
       missingAssets,
       loadedTextureIds,
       loadedAudioCueIds
@@ -177,11 +181,11 @@ export class DefaultPrototypeAssetPackStore implements PrototypeAssetPackStore {
     return this.audioBuffers.get(cueId) ?? null;
   }
 
-  getMissingAssets(): MissingPrivateAsset[] {
+  getMissingAssets(): MissingReplacementAsset[] {
     return [...this.loadState.missingAssets];
   }
 
-  getLoadState(): PrototypeAssetPackLoadState {
+  getLoadState(): ReplacementAssetLoadState {
     return {
       ...this.loadState,
       missingAssets: [...this.loadState.missingAssets],
@@ -194,6 +198,7 @@ export class DefaultPrototypeAssetPackStore implements PrototypeAssetPackStore {
     this.loadState = {
       state: "idle",
       stageId: null,
+      missingCount: 0,
       missingAssets: [],
       loadedTextureIds: [],
       loadedAudioCueIds: []

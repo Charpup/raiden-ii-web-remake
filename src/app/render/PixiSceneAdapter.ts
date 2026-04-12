@@ -14,7 +14,7 @@ import {
   createAssetManifest,
   type AssetManifest
 } from "../assets/assetManifest";
-import type { PrototypeAssetPackStore } from "../assets/PrototypeAssetPackStore";
+import type { ReplacementAssetStore } from "../assets/ReplacementAssetStore";
 import { computeViewportFit } from "../runtime/viewportLayout";
 
 export interface SceneAdapter {
@@ -30,7 +30,7 @@ const WORLD_HEIGHT = 568;
 export function resolvePixiTextureSource(
   assetId: string,
   assetManifest: AssetManifest,
-  assetPackStore?: Pick<PrototypeAssetPackStore, "getImage">
+  assetPackStore?: Pick<ReplacementAssetStore, "getImage">
 ): string | HTMLImageElement {
   return (
     assetPackStore?.getImage(assetId) ??
@@ -58,7 +58,7 @@ export class PixiSceneAdapter implements SceneAdapter {
 
   private readonly assetManifest: AssetManifest;
 
-  private readonly assetPackStore?: Pick<PrototypeAssetPackStore, "getImage">;
+  private readonly assetPackStore?: Pick<ReplacementAssetStore, "getImage">;
 
   private readonly worldRoot = new Container();
 
@@ -76,7 +76,7 @@ export class PixiSceneAdapter implements SceneAdapter {
 
   constructor(
     assetManifest: AssetManifest = createAssetManifest(),
-    assetPackStore?: Pick<PrototypeAssetPackStore, "getImage">
+    assetPackStore?: Pick<ReplacementAssetStore, "getImage">
   ) {
     this.assetManifest = assetManifest;
     this.assetPackStore = assetPackStore;

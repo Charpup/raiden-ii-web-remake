@@ -366,7 +366,7 @@
 - Actions taken:
   - Reframed the project from a public-release-complete story to a private playable prototype focused on a desktop-first Stage 1 vertical slice.
   - Added RED tests for desktop viewport fitting, prototype asset candidate resolution, fallback asset coverage, Stage 1 enemy motion, and player projectile spawning.
-  - Replaced the abstract asset manifest with a richer prototype asset contract that now exposes texture metadata, private override candidates, audio cue candidates, and tracked fallback inventory.
+  - Replaced the abstract asset manifest with a richer prototype asset contract that now exposes texture metadata, replacement candidates, audio cue candidates, and tracked fallback inventory.
   - Added tracked fallback SVG assets for shell UI, gameplay actors, pickups, bullets, boss parts, and stage backdrops so the runtime no longer points at missing public files.
   - Upgraded the renderer to project sprite ids, background layers, scroll state, and bullets instead of only placeholder entity positions.
   - Replaced the primitive-block Pixi scene adapter with a texture-backed adapter that preloads assets, fits the 320x568 playfield inside the host viewport, and renders parallax background layers plus sprite entities.
@@ -395,7 +395,7 @@
   - `public/assets/stages/stage-1/*`
   - `public/assets/stages/shared/*`
   - `tests/viewportLayout.test.ts`
-  - `tests/prototypeAssetManifest.test.ts`
+  - `tests/replacementAssetManifest.test.ts`
   - `tests/stage1PrototypePlayability.test.ts`
   - `tests/runtimeFoundation.test.ts`
   - `tests/runtimeShell.dom.test.ts`
@@ -409,10 +409,10 @@
   - Locked the new north star to a **desktop-first, privately playable Stage 1 vertical slice** instead of a public-release-ready campaign build.
   - Locked two planning defaults for the next program cycle:
     - milestone bar = `1P Boss Clear`
-    - asset strategy = `Private Pack First`
+    - asset strategy = `Replacement Asset Pack First`
   - Rewrote the active roadmap into four high-level sprints:
     - `combat-readability`
-    - `private-asset-pack`
+    - `replacement-asset-pack`
     - `boss-clear-slice`
     - `prototype-hardening`
   - Rebased `triadev-handoff.json` onto a new Core planning state so the next detailed sprint plan can start from `combat-readability` rather than from the older release-track tranche sequence.
@@ -495,29 +495,36 @@
   - `src/app/render/Canvas2DSceneAdapter.ts`
   - `src/app/render/PixiSceneAdapter.ts`
 
-### Phase 16: Sprint 2 Private Asset Pack Integration
-- **Status:** in_progress
+### Phase 16: Sprint 2 Replacement Asset Integration
+- **Status:** complete
 - Actions taken:
-  - Expanded `SPEC.yaml` with Sprint 2 requirement families `AST-201`, `AST-202`, `RNT-201`, `RNT-202`, `REN-201`, `AUD-201`, and `REG-201`.
-  - Added RED-first tests for required Stage 1 private asset inventory, a local validator script, preload-gated browser flow, private-pack-first adapter behavior, and asset-error handling.
-  - Added a structured Stage 1 private-pack contract in `src/app/assets/privatePackContract.json` and upgraded `StageAssetBundle` / `AssetManifest` with required-private texture and audio queries.
-  - Introduced `DefaultPrototypeAssetPackStore` so Stage 1 gameplay startup now preloads required private textures and audio, reports exact missing items, and exposes asset-load state to the runtime snapshot.
+  - Expanded `SPEC.yaml` with Sprint 2 requirement families `AST-201R`, `AST-202R`, `RNT-201R`, `RNT-202R`, `REN-201R`, `AUD-201R`, and `REG-201R`.
+  - Added RED-first tests for required Stage 1 replacement asset inventory, a repo-tracked validator script, preload-gated browser flow, replacement-first adapter behavior, and asset-error handling.
+  - Replaced the old local-only asset-pack spike with a repo-tracked `replacementAssetCatalog.json` and upgraded `StageAssetBundle` / `AssetManifest` with required-replacement texture and audio queries.
+  - Introduced `DefaultReplacementAssetStore` so Stage 1 gameplay startup now preloads required replacement textures and audio, reports exact missing items, and exposes asset-load state to the runtime snapshot.
   - Reworked the browser shell flow from `cabinet-select -> gameplay` into `cabinet-select -> asset-loading -> gameplay | asset-error`, without moving gameplay authority out of simulation.
   - Updated `BrowserRuntimeView` to render `asset-loading` and `asset-error` overlays, including missing-item messaging and a return path back to title.
-  - Switched `Canvas2DSceneAdapter`, `PixiSceneAdapter`, and `WebAudioPlaybackAdapter` to honor private-pack-first semantics so Stage 1 core visuals/audio consume preloaded private resources when available.
-  - Added the local-only validator entrypoint `npm run validate:private-pack` to check the required Stage 1 loose `PNG/OGG` tree under `public/private-prototype/`.
-  - Re-ran targeted RED/GREEN validation, full regression, coverage, and build after the preload gate landed.
-  - Confirmed the current workspace still lacks the actual private Stage 1 art/audio pack, so Sprint 2 remains `in_progress` pending manual asset population and browser acceptance.
+  - Switched `Canvas2DSceneAdapter`, `PixiSceneAdapter`, and `WebAudioPlaybackAdapter` to honor replacement-first semantics so Stage 1 core visuals/audio consume the committed replacement resources once gameplay starts.
+  - Added the repo-tracked validator entrypoint `npm run validate:replacement-assets` to check the required Stage 1 `PNG/OGG` tree under `public/assets/replacement/`, plus `THIRD_PARTY_ASSETS.md` for attribution.
+  - Curated and committed a Stage 1 replacement asset set under `public/assets/replacement/` so the opening slice no longer depends on a local-only private directory.
+  - Re-ran validator, full regression, coverage, build, and Sprint 1 preview signoff after the replacement asset set landed.
+  - Accepted Sprint 2 as `pass with non-blocking quality issues` after manual preview confirmed the Stage 1 opening runs with replacement art/audio while still surfacing quality gaps: low art precision, missing controls tutorial, short stage length, and a boss safe spot.
+  - Added `docs/GDD.md` as the next planning baseline so Sprint 3 is driven by explicit game design rather than ad hoc code tuning.
 - Files created/modified:
   - `SPEC.yaml`
   - `.tdd-state.json`
   - `task_plan.md`
+  - `README.md`
+  - `THIRD_PARTY_ASSETS.md`
+  - `docs/GDD.md`
+  - `triadev-handoff.json`
   - `progress.md`
   - `package.json`
-  - `scripts/validate-private-pack.mjs`
-  - `src/app/assets/privatePackContract.json`
+  - `.gitignore`
+  - `scripts/validate-replacement-assets.mjs`
   - `src/app/assets/assetManifest.ts`
-  - `src/app/assets/PrototypeAssetPackStore.ts`
+  - `src/app/assets/replacementAssetCatalog.json`
+  - `src/app/assets/ReplacementAssetStore.ts`
   - `src/app/audio/AudioPlaybackAdapter.ts`
   - `src/app/createRaidenApp.ts`
   - `src/app/GameFlowController.ts`
@@ -527,12 +534,13 @@
   - `src/app/runtime/BrowserRuntimeView.ts`
   - `src/app/runtime/GameFlowState.ts`
   - `tests/assetManifest.test.ts`
-  - `tests/privatePackValidation.test.ts`
-  - `tests/privatePackAdapters.test.ts`
-  - `tests/prototypeAssetManifest.test.ts`
-  - `tests/prototypeAssetPackStore.test.ts`
+  - `tests/replacementAssetValidation.test.ts`
+  - `tests/replacementAssetAdapters.test.ts`
+  - `tests/replacementAssetManifest.test.ts`
+  - `tests/replacementAssetStore.test.ts`
   - `tests/runtimeShell.dom.test.ts`
   - `tests/uiFlowState.test.ts`
+  - `public/assets/replacement/`
 
 ### Superseding Reboot Check
 | Question | Answer |

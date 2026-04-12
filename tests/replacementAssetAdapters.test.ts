@@ -6,7 +6,7 @@ import { createAssetManifest } from "../src/app/assets/assetManifest";
 import { WebAudioPlaybackAdapter } from "../src/app/audio/AudioPlaybackAdapter";
 import { Canvas2DSceneAdapter } from "../src/app/render/Canvas2DSceneAdapter";
 
-describe("Private-pack-first adapters", () => {
+describe("Replacement-first adapters", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
   });

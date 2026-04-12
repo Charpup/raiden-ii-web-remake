@@ -1,4 +1,4 @@
-import privatePackContract from "./privatePackContract.json";
+import replacementAssetCatalog from "./replacementAssetCatalog.json";
 
 export interface AssetBundle {
   id: "shell" | "shared";
@@ -8,7 +8,7 @@ export interface AssetBundle {
 export interface TextureAssetDefinition {
   id: string;
   fallbackRelativePath: string;
-  privateOverrideRelativePath?: string;
+  replacementRelativePath?: string;
   width: number;
   height: number;
   kind: "ui" | "entity" | "background";
@@ -16,12 +16,17 @@ export interface TextureAssetDefinition {
 
 export interface AudioCueDefinition {
   id: string;
-  privateOverrideRelativePath?: string;
+  replacementRelativePath?: string;
 }
 
-export interface RequiredPrivateAssetDefinition {
+export interface RequiredReplacementAssetDefinition {
   id: string;
   path: string;
+  sourceUrl: string;
+  sourceTitle: string;
+  author: string;
+  license: string;
+  modified: boolean;
 }
 
 export interface StageAssetBundle {
@@ -29,8 +34,8 @@ export interface StageAssetBundle {
   assetIds: string[];
   audioCueIds: string[];
   preloadGroups: string[];
-  requiredPrivateTextureIds: string[];
-  requiredPrivateAudioCueIds: string[];
+  requiredReplacementTextureIds: string[];
+  requiredReplacementAudioCueIds: string[];
 }
 
 export interface AssetManifest {
@@ -42,15 +47,15 @@ export interface AssetManifest {
   getAudioCue(cueId: string): AudioCueDefinition;
   listTextureAssets(): TextureAssetDefinition[];
   listAudioCues(): AudioCueDefinition[];
-  getRequiredPrivateTextureAssets(stageId: string): Array<
-    TextureAssetDefinition & { privateOverrideRelativePath: string }
+  getRequiredReplacementTextureAssets(stageId: string): Array<
+    TextureAssetDefinition & { replacementRelativePath: string }
   >;
-  getRequiredPrivateAudioCues(stageId: string): Array<
-    AudioCueDefinition & { privateOverrideRelativePath: string }
+  getRequiredReplacementAudioCues(stageId: string): Array<
+    AudioCueDefinition & { replacementRelativePath: string }
   >;
-  getPrivatePackContract(stageId: string): {
-    requiredPrivateTextures: RequiredPrivateAssetDefinition[];
-    requiredPrivateAudioCues: RequiredPrivateAssetDefinition[];
+  getReplacementAssetCatalog(stageId: string): {
+    requiredReplacementTextures: RequiredReplacementAssetDefinition[];
+    requiredReplacementAudioCues: RequiredReplacementAssetDefinition[];
   };
   resolveTextureCandidates(assetId: string): string[];
   resolveAudioCandidates(cueId: string): string[];
@@ -58,11 +63,11 @@ export interface AssetManifest {
   resolvePath(relativePath: string): string;
 }
 
-type PrivatePackContractRecord = Record<
+type ReplacementAssetCatalogRecord = Record<
   string,
   {
-    requiredPrivateTextures: RequiredPrivateAssetDefinition[];
-    requiredPrivateAudioCues: RequiredPrivateAssetDefinition[];
+    requiredReplacementTextures: RequiredReplacementAssetDefinition[];
+    requiredReplacementAudioCues: RequiredReplacementAssetDefinition[];
   }
 >;
 
@@ -91,7 +96,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.player-ship": {
     id: "shared.player-ship",
     fallbackRelativePath: "assets/gameplay/player-ship.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/player-ship.png",
+    replacementRelativePath: "assets/replacement/gameplay/player-ship.png",
     width: 28,
     height: 34,
     kind: "entity"
@@ -99,7 +104,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.enemy-scout": {
     id: "shared.enemy-scout",
     fallbackRelativePath: "assets/gameplay/enemy-scout.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/enemy-scout.png",
+    replacementRelativePath: "assets/replacement/gameplay/enemy-scout.png",
     width: 24,
     height: 24,
     kind: "entity"
@@ -107,7 +112,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.enemy-warplane": {
     id: "shared.enemy-warplane",
     fallbackRelativePath: "assets/gameplay/enemy-warplane.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/enemy-warplane.png",
+    replacementRelativePath: "assets/replacement/gameplay/enemy-warplane.png",
     width: 38,
     height: 28,
     kind: "entity"
@@ -115,7 +120,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.enemy-ground": {
     id: "shared.enemy-ground",
     fallbackRelativePath: "assets/gameplay/enemy-ground.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/enemy-ground.png",
+    replacementRelativePath: "assets/replacement/gameplay/enemy-ground.png",
     width: 26,
     height: 22,
     kind: "entity"
@@ -123,7 +128,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.enemy-turret": {
     id: "shared.enemy-turret",
     fallbackRelativePath: "assets/gameplay/enemy-turret.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/enemy-turret.png",
+    replacementRelativePath: "assets/replacement/gameplay/enemy-turret.png",
     width: 26,
     height: 26,
     kind: "entity"
@@ -131,7 +136,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.enemy-carrier": {
     id: "shared.enemy-carrier",
     fallbackRelativePath: "assets/gameplay/enemy-carrier.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/enemy-carrier.png",
+    replacementRelativePath: "assets/replacement/gameplay/enemy-carrier.png",
     width: 34,
     height: 28,
     kind: "entity"
@@ -139,7 +144,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.enemy-gunboat": {
     id: "shared.enemy-gunboat",
     fallbackRelativePath: "assets/gameplay/enemy-gunboat.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/enemy-gunboat.png",
+    replacementRelativePath: "assets/replacement/gameplay/enemy-gunboat.png",
     width: 42,
     height: 24,
     kind: "entity"
@@ -147,7 +152,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.enemy-scenery": {
     id: "shared.enemy-scenery",
     fallbackRelativePath: "assets/gameplay/enemy-scenery.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/enemy-scenery.png",
+    replacementRelativePath: "assets/replacement/gameplay/enemy-scenery.png",
     width: 28,
     height: 32,
     kind: "entity"
@@ -155,7 +160,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.pickup-medal": {
     id: "shared.pickup-medal",
     fallbackRelativePath: "assets/gameplay/pickup-medal.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/pickup-medal.png",
+    replacementRelativePath: "assets/replacement/gameplay/pickup-medal.png",
     width: 16,
     height: 16,
     kind: "entity"
@@ -163,7 +168,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.pickup-fairy": {
     id: "shared.pickup-fairy",
     fallbackRelativePath: "assets/gameplay/pickup-fairy.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/pickup-fairy.png",
+    replacementRelativePath: "assets/replacement/gameplay/pickup-fairy.png",
     width: 18,
     height: 20,
     kind: "entity"
@@ -171,7 +176,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.pickup-weapon": {
     id: "shared.pickup-weapon",
     fallbackRelativePath: "assets/gameplay/pickup-weapon.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/pickup-weapon.png",
+    replacementRelativePath: "assets/replacement/gameplay/pickup-weapon.png",
     width: 18,
     height: 18,
     kind: "entity"
@@ -179,7 +184,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.pickup-bomb": {
     id: "shared.pickup-bomb",
     fallbackRelativePath: "assets/gameplay/pickup-bomb.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/pickup-bomb.png",
+    replacementRelativePath: "assets/replacement/gameplay/pickup-bomb.png",
     width: 18,
     height: 18,
     kind: "entity"
@@ -187,7 +192,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.pickup-extend": {
     id: "shared.pickup-extend",
     fallbackRelativePath: "assets/gameplay/pickup-extend.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/pickup-extend.png",
+    replacementRelativePath: "assets/replacement/gameplay/pickup-extend.png",
     width: 18,
     height: 18,
     kind: "entity"
@@ -195,7 +200,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.pickup-miclus": {
     id: "shared.pickup-miclus",
     fallbackRelativePath: "assets/gameplay/pickup-miclus.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/pickup-miclus.png",
+    replacementRelativePath: "assets/replacement/gameplay/pickup-miclus.png",
     width: 20,
     height: 20,
     kind: "entity"
@@ -203,7 +208,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.boss-shell": {
     id: "shared.boss-shell",
     fallbackRelativePath: "assets/gameplay/boss-shell.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/boss-shell.png",
+    replacementRelativePath: "assets/replacement/gameplay/boss-shell.png",
     width: 92,
     height: 52,
     kind: "entity"
@@ -211,7 +216,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.boss-walker-body": {
     id: "shared.boss-walker-body",
     fallbackRelativePath: "assets/gameplay/boss-walker-body.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/boss-walker-body.png",
+    replacementRelativePath: "assets/replacement/gameplay/boss-walker-body.png",
     width: 96,
     height: 56,
     kind: "entity"
@@ -219,7 +224,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.boss-walker-part": {
     id: "shared.boss-walker-part",
     fallbackRelativePath: "assets/gameplay/boss-walker-part.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/boss-walker-part.png",
+    replacementRelativePath: "assets/replacement/gameplay/boss-walker-part.png",
     width: 38,
     height: 28,
     kind: "entity"
@@ -227,7 +232,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.player-bullet": {
     id: "shared.player-bullet",
     fallbackRelativePath: "assets/gameplay/player-bullet.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/player-bullet.png",
+    replacementRelativePath: "assets/replacement/gameplay/player-bullet.png",
     width: 10,
     height: 18,
     kind: "entity"
@@ -235,7 +240,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.enemy-bullet": {
     id: "shared.enemy-bullet",
     fallbackRelativePath: "assets/gameplay/enemy-bullet.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/enemy-bullet.png",
+    replacementRelativePath: "assets/replacement/gameplay/enemy-bullet.png",
     width: 10,
     height: 18,
     kind: "entity"
@@ -243,7 +248,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.effect-hit": {
     id: "shared.effect-hit",
     fallbackRelativePath: "assets/gameplay/effect-hit.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/effect-hit.png",
+    replacementRelativePath: "assets/replacement/gameplay/effect-hit.png",
     width: 24,
     height: 24,
     kind: "entity"
@@ -251,7 +256,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.effect-explosion": {
     id: "shared.effect-explosion",
     fallbackRelativePath: "assets/gameplay/effect-explosion.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/effect-explosion.png",
+    replacementRelativePath: "assets/replacement/gameplay/effect-explosion.png",
     width: 42,
     height: 42,
     kind: "entity"
@@ -259,7 +264,7 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "shared.effect-respawn": {
     id: "shared.effect-respawn",
     fallbackRelativePath: "assets/gameplay/effect-respawn.svg",
-    privateOverrideRelativePath: "private-prototype/gameplay/effect-respawn.png",
+    replacementRelativePath: "assets/replacement/gameplay/effect-respawn.png",
     width: 48,
     height: 48,
     kind: "entity"
@@ -267,23 +272,22 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "stage-1.backdrop-sky": {
     id: "stage-1.backdrop-sky",
     fallbackRelativePath: "assets/stages/stage-1/backdrop-sky.svg",
-    privateOverrideRelativePath: "private-prototype/stages/stage-1/backdrop-sky.png",
+    replacementRelativePath: "assets/replacement/stages/stage-1/backdrop-sky.png",
     width: 320,
-    height: 568,
+    height: 192,
     kind: "background"
   },
   "stage-1.backdrop-terrain": {
     id: "stage-1.backdrop-terrain",
     fallbackRelativePath: "assets/stages/stage-1/backdrop-terrain.svg",
-    privateOverrideRelativePath: "private-prototype/stages/stage-1/backdrop-terrain.png",
+    replacementRelativePath: "assets/replacement/stages/stage-1/backdrop-terrain.png",
     width: 320,
-    height: 568,
+    height: 192,
     kind: "background"
   },
   "stage-2.backdrop": {
     id: "stage-2.backdrop",
     fallbackRelativePath: "assets/stages/shared/backdrop-water.svg",
-    privateOverrideRelativePath: "private-prototype/stages/stage-2/backdrop.png",
     width: 320,
     height: 568,
     kind: "background"
@@ -291,7 +295,6 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "stage-3.backdrop": {
     id: "stage-3.backdrop",
     fallbackRelativePath: "assets/stages/shared/backdrop-water.svg",
-    privateOverrideRelativePath: "private-prototype/stages/stage-3/backdrop.png",
     width: 320,
     height: 568,
     kind: "background"
@@ -299,7 +302,6 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "stage-4.backdrop": {
     id: "stage-4.backdrop",
     fallbackRelativePath: "assets/stages/shared/backdrop-industrial.svg",
-    privateOverrideRelativePath: "private-prototype/stages/stage-4/backdrop.png",
     width: 320,
     height: 568,
     kind: "background"
@@ -307,7 +309,6 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "stage-5.backdrop": {
     id: "stage-5.backdrop",
     fallbackRelativePath: "assets/stages/shared/backdrop-desert.svg",
-    privateOverrideRelativePath: "private-prototype/stages/stage-5/backdrop.png",
     width: 320,
     height: 568,
     kind: "background"
@@ -315,7 +316,6 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "stage-6.backdrop": {
     id: "stage-6.backdrop",
     fallbackRelativePath: "assets/stages/shared/backdrop-industrial.svg",
-    privateOverrideRelativePath: "private-prototype/stages/stage-6/backdrop.png",
     width: 320,
     height: 568,
     kind: "background"
@@ -323,7 +323,6 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "stage-7.backdrop": {
     id: "stage-7.backdrop",
     fallbackRelativePath: "assets/stages/shared/backdrop-void.svg",
-    privateOverrideRelativePath: "private-prototype/stages/stage-7/backdrop.png",
     width: 320,
     height: 568,
     kind: "background"
@@ -331,7 +330,6 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
   "stage-8.backdrop": {
     id: "stage-8.backdrop",
     fallbackRelativePath: "assets/stages/shared/backdrop-void.svg",
-    privateOverrideRelativePath: "private-prototype/stages/stage-8/backdrop.png",
     width: 320,
     height: 568,
     kind: "background"
@@ -341,63 +339,54 @@ const textureRegistry: Record<string, TextureAssetDefinition> = {
 const audioCueRegistry: Record<string, AudioCueDefinition> = {
   "bgm-stage-1": {
     id: "bgm-stage-1",
-    privateOverrideRelativePath: "private-prototype/audio/bgm-stage-1.ogg"
+    replacementRelativePath: "assets/replacement/audio/bgm-stage-1.ogg"
   },
   "bgm-stage-2": {
-    id: "bgm-stage-2",
-    privateOverrideRelativePath: "private-prototype/audio/bgm-stage-2.ogg"
+    id: "bgm-stage-2"
   },
   "bgm-stage-3": {
-    id: "bgm-stage-3",
-    privateOverrideRelativePath: "private-prototype/audio/bgm-stage-3.ogg"
+    id: "bgm-stage-3"
   },
   "bgm-stage-4": {
-    id: "bgm-stage-4",
-    privateOverrideRelativePath: "private-prototype/audio/bgm-stage-4.ogg"
+    id: "bgm-stage-4"
   },
   "bgm-stage-5": {
-    id: "bgm-stage-5",
-    privateOverrideRelativePath: "private-prototype/audio/bgm-stage-5.ogg"
+    id: "bgm-stage-5"
   },
   "bgm-stage-6": {
-    id: "bgm-stage-6",
-    privateOverrideRelativePath: "private-prototype/audio/bgm-stage-6.ogg"
+    id: "bgm-stage-6"
   },
   "bgm-stage-7": {
-    id: "bgm-stage-7",
-    privateOverrideRelativePath: "private-prototype/audio/bgm-stage-7.ogg"
+    id: "bgm-stage-7"
   },
   "bgm-stage-8": {
-    id: "bgm-stage-8",
-    privateOverrideRelativePath: "private-prototype/audio/bgm-stage-8.ogg"
+    id: "bgm-stage-8"
   },
   "sfx-player1-fire": {
     id: "sfx-player1-fire",
-    privateOverrideRelativePath: "private-prototype/audio/sfx-player1-fire.ogg"
+    replacementRelativePath: "assets/replacement/audio/sfx-player1-fire.ogg"
   },
   "sfx-player2-fire": {
-    id: "sfx-player2-fire",
-    privateOverrideRelativePath: "private-prototype/audio/sfx-player2-fire.ogg"
+    id: "sfx-player2-fire"
   },
   "sfx-player1-bomb": {
     id: "sfx-player1-bomb",
-    privateOverrideRelativePath: "private-prototype/audio/sfx-player1-bomb.ogg"
+    replacementRelativePath: "assets/replacement/audio/sfx-player1-bomb.ogg"
   },
   "sfx-player2-bomb": {
-    id: "sfx-player2-bomb",
-    privateOverrideRelativePath: "private-prototype/audio/sfx-player2-bomb.ogg"
+    id: "sfx-player2-bomb"
   },
   "sfx-player-hit": {
     id: "sfx-player-hit",
-    privateOverrideRelativePath: "private-prototype/audio/sfx-player-hit.ogg"
+    replacementRelativePath: "assets/replacement/audio/sfx-player-hit.ogg"
   },
   "sfx-player-respawn": {
     id: "sfx-player-respawn",
-    privateOverrideRelativePath: "private-prototype/audio/sfx-player-respawn.ogg"
+    replacementRelativePath: "assets/replacement/audio/sfx-player-respawn.ogg"
   },
   "sfx-enemy-destroyed": {
     id: "sfx-enemy-destroyed",
-    privateOverrideRelativePath: "private-prototype/audio/sfx-enemy-destroyed.ogg"
+    replacementRelativePath: "assets/replacement/audio/sfx-enemy-destroyed.ogg"
   }
 };
 
@@ -437,10 +426,10 @@ const stageBundles: Record<string, StageAssetBundle> = {
       "sfx-enemy-destroyed"
     ],
     preloadGroups: ["shell", "shared", "stage-1"],
-    requiredPrivateTextureIds: privatePackContract.stageBundles["stage-1"].requiredPrivateTextures.map(
+    requiredReplacementTextureIds: replacementAssetCatalog.stageBundles["stage-1"].requiredReplacementTextures.map(
       (asset) => asset.id
     ),
-    requiredPrivateAudioCueIds: privatePackContract.stageBundles["stage-1"].requiredPrivateAudioCues.map(
+    requiredReplacementAudioCueIds: replacementAssetCatalog.stageBundles["stage-1"].requiredReplacementAudioCues.map(
       (cue) => cue.id
     )
   },
@@ -449,56 +438,56 @@ const stageBundles: Record<string, StageAssetBundle> = {
     assetIds: ["stage-2.backdrop", "shared.player-ship", "shared.enemy-scout"],
     audioCueIds: ["bgm-stage-2", "sfx-player1-fire", "sfx-player1-bomb"],
     preloadGroups: ["shell", "shared", "stage-2"],
-    requiredPrivateTextureIds: [],
-    requiredPrivateAudioCueIds: []
+    requiredReplacementTextureIds: [],
+    requiredReplacementAudioCueIds: []
   },
   "stage-3": {
     stageId: "stage-3",
     assetIds: ["stage-3.backdrop", "shared.player-ship", "shared.enemy-scout"],
     audioCueIds: ["bgm-stage-3", "sfx-player1-fire", "sfx-player1-bomb"],
     preloadGroups: ["shell", "shared", "stage-3"],
-    requiredPrivateTextureIds: [],
-    requiredPrivateAudioCueIds: []
+    requiredReplacementTextureIds: [],
+    requiredReplacementAudioCueIds: []
   },
   "stage-4": {
     stageId: "stage-4",
     assetIds: ["stage-4.backdrop", "shared.player-ship", "shared.enemy-scout"],
     audioCueIds: ["bgm-stage-4", "sfx-player1-fire", "sfx-player1-bomb"],
     preloadGroups: ["shell", "shared", "stage-4"],
-    requiredPrivateTextureIds: [],
-    requiredPrivateAudioCueIds: []
+    requiredReplacementTextureIds: [],
+    requiredReplacementAudioCueIds: []
   },
   "stage-5": {
     stageId: "stage-5",
     assetIds: ["stage-5.backdrop", "shared.player-ship", "shared.enemy-scout"],
     audioCueIds: ["bgm-stage-5", "sfx-player1-fire", "sfx-player1-bomb"],
     preloadGroups: ["shell", "shared", "stage-5"],
-    requiredPrivateTextureIds: [],
-    requiredPrivateAudioCueIds: []
+    requiredReplacementTextureIds: [],
+    requiredReplacementAudioCueIds: []
   },
   "stage-6": {
     stageId: "stage-6",
     assetIds: ["stage-6.backdrop", "shared.player-ship", "shared.enemy-scout"],
     audioCueIds: ["bgm-stage-6", "sfx-player1-fire", "sfx-player1-bomb"],
     preloadGroups: ["shell", "shared", "stage-6"],
-    requiredPrivateTextureIds: [],
-    requiredPrivateAudioCueIds: []
+    requiredReplacementTextureIds: [],
+    requiredReplacementAudioCueIds: []
   },
   "stage-7": {
     stageId: "stage-7",
     assetIds: ["stage-7.backdrop", "shared.player-ship", "shared.enemy-scout"],
     audioCueIds: ["bgm-stage-7", "sfx-player1-fire", "sfx-player1-bomb"],
     preloadGroups: ["shell", "shared", "stage-7"],
-    requiredPrivateTextureIds: [],
-    requiredPrivateAudioCueIds: []
+    requiredReplacementTextureIds: [],
+    requiredReplacementAudioCueIds: []
   },
   "stage-8": {
     stageId: "stage-8",
     assetIds: ["stage-8.backdrop", "shared.player-ship", "shared.enemy-scout"],
     audioCueIds: ["bgm-stage-8", "sfx-player1-fire", "sfx-player1-bomb"],
     preloadGroups: ["shell", "shared", "stage-8"],
-    requiredPrivateTextureIds: [],
-    requiredPrivateAudioCueIds: []
+    requiredReplacementTextureIds: [],
+    requiredReplacementAudioCueIds: []
   }
 };
 
@@ -512,15 +501,15 @@ function normalizeRelativePath(relativePath: string): string {
   return relativePath.replace(/^\/+/, "");
 }
 
-function getPrivatePackStageContract(stageId: string): {
-  requiredPrivateTextures: RequiredPrivateAssetDefinition[];
-  requiredPrivateAudioCues: RequiredPrivateAssetDefinition[];
+function getReplacementStageCatalog(stageId: string): {
+  requiredReplacementTextures: RequiredReplacementAssetDefinition[];
+  requiredReplacementAudioCues: RequiredReplacementAssetDefinition[];
 } {
-  const contract = (privatePackContract.stageBundles as PrivatePackContractRecord)[stageId];
+  const contract = (replacementAssetCatalog.stageBundles as ReplacementAssetCatalogRecord)[stageId];
   return (
     contract ?? {
-      requiredPrivateTextures: [],
-      requiredPrivateAudioCues: []
+      requiredReplacementTextures: [],
+      requiredReplacementAudioCues: []
     }
   );
 }
@@ -586,8 +575,8 @@ export function createAssetManifest(basePath = "/games/raiden-ii/"): AssetManife
           assetIds: ["shared.player-ship", "shared.enemy-scout"],
           audioCueIds: [`bgm-${stageId}`],
           preloadGroups: ["shell", "shared", stageId],
-          requiredPrivateTextureIds: [],
-          requiredPrivateAudioCueIds: []
+          requiredReplacementTextureIds: [],
+          requiredReplacementAudioCueIds: []
         }
       );
     },
@@ -603,49 +592,49 @@ export function createAssetManifest(basePath = "/games/raiden-ii/"): AssetManife
     listAudioCues(): AudioCueDefinition[] {
       return Object.values(audioCueRegistry);
     },
-    getRequiredPrivateTextureAssets(stageId: string): Array<
-      TextureAssetDefinition & { privateOverrideRelativePath: string }
+    getRequiredReplacementTextureAssets(stageId: string): Array<
+      TextureAssetDefinition & { replacementRelativePath: string }
     > {
-      return getPrivatePackStageContract(stageId).requiredPrivateTextures.map((entry) => {
+      return getReplacementStageCatalog(stageId).requiredReplacementTextures.map((entry) => {
         const asset = resolveTextureAsset(entry.id);
-        if (!asset.privateOverrideRelativePath) {
-          throw new Error(`Missing private override path for required texture asset: ${entry.id}`);
+        if (!asset.replacementRelativePath) {
+          throw new Error(`Missing replacement path for required texture asset: ${entry.id}`);
         }
 
-        return asset as TextureAssetDefinition & { privateOverrideRelativePath: string };
+        return asset as TextureAssetDefinition & { replacementRelativePath: string };
       });
     },
-    getRequiredPrivateAudioCues(stageId: string): Array<
-      AudioCueDefinition & { privateOverrideRelativePath: string }
+    getRequiredReplacementAudioCues(stageId: string): Array<
+      AudioCueDefinition & { replacementRelativePath: string }
     > {
-      return getPrivatePackStageContract(stageId).requiredPrivateAudioCues.map((entry) => {
+      return getReplacementStageCatalog(stageId).requiredReplacementAudioCues.map((entry) => {
         const cue = resolveAudioCue(entry.id);
-        if (!cue.privateOverrideRelativePath) {
-          throw new Error(`Missing private override path for required audio cue: ${entry.id}`);
+        if (!cue.replacementRelativePath) {
+          throw new Error(`Missing replacement path for required audio cue: ${entry.id}`);
         }
 
-        return cue as AudioCueDefinition & { privateOverrideRelativePath: string };
+        return cue as AudioCueDefinition & { replacementRelativePath: string };
       });
     },
-    getPrivatePackContract(stageId: string): {
-      requiredPrivateTextures: RequiredPrivateAssetDefinition[];
-      requiredPrivateAudioCues: RequiredPrivateAssetDefinition[];
+    getReplacementAssetCatalog(stageId: string): {
+      requiredReplacementTextures: RequiredReplacementAssetDefinition[];
+      requiredReplacementAudioCues: RequiredReplacementAssetDefinition[];
     } {
-      return getPrivatePackStageContract(stageId);
+      return getReplacementStageCatalog(stageId);
     },
     resolveTextureCandidates(assetId: string): string[] {
       const asset = resolveTextureAsset(assetId);
       const candidates: string[] = [];
-      if (asset.privateOverrideRelativePath) {
-        candidates.push(`${normalizedBasePath}${normalizeRelativePath(asset.privateOverrideRelativePath)}`);
+      if (asset.replacementRelativePath) {
+        candidates.push(`${normalizedBasePath}${normalizeRelativePath(asset.replacementRelativePath)}`);
       }
       candidates.push(`${normalizedBasePath}${normalizeRelativePath(asset.fallbackRelativePath)}`);
       return candidates;
     },
     resolveAudioCandidates(cueId: string): string[] {
       const cue = resolveAudioCue(cueId);
-      return cue.privateOverrideRelativePath
-        ? [`${normalizedBasePath}${normalizeRelativePath(cue.privateOverrideRelativePath)}`]
+      return cue.replacementRelativePath
+        ? [`${normalizedBasePath}${normalizeRelativePath(cue.replacementRelativePath)}`]
         : [];
     },
     resolveUrl(assetId: string): string {

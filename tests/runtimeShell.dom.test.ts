@@ -51,6 +51,7 @@ class FakeAudioPlaybackAdapter {
 type FakeAssetLoadState = {
   state: "idle" | "loading" | "ready" | "error";
   stageId: string | null;
+  missingCount: number;
   missingAssets: Array<{ kind: "texture" | "audio"; id: string; path: string }>;
   loadedTextureIds: string[];
   loadedAudioCueIds: string[];
@@ -64,6 +65,7 @@ class FakeAssetPackStore {
   private loadState: FakeAssetLoadState = {
     state: "idle",
     stageId: null,
+    missingCount: 0,
     missingAssets: [],
     loadedTextureIds: [],
     loadedAudioCueIds: []
@@ -75,7 +77,7 @@ class FakeAssetPackStore {
       {
         kind: "texture",
         id: "shared.player-ship",
-        path: "private-prototype/gameplay/player-ship.png"
+        path: "assets/replacement/gameplay/player-ship.png"
       }
     ]
   ) {
@@ -87,6 +89,7 @@ class FakeAssetPackStore {
     this.loadState = {
       state: "loading",
       stageId,
+      missingCount: 0,
       missingAssets: [],
       loadedTextureIds: [],
       loadedAudioCueIds: []
@@ -98,6 +101,7 @@ class FakeAssetPackStore {
       this.loadState = {
         state: "error",
         stageId,
+        missingCount: this.missingAssets.length,
         missingAssets: this.missingAssets,
         loadedTextureIds: [],
         loadedAudioCueIds: []
@@ -108,6 +112,7 @@ class FakeAssetPackStore {
     this.loadState = {
       state: "ready",
       stageId,
+      missingCount: 0,
       missingAssets: [],
       loadedTextureIds: [],
       loadedAudioCueIds: []
@@ -135,6 +140,7 @@ class FakeAssetPackStore {
     this.loadState = {
       state: "idle",
       stageId: null,
+      missingCount: 0,
       missingAssets: [],
       loadedTextureIds: [],
       loadedAudioCueIds: []
@@ -423,12 +429,12 @@ describe("Browser shell DOM runtime", () => {
       {
         kind: "texture" as const,
         id: "shared.player-ship",
-        path: "private-prototype/gameplay/player-ship.png"
+        path: "assets/replacement/gameplay/player-ship.png"
       },
       {
         kind: "audio" as const,
         id: "bgm-stage-1",
-        path: "private-prototype/audio/bgm-stage-1.ogg"
+        path: "assets/replacement/audio/bgm-stage-1.ogg"
       }
     ];
 

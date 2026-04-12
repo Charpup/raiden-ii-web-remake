@@ -1,6 +1,6 @@
 import type { AudioFrame } from "../../game/core/types";
 import type { AssetManifest } from "../assets/assetManifest";
-import type { PrototypeAssetPackStore } from "../assets/PrototypeAssetPackStore";
+import type { ReplacementAssetStore } from "../assets/ReplacementAssetStore";
 
 export interface AudioPlaybackAdapter {
   unlock(): void | Promise<void>;
@@ -40,7 +40,7 @@ function stageMelody(cue: string): number[] {
 export class WebAudioPlaybackAdapter implements AudioPlaybackAdapter {
   private readonly assetManifest?: AssetManifest;
 
-  private readonly assetPackStore?: Pick<PrototypeAssetPackStore, "getAudioBuffer">;
+  private readonly assetPackStore?: Pick<ReplacementAssetStore, "getAudioBuffer">;
 
   private context: AudioContext | null = null;
 
@@ -60,7 +60,7 @@ export class WebAudioPlaybackAdapter implements AudioPlaybackAdapter {
 
   constructor(
     assetManifest?: AssetManifest,
-    assetPackStore?: Pick<PrototypeAssetPackStore, "getAudioBuffer">
+    assetPackStore?: Pick<ReplacementAssetStore, "getAudioBuffer">
   ) {
     this.assetManifest = assetManifest;
     this.assetPackStore = assetPackStore;

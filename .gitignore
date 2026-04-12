@@ -11,5 +11,5 @@ Thumbs.db
 .idea/
 reference-assets/
 tmp/
-public/private-prototype/
+.tmp_asset_source/
 output/

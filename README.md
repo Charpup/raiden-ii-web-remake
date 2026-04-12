@@ -6,14 +6,14 @@ This repo is no longer tracked as a public-release-ready remake. It has been res
 - Build a browser prototype that feels alive enough to actually play
 - Prioritize desktop viewport fit, readable HUD, real render assets, and non-placeholder audio behavior
 - Keep deterministic simulation ownership intact while upgrading the presentation layer around it
-- Treat any future original/extracted asset pack as a **private local override**, not a committed repository asset set
+- Treat Stage 1 replacement art/audio as a **repo-tracked replacement asset set**, not a private local override
 
 ## What Exists Now
 - Deterministic simulation, authored stage data, co-op/cabinet/session flow, and browser shell wiring
 - A tracked fallback prototype asset pack in `public/assets/`
 - Viewport-fit logic for a fixed desktop gameplay shell
 - Stage 1 movement + player projectile pass sufficient to make the slice start feeling interactive
-- Private override asset/audio path conventions under `public/private-prototype/` for local-only experimentation
+- Repo-tracked Stage 1 replacement asset/audio path conventions under `public/assets/replacement/`
 
 ## What This Is Not
 - Not a public-release-ready remake
@@ -31,8 +31,8 @@ The current roadmap is organized as four high-level sprints:
 
 1. `combat-readability`
    Bring the opening 30-60 seconds of Stage 1 to a readable and survivable standard.
-2. `private-asset-pack`
-   Switch the Stage 1 core experience from fallback-first visuals/audio to a private prototype asset pack.
+2. `replacement-asset-pack`
+   Switch the Stage 1 core experience from fallback-first visuals/audio to a repo-tracked replacement asset pack.
 3. `boss-clear-slice`
    Complete the `1P Solo + Easy` Stage 1 flow from title to boss clear.
 4. `prototype-hardening`
@@ -64,4 +64,4 @@ http://127.0.0.1:4175/games/raiden-ii/
 - `arcade-baseline-matrix.md`
 
 ## Historical Notes
-The older public-release and host-deployment documents are still in the repo as historical output from the previous roadmap, but they are **superseded** by the private prototype reset until the project is intentionally reopened for a public-safe release track.
+The older public-release and host-deployment documents are still in the repo as historical output from the previous roadmap, but they are **superseded** by the private prototype reset until the project is intentionally reopened for a public-safe release track. The current Stage 1 presentation milestone uses committed replacement assets and attribution rather than a local-only private asset pack.

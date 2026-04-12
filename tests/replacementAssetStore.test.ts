@@ -3,12 +3,12 @@
 import { describe, expect, it } from "vitest";
 
 import { createAssetManifest } from "../src/app/assets/assetManifest";
-import { DefaultPrototypeAssetPackStore } from "../src/app/assets/PrototypeAssetPackStore";
+import { DefaultReplacementAssetStore } from "../src/app/assets/ReplacementAssetStore";
 
-describe("Prototype asset pack store", () => {
-  it("AST-201 and RNT-201 preload the required Stage 1 textures and audio into a ready load state", async () => {
+describe("Replacement asset store", () => {
+  it("AST-201R and RNT-201R preload the required Stage 1 textures and audio into a ready load state", async () => {
     const manifest = createAssetManifest("/games/raiden-ii/");
-    const store = new DefaultPrototypeAssetPackStore(manifest, {
+    const store = new DefaultReplacementAssetStore(manifest, {
       imageLoader: async (url) => {
         const image = new Image();
         image.src = url;
@@ -33,9 +33,9 @@ describe("Prototype asset pack store", () => {
     expect(store.getLoadState().state).toBe("idle");
   });
 
-  it("AST-202 records exact missing asset ids and paths when Stage 1 preload fails", async () => {
+  it("AST-202R records exact missing asset ids and paths when Stage 1 preload fails", async () => {
     const manifest = createAssetManifest("/games/raiden-ii/");
-    const store = new DefaultPrototypeAssetPackStore(manifest, {
+    const store = new DefaultReplacementAssetStore(manifest, {
       imageLoader: async (url) => {
         if (url.includes("player-ship")) {
           throw new Error("missing player ship");
@@ -64,12 +64,12 @@ describe("Prototype asset pack store", () => {
         {
           kind: "texture",
           id: "shared.player-ship",
-          path: "private-prototype/gameplay/player-ship.png"
+          path: "assets/replacement/gameplay/player-ship.png"
         },
         {
           kind: "audio",
           id: "bgm-stage-1",
-          path: "private-prototype/audio/bgm-stage-1.ogg"
+          path: "assets/replacement/audio/bgm-stage-1.ogg"
         }
       ])
     );

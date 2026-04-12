@@ -117,14 +117,14 @@ export class BrowserRuntimeView {
                   </div>
                 </section>
                 <section class="overlay-card overlay-card--compact" data-screen="asset-loading">
-                  <p class="overlay-eyebrow">Prototype Asset Pack</p>
+                  <p class="overlay-eyebrow">Replacement Assets</p>
                   <h2>Loading Stage 1</h2>
-                  <p class="overlay-copy" data-role="asset-loading-status">Checking required private art and audio before sortie.</p>
+                  <p class="overlay-copy" data-role="asset-loading-status">Checking required Stage 1 replacement art and audio before sortie.</p>
                 </section>
                 <section class="overlay-card overlay-card--compact" data-screen="asset-error">
-                  <p class="overlay-eyebrow">Prototype Asset Pack Missing</p>
+                  <p class="overlay-eyebrow">Replacement Assets Missing</p>
                   <h2>Stage 1 cannot launch</h2>
-                  <p class="overlay-copy" data-role="asset-error-status">Missing private prototype assets.</p>
+                  <p class="overlay-copy" data-role="asset-error-status">Missing required replacement assets.</p>
                   ${createButton("return-title", "Back To Title")}
                 </section>
                 <section class="overlay-card overlay-card--compact" data-screen="continue">
@@ -316,7 +316,7 @@ export class BrowserRuntimeView {
 
   private updateAssetLoad(snapshot: BrowserRuntimeSnapshot): void {
     if (snapshot.assetLoad.state === "loading") {
-      this.assetLoadingStatus.textContent = `Checking required Stage 1 textures and audio for ${snapshot.assetLoad.stageId ?? "stage-1"}.`;
+      this.assetLoadingStatus.textContent = `Checking required Stage 1 replacement textures and audio for ${snapshot.assetLoad.stageId ?? "stage-1"}.`;
       return;
     }
 
@@ -326,13 +326,14 @@ export class BrowserRuntimeView {
         .join(" | ");
       this.assetErrorStatus.textContent =
         missingList.length > 0
-          ? `Missing required prototype assets: ${missingList}`
-          : "Missing private prototype assets.";
+          ? `Missing required replacement assets: ${missingList}`
+          : "Missing required replacement assets.";
       return;
     }
 
-    this.assetLoadingStatus.textContent = "Checking required private art and audio before sortie.";
-    this.assetErrorStatus.textContent = "Missing private prototype assets.";
+    this.assetLoadingStatus.textContent =
+      "Checking required Stage 1 replacement art and audio before sortie.";
+    this.assetErrorStatus.textContent = "Missing required replacement assets.";
   }
 
   private query<TElement extends Element>(selector: string): TElement {

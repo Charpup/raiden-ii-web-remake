@@ -14,10 +14,10 @@ import { Renderer } from "../../game/render/Renderer";
 import { GameFlowController } from "../GameFlowController";
 import { createAssetManifest, type AssetManifest } from "../assets/assetManifest";
 import {
-  DefaultPrototypeAssetPackStore,
-  type PrototypeAssetPackLoadState,
-  type PrototypeAssetPackStore
-} from "../assets/PrototypeAssetPackStore";
+  DefaultReplacementAssetStore,
+  type ReplacementAssetLoadState,
+  type ReplacementAssetStore
+} from "../assets/ReplacementAssetStore";
 import { WebAudioPlaybackAdapter, type AudioPlaybackAdapter } from "../audio/AudioPlaybackAdapter";
 import { projectHud, type HudProjection } from "../hudProjection";
 import { Canvas2DSceneAdapter } from "../render/Canvas2DSceneAdapter";
@@ -39,7 +39,7 @@ export interface BrowserRuntimeSnapshot {
   scene: PresentationalScene | null;
   audioFrame: AudioFrame | null;
   assetManifest: AssetManifest;
-  assetLoad: PrototypeAssetPackLoadState;
+  assetLoad: ReplacementAssetLoadState;
   simulationFrame: number | null;
   sceneCounts: BrowserRuntimeSceneCounts;
   recentEventTypes: RuntimeEvent["type"][];
@@ -50,7 +50,7 @@ export interface BrowserRuntimeOptions {
   sceneAdapterFactory?: () => SceneAdapter | Promise<SceneAdapter>;
   audioPlaybackFactory?: () => AudioPlaybackAdapter;
   assetManifest?: AssetManifest;
-  assetPackStore?: PrototypeAssetPackStore;
+  assetPackStore?: ReplacementAssetStore;
   onSnapshot?: (snapshot: BrowserRuntimeSnapshot) => void;
   onAttachPhase?: (phase: BrowserRuntimeAttachPhase) => void;
 }
@@ -64,7 +64,7 @@ export type BrowserRuntimeAttachPhase =
 
 async function createDefaultSceneAdapter(
   assetManifest: AssetManifest,
-  assetPackStore: PrototypeAssetPackStore
+  assetPackStore: ReplacementAssetStore
 ): Promise<SceneAdapter> {
   return new Canvas2DSceneAdapter(assetManifest, assetPackStore);
 }
@@ -80,7 +80,7 @@ export class BrowserRuntime {
 
   private readonly assetManifest: AssetManifest;
 
-  private readonly assetPackStore: PrototypeAssetPackStore;
+  private readonly assetPackStore: ReplacementAssetStore;
 
   private readonly audioPlayback: AudioPlaybackAdapter;
 
@@ -119,7 +119,7 @@ export class BrowserRuntime {
   constructor(options: BrowserRuntimeOptions = {}) {
     this.assetManifest = options.assetManifest ?? createAssetManifest();
     this.assetPackStore =
-      options.assetPackStore ?? new DefaultPrototypeAssetPackStore(this.assetManifest);
+      options.assetPackStore ?? new DefaultReplacementAssetStore(this.assetManifest);
     this.audioPlayback =
       options.audioPlaybackFactory?.() ??
       new WebAudioPlaybackAdapter(this.assetManifest, this.assetPackStore);

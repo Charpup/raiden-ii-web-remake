@@ -24,11 +24,11 @@ describe("Asset manifest", () => {
     );
   });
 
-  it("AST-201 exposes the required private Stage 1 asset inventory through the stage bundle and manifest helpers", () => {
+  it("AST-201R exposes the required replacement Stage 1 asset inventory through the stage bundle and manifest helpers", () => {
     const manifest = createAssetManifest("/games/raiden-ii/");
     const stage1Bundle = manifest.getStageBundle("stage-1");
 
-    expect(stage1Bundle.requiredPrivateTextureIds).toEqual([
+    expect(stage1Bundle.requiredReplacementTextureIds).toEqual([
       "stage-1.backdrop-sky",
       "stage-1.backdrop-terrain",
       "shared.player-ship",
@@ -52,7 +52,7 @@ describe("Asset manifest", () => {
       "shared.effect-explosion",
       "shared.effect-respawn"
     ]);
-    expect(stage1Bundle.requiredPrivateAudioCueIds).toEqual([
+    expect(stage1Bundle.requiredReplacementAudioCueIds).toEqual([
       "bgm-stage-1",
       "sfx-player1-fire",
       "sfx-player1-bomb",
@@ -60,11 +60,11 @@ describe("Asset manifest", () => {
       "sfx-player-respawn",
       "sfx-enemy-destroyed"
     ]);
-    expect(manifest.getRequiredPrivateTextureAssets("stage-1").map((asset) => asset.id)).toEqual(
-      stage1Bundle.requiredPrivateTextureIds
+    expect(manifest.getRequiredReplacementTextureAssets("stage-1").map((asset) => asset.id)).toEqual(
+      stage1Bundle.requiredReplacementTextureIds
     );
-    expect(manifest.getRequiredPrivateAudioCues("stage-1").map((cue) => cue.id)).toEqual(
-      stage1Bundle.requiredPrivateAudioCueIds
+    expect(manifest.getRequiredReplacementAudioCues("stage-1").map((cue) => cue.id)).toEqual(
+      stage1Bundle.requiredReplacementAudioCueIds
     );
   });
 });
