@@ -191,7 +191,18 @@ export class BrowserRuntime {
     this.flowController.beginAssetLoading(stageId);
     this.emitSnapshot();
 
-    const loadResult = await this.assetPackStore.ensureStageBundle(stageId);
+    let loadResult: Awaited<ReturnType<typeof this.assetPackStore.ensureStageBundle>>;
+    try {
+      loadResult = await this.assetPackStore.ensureStageBundle(stageId);
+    } catch {
+      if (gameplayLaunchToken !== this.gameplayLaunchToken) {
+        return;
+      }
+      this.flowController.failAssetLoading();
+      this.emitSnapshot();
+      return;
+    }
+
     if (gameplayLaunchToken !== this.gameplayLaunchToken) {
       return;
     }
@@ -339,6 +350,7 @@ export class BrowserRuntime {
   }
 
   destroy(): void {
+    this.gameplayLaunchToken += 1;
     this.stopAnimationLoop();
     this.audioPlayback.destroy();
     this.sceneAdapter?.destroy();

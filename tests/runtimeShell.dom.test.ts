@@ -57,8 +57,13 @@ type FakeAssetLoadState = {
   loadedAudioCueIds: string[];
 };
 
+type FakeAssetLoadResult = {
+  ok: boolean;
+  missingAssets: FakeAssetLoadState["missingAssets"];
+};
+
 class FakeAssetPackStore {
-  private readonly mode: "success" | "error";
+  private readonly mode: "success" | "error" | "reject";
 
   private readonly missingAssets: Array<{ kind: "texture" | "audio"; id: string; path: string }>;
 
@@ -72,7 +77,7 @@ class FakeAssetPackStore {
   };
 
   constructor(
-    mode: "success" | "error" = "success",
+    mode: "success" | "error" | "reject" = "success",
     missingAssets: Array<{ kind: "texture" | "audio"; id: string; path: string }> = [
       {
         kind: "texture",
@@ -85,7 +90,7 @@ class FakeAssetPackStore {
     this.missingAssets = missingAssets;
   }
 
-  async ensureStageBundle(stageId: string): Promise<{ ok: boolean; missingAssets: FakeAssetLoadState["missingAssets"] }> {
+  async ensureStageBundle(stageId: string): Promise<FakeAssetLoadResult> {
     this.loadState = {
       state: "loading",
       stageId,
@@ -109,6 +114,18 @@ class FakeAssetPackStore {
       return { ok: false, missingAssets: this.missingAssets };
     }
 
+    if (this.mode === "reject") {
+      this.loadState = {
+        state: "error",
+        stageId,
+        missingCount: this.missingAssets.length,
+        missingAssets: this.missingAssets,
+        loadedTextureIds: [],
+        loadedAudioCueIds: []
+      };
+      throw new Error("Replacement asset preload failed");
+    }
+
     this.loadState = {
       state: "ready",
       stageId,
@@ -118,6 +135,78 @@ class FakeAssetPackStore {
       loadedAudioCueIds: []
     };
     return { ok: true, missingAssets: [] };
+  }
+
+  getImage(): HTMLImageElement | null {
+    return null;
+  }
+
+  getAudioBuffer(): AudioBuffer | null {
+    return null;
+  }
+
+  getMissingAssets(): FakeAssetLoadState["missingAssets"] {
+    return this.loadState.missingAssets;
+  }
+
+  getLoadState(): FakeAssetLoadState {
+    return this.loadState;
+  }
+
+  reset(): void {
+    this.loadState = {
+      state: "idle",
+      stageId: null,
+      missingCount: 0,
+      missingAssets: [],
+      loadedTextureIds: [],
+      loadedAudioCueIds: []
+    };
+  }
+}
+
+class DeferredAssetPackStore {
+  private loadState: FakeAssetLoadState = {
+    state: "idle",
+    stageId: null,
+    missingCount: 0,
+    missingAssets: [],
+    loadedTextureIds: [],
+    loadedAudioCueIds: []
+  };
+
+  private resolveLoad: ((result: FakeAssetLoadResult) => void) | null = null;
+
+  ensureStageBundle(stageId: string): Promise<FakeAssetLoadResult> {
+    this.loadState = {
+      state: "loading",
+      stageId,
+      missingCount: 0,
+      missingAssets: [],
+      loadedTextureIds: [],
+      loadedAudioCueIds: []
+    };
+
+    const loadPromise = new Promise<FakeAssetLoadResult>((resolve) => {
+      this.resolveLoad = resolve;
+    }).then((result) => {
+      this.loadState = {
+        state: result.ok ? "ready" : "error",
+        stageId,
+        missingCount: result.missingAssets.length,
+        missingAssets: result.missingAssets,
+        loadedTextureIds: result.ok ? ["shared.player-ship"] : [],
+        loadedAudioCueIds: result.ok ? ["bgm-stage-1"] : []
+      };
+      return result;
+    });
+
+    return loadPromise;
+  }
+
+  resolveSuccess(): void {
+    this.resolveLoad?.({ ok: true, missingAssets: [] });
+    this.resolveLoad = null;
   }
 
   getImage(): HTMLImageElement | null {
@@ -463,6 +552,71 @@ describe("Browser shell DOM runtime", () => {
 
     (root.querySelector("[data-action='return-title']") as HTMLButtonElement).click();
     expect(root.getAttribute("data-flow")).toBe("title");
+
+    app.destroy();
+  });
+
+  it("RNT-202 falls back to asset-error when replacement asset preload rejects", async () => {
+    const root = document.querySelector<HTMLDivElement>("#app");
+    if (!root) {
+      throw new Error("Missing app root");
+    }
+
+    const fakeScene = new FakeSceneAdapter();
+    const app = await createRaidenApp(root, {
+      sceneAdapterFactory: async () => fakeScene,
+      audioPlaybackFactory: () => new FakeAudioPlaybackAdapter(),
+      assetPackStore: new FakeAssetPackStore("reject")
+    });
+
+    (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+
+    expect(root.getAttribute("data-flow")).toBe("asset-loading");
+
+    await flushAsyncWork();
+
+    const snapshot = app.runtime.getSnapshot();
+    expect(root.getAttribute("data-flow")).toBe("asset-error");
+    expect(snapshot.flow.screen).toBe("asset-error");
+    expect(snapshot.scene).toBeNull();
+    expect(fakeScene.syncedScenes).toHaveLength(0);
+
+    app.destroy();
+  });
+
+  it("RNT-202 cancels pending asset preload launches when the runtime is destroyed", async () => {
+    const root = document.querySelector<HTMLDivElement>("#app");
+    if (!root) {
+      throw new Error("Missing app root");
+    }
+
+    const fakeScene = new FakeSceneAdapter();
+    const fakeAudio = new FakeAudioPlaybackAdapter();
+    const assetPackStore = new DeferredAssetPackStore();
+    const app = await createRaidenApp(root, {
+      sceneAdapterFactory: async () => fakeScene,
+      audioPlaybackFactory: () => fakeAudio,
+      assetPackStore
+    });
+
+    (root.querySelector("[data-action='start']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='mode-single']") as HTMLButtonElement).click();
+    (root.querySelector("[data-action='cabinet-easy']") as HTMLButtonElement).click();
+
+    expect(root.getAttribute("data-flow")).toBe("asset-loading");
+    const audioSyncsBeforeResolve = fakeAudio.syncedFrames.length;
+
+    app.destroy();
+    assetPackStore.resolveSuccess();
+    await flushAsyncWork();
+
+    expect(root.getAttribute("data-flow")).toBe("asset-loading");
+    expect(app.runtime.getSnapshot().flow.screen).toBe("asset-loading");
+    expect(app.runtime.getSnapshot().scene).toBeNull();
+    expect(fakeScene.syncedScenes).toHaveLength(0);
+    expect(fakeAudio.syncedFrames).toHaveLength(audioSyncsBeforeResolve);
 
     app.destroy();
   });
